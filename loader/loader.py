@@ -280,7 +280,8 @@ class loader():
 	    self.modules = {}
 	    self.tags = {}
             self.loadedPaths = []
-        
+            self.__modulesPaths = []       
+ 
     __instance = None
  
     def __init__(self):
@@ -324,11 +325,15 @@ class loader():
          try:
            mod = self.__instance.modules[modu]
          except KeyError:
-	   print "KEY ERROR"
            return None
          return mod.tags
 
+    def modulesPaths(self):
+        return self.__modulesPaths
+
     def do_load(self, args, pprint = None, reload = False):
+        for arg in args:
+           self.__modulesPaths.append(arg)
         if type(args) != list:
           args = [args]
         for arg in args:

@@ -30,6 +30,7 @@ class Module(object):
     try :
      if issubclass(self.cl, Script):
        self.conf = libtypes.Config(name)
+       self.conf.thisown = False
        if self.__doc__:
 	   self.conf.description = self.__doc__
        self.getflags()
@@ -38,6 +39,7 @@ class Module(object):
     try :
       if issubclass(self.cl, mfso) or issubclass(self.cl, fso):
         self.conf = libtypes.Config(name)
+        self.conf.thisown = False
         if self.__doc__:
 	   self.conf.description = self.__doc__
         self.getflags()
