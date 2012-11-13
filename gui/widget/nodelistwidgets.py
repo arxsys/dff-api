@@ -458,6 +458,7 @@ class FilterWidget(Ui_filterWidget, QWidget):
 #    nodelist = self.currentView().model.list()
     if len(nodelist) > 0:
       self.parent.filterview.model.clearList()
+      q = str(unicode(query).encode('utf-8'))
       r = self.filterTH.setListContext(q, nodelist, self.parent.filterview.model)
       if r:
         self.filterTH.start()

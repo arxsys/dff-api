@@ -146,11 +146,8 @@ class SearchPanel(Ui_searchPanel, QWidget):
         rootnode = self.vfs.getnode("/")
       else:
         rootnode = self.browser.navigation.currentNode
-      # xxx CHANGE view
       if self.browser.filter.isChecked():
-#        print "Change view"
         self.browser.viewpan.setCurrentWidget(self.browser.searchview)
-#      else:
       self.model.clearList()
       self.matchedNodeLabel.setText("0")
       self.matched = 0

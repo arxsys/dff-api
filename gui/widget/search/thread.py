@@ -41,13 +41,12 @@ class SearchThread(QThread, EventHandler):
       self.nodes.append(node)
     self.model = targetmodel
     try:
-      q = str(unicode(query).encode('utf-8'))
-      self.filters.compile(q)
+      self.filters.compile(query)
       return True
     except:
       box = QMessageBox(QMessageBox.Critical, "Error", "Error compiling query", \
                           QMessageBox.NoButton, self.__parent)
-      box.setDetailedText(QString(q))
+      box.setDetailedText(QString.fromUtf8(query))
       box.exec_()
       return False
 
@@ -56,13 +55,13 @@ class SearchThread(QThread, EventHandler):
     self.rootnode = rootnode
     self.model = targetmodel
     try:
-      q = str(unicode(query).encode('utf-8'))     
-      self.filters.compile(q)
+      self.filters.compile(query)
       return True
-    except:
+    except Exception as e:
+      print e
       box = QMessageBox(QMessageBox.Critical, "Error", "Error compiling query", \
                           QMessageBox.NoButton, self.__parent)
-      box.setDetailedText(QString(q))
+      box.setDetailedText(QString.fromUtf8(query))
       box.exec_()
       return False
 
@@ -99,7 +98,6 @@ class SearchThread(QThread, EventHandler):
       if not self.listmode:
         self.filters.process(self.rootnode, True)
       else:
-#        print self.nodes
         self.filters.process(self.nodes)
     except:
       pass
@@ -109,63 +107,4 @@ class SearchThread(QThread, EventHandler):
     e.thisown = False
     e.type = Filter.StopProcessing
     self.filters.Event(e)
-    # UnSet cursor
-
-
-
-class FilterThread(QThread, EventHandler):
-  def __init__(self, parent=None):
-    EventHandler.__init__(self)
-    QThread.__init__(self)
-    self.__parent = parent
-    self.filters = Filter("filter")
-    self.filters.connection(self)
-
-  def setContext(self, query, nodelist, targetmodel):
-    self.nodes = VecNode()
-    for node in nodelist:
-      self.nodes.append(node)
-    self.model = targetmodel
-    try:
-      self.filters.compile(str(query))
-    except:
-      box = QMessageBox(QMessageBox.Critical, "Error", "Error compiling query", \
-                          QMessageBox.NoButton, self)
-      box.setDetailedText(QString(query))
-      box.exec_()
-
-  def Event(self, e):
-    if e != None:
-      if e.value != None:
-        if e.type == Filter.EndOfProcessing:
-          self.emit(SIGNAL("finished"))
-          # UnSet cursor
-        if e.type == Filter.TotalNodesToProcess:
-          self.total = e.value.value()
-        if e.type == Filter.ProcessedNodes:
-          self.processed += 1
-        if e.type == Filter.NodeMatched:
-          self.match += 1
-          val = e.value.value()
-          self.model.emit(SIGNAL("appendList"), val)
-#          self.emit(SIGNAL("match"))
-        pc = self.processed * 100 / self.total
-#        if pc > self.percent:
-#          self.percent = pc
-#          self.emit(SIGNAL("count"), self.percent)
-
-  def run(self):
-    self.emit(SIGNAL("started"))
-    self.match = 0
-    self.processed=0
-    self.total =0
-    self.percent =0
-    self.filters.process(self.nodes)
-
-  def stopSearch(self):
-    e = event()
-    e.thisown = False
-    e.type = Filter.StopProcessing
-    self.filters.Event(e)
-    # UnSet cursor
 
