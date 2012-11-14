@@ -183,6 +183,8 @@ class NodeListModel(QAbstractItemModel):
             vtime = val[0].value()
             if vtime:
               return QVariant(str(vtime.get_time()))
+          elif val[0].type() == typeId.String:
+            return QVariant(QString.fromUtf8(val[0].value()))
           else:
             return QVariant(val[0].value())
 
