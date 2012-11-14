@@ -21,7 +21,6 @@ from dff.api.vfs.libvfs import VFS
 from dff.api.gui.view.node_list import NodeListView
 from dff.api.gui.view.node_table import NodeTableView
 from dff.api.gui.model.node_list import NodeListModel
-from dff.api.gui.widget.search.thread import FilterThread
 
 from dff.ui.gui.utils.menumanager import MenuManager
 from dff.ui.gui.resources.ui_filter_mode import Ui_filterMode
