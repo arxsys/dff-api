@@ -22,7 +22,9 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(../include)
 
 if (UNIX)
-       if (HAVE_UDEV)	
+       if (HAVE_UDEV)
+	 add_definitions(-DHAVE_LIBUDEV_H)
+	 set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DHAVE_LIBUDEV_H=1)
   	 set (libdevices_srcs
        	    device.cpp
        	    udevice.cpp

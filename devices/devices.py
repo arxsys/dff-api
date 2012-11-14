@@ -19,7 +19,7 @@ from dff.api.devices.libdevices import Device, DeviceList
 DevicesLib = None
 if os.name == "posix":
   try :
-    from api.devices.libdevices import UDevices
+    from dff.api.devices.libdevices import UDevices
     DevicesLib = UDevices    
   except :
     from dbushaldev import DBusHalDevices

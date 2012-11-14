@@ -38,19 +38,19 @@
 
 %{
 #include "../include/export.hpp"
+#include "../include/device.hpp"
 #ifdef WIN32
 #include "../include/wmidev.hpp"
 #elif HAVE_LIBUDEV_H
 #include "../include/udevice.hpp"
 #endif
-#include "../include/device.hpp"
 %}
+%include "../include/device.hpp"
 #ifdef WIN32
 %include "../include/wmidev.hpp"
 #elif HAVE_LIBUDEV_H
 %include "../include/udevice.hpp"
 #endif
-%include "../include/device.hpp"
 
 namespace std
 {
@@ -73,7 +73,7 @@ def __getitem__(self, c):
   return self.deviceList[c]
 %}
 };
-#elif HAVE_LIBUDEV_H 
+#elif HAVE_LIBUDEV_H
 %extend UDevices
 {
 %pythoncode
