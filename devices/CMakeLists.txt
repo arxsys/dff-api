@@ -45,7 +45,7 @@ SET_SOURCE_FILES_PROPERTIES(libdevices.i PROPERTIES CPLUSPLUS ON)
 SWIG_ADD_MODULE(libdevices python libdevices.i ${libdevices_srcs})
 
 if (HAVE_UDEV)
-SWIG_LINK_LIBRARIES(libdevices ${PYTHON_LIBRARIES} -ludev)
+SWIG_LINK_LIBRARIES(libdevices ${PYTHON_LIBRARIES} ${UDEV_LIBRARY})
 else (HAVE_UDEV) 
 SWIG_LINK_LIBRARIES(libdevices ${PYTHON_LIBRARIES})
 endif (HAVE_UDEV)
