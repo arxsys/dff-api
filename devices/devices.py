@@ -22,12 +22,12 @@ if os.name == "posix":
     from dff.api.devices.libdevices import UDevices
     DevicesLib = UDevices    
   except :
-    from dbushaldev import DBusHalDevices
+    from dff.api.devices.dbushaldev import DBusHalDevices
     import dbus
     DevicesLib = DBusHalDevices
 else:
   try :
-    from api.devices.libdevices import WMIDevices
+    from dff.api.devices.libdevices import WMIDevices
     DevicesLib = WMIDevices
   except ImportError:
     pass
