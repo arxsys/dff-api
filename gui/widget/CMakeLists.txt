@@ -20,19 +20,13 @@ add_subdirectory (search)
 set(apiguiwidget_srcs
   __init__.py
   dockwidget.py
-#  nodebrowser.py
   layoutmanager.py
-#  nodeview.py
   varianttreewidget.py
   propertytable.py
   textedit.py
   devicesdialog.py
   generateModuleShape.py
   reportedit.py
-#  completer.py
-#  SearchNodeBrowser.py
-#  search_widget.py
-#  build_search_clause.py
   nodewidget.py
   nodelistwidgets.py
   renderer.py

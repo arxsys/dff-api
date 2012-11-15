@@ -17,7 +17,6 @@
 #include "vfile.hpp"
 #include "filemapping.hpp"
 #include "cache.hpp"
-//#include "variant.hpp"
 
 VFilePool& VFilePool::instance(void)
 {

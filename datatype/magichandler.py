@@ -90,12 +90,3 @@ class MagicMime(MagicHandler):
 
 magicMimeHandler = MagicMime()
 magicHandler = Magic()
-
-#try:
-  #magicMimeHandler = MagicHandler(magic.MAGIC_MIME, "magic mime")
-#except AttributeError:
-  #magicMimeHandler = MagicHandler(magic.MIME, "magic mime")
-#try:
-  #magicTypeHandler = MagicHandler(magic.MAGIC_NONE, "magic") 
-#except AttributeError:
-  ##magicTypeHandler = MagicHandler(magic.NONE, "magic")

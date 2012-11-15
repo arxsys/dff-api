@@ -220,14 +220,8 @@ class loader():
                 module = sys.modules[modname]
                 cl = getattr(module, modname)
                 tmod = cl()
-                #if issubclass(tmod.cl, mfso) or issubclass(tmod.cl, fso):
-                #    return
                 rmodname = tmod.name
                 removable = True
-                #for usedmodule in usedmodules:
-                #    print rmodname, usedmodule
-                #    if rmodname == usedmodule.name:
-                #        removable = False
                 if removable:
                     self.cm.unregisterConf(rmodname)
                     del tmod
@@ -259,17 +253,6 @@ class loader():
 		  print l
 	        for l in  traceback.format_tb(err_traceback):
 		   print l
-            #except Exception as e:
-                #if first:
-                    #if not len(self.loadingErrors):
-                        #header = "Errors encountered while loading the following modules:"
-                        #self.loadingErrors = len(header) * "*" + "\n" + header + "\n" + len(header) * "*" + "\n"
-                    #self.loadingErrors += '\nloading ' + modname + ' from ' + pathname + "\n"
-                    #self.loadingErrors += 8 * " " + str(e) + "\n"
-                #else:
-                    #print "loading ", modname, "from", pathname, "failed\n"
-                    #print " " * 3, str(e)
-
 
         def __init__(self):
             self.cm = ConfigManager.Get()

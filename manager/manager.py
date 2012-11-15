@@ -20,8 +20,6 @@ from dff.api.datatype import libdatatype
 from dff.api.exceptions import libexceptions
 from dff.api.events import libevents
 from dff.api.vfs import vfs, libvfs
-#from dff.api.types import OS
-from dircache import listdir
 from dff.api.loader import loader
 from dff.api.taskmanager.taskmanager import TaskManager
 from dff.api.taskmanager.scheduler import sched 
@@ -34,10 +32,8 @@ class ApiManager():
       def __init__(self):
          self.vfs = vfs.vfs
          self.TaskManager = TaskManager
-         #self.argument = libtypes.Arguments
          self.loader = loader.loader
          self.Path = libtypes.Path
-#         self.OS  = OS.OS
 
    __instance = None
 

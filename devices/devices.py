@@ -25,7 +25,6 @@ if os.name == "posix":
     from dbushaldev import DBusHalDevices
     import dbus
     DevicesLib = DBusHalDevices
-    #DBusHalDevices()                  
 else:
   try :
     from api.devices.libdevices import WMIDevices
