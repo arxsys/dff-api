@@ -40,7 +40,6 @@ class NodeListView(QListView):
      self.setGridSize(QSize(self.w + self.wpad, self.h + self.hpad))
      self.setLayoutMode(QListView.Batched)
      self.setViewMode(QListView.IconMode)
-#     self.setResizeMode(QListView.Adjust)
      self.setUniformItemSizes(True)
      self.setFlow(QListView.LeftToRight)
      self.setSelectionMode(QAbstractItemView.NoSelection)
@@ -79,8 +78,6 @@ class NodeListView(QListView):
     node = self.model().getNode(self.model().currentRow() + row)
     if node:
       self.tablewidget.emit(SIGNAL("nodePressed"), node)
-#      self.tablewidget.attributes.fill(node)
-#      self.tablewidget.mainwindow.emit(SIGNAL("previewUpdate"), node)
       
   def mousePressEvent(self, event):
     index = self.indexAt(event.pos())
@@ -133,14 +130,11 @@ class CheckStateListDelegate(QStyledItemDelegate):
   def sizeHint(self, option, index):
     w = (self.view.width + (self.view.factor * 32)) + self.view.wpad
     h = (self.view.height + (self.view.factor * 32)) +  self.view.hpad
-#    w = (self.view.width * self.view.factor) + self.view.hpad
-#    h = (self.view.height * self.view.factor) + self.view.wpad
     return QSize(w, h)
 
   def editorEvent(self, event, model, option, index):
       if event.type() == QEvent.MouseButtonRelease and index.isValid():
           model.select(index.row())
-#          print event.button()
           self.view.emit(SIGNAL("nodeListClicked"), event.button())
           # Detect checkbox click in order to avoid column style detection
           element = self.view.style().subElementRect(QStyle.SE_CheckBoxIndicator, option)
@@ -154,6 +148,3 @@ class CheckStateListDelegate(QStyledItemDelegate):
           return QStyledItemDelegate.editorEvent(self, event, model, option, index)
       else:
           return False
-
-
-

@@ -91,7 +91,6 @@ class NodeListModel(QAbstractItemModel):
       self.__list = []
       self.row_selected = 0
       self.__current_row = 0
-#      self.__visible_rows = 0
       try:
           self.__list = nodelist
       except:
@@ -176,7 +175,7 @@ class NodeListModel(QAbstractItemModel):
 	try :
           val = node.attributesByName(attrpath, ABSOLUTE_ATTR_NAME)
 	except Exception as e:
-	   print "node_list NodeListModel can't get attribute by type " + str(e)
+	   print "NodeListModel data can't get attribute by name " + str(e)
 	   return QVariant()
         if len(val) == 1:
           if val[0].type() == typeId.VTime:
@@ -319,12 +318,9 @@ class NodeListModel(QAbstractItemModel):
     except IndexError:
       return
     try:
-#      self.beginInsertRows(QModelIndex(), 0, len(tmplist))
       for nodeId in range(0, len(tmplist)):
         if tmplist[nodeId] != None:
           self.__rows.append(tmplist[nodeId])
-#      self.endInsertRows()
-      # Update start row
       self.emit(SIGNAL("layoutAboutToBeChanged()"))
       self.emit(SIGNAL("layoutChanged()"))
       if self.__current_row >= 0:
@@ -338,12 +334,9 @@ class NodeListModel(QAbstractItemModel):
 
   def resetDisplay(self):
     if len(self.__rows) > 0:
-#      self.beginResetModel()
-#      self.removeRows(0, len(self.__rows))
       self.__rows = []
       self.emit(SIGNAL("layoutAboutToBeChanged()"))
       self.emit(SIGNAL("layoutChanged()"))
-#      self.endResetModel()
 
   def rowCount(self, parent = None):
     return len(self.__rows)
@@ -355,25 +348,11 @@ class NodeListModel(QAbstractItemModel):
     return len(self.__list)
 
   def setVisibleRows(self, rows):
-#    print "rows, ", rows, " size ", self.size()
     self.__visible_rows = rows
-#    if self.__visible_rows < self.size():
-#      stop = self.size() - self.__visible_rows
     self.emit(SIGNAL("maximum"), len(self.__list))
     if self.__visible_rows > self.size():
       self.emit(SIGNAL("hideScroll"))
     self.refresh(self.__current_row)
-
-#  def setVisibleCols(self, rows):
-#    print "rows, ", rows, " size ", self.size()
-#    self.__visible_rows = rows
-#    if self.__visible_rows < self.size():
-#      stop = self.size() - self.__visible_rows
-#    self.emit(SIGNAL("maximum"), len(self.__list))
-#    self.refresh(self.__current_row)
-#    if self.__visible_rows > self.size():
-#      self.emit(SIGNAL("hideScroll"))
-#    self.refresh(self.__current_row)
 
 
   def visibleRows(self):

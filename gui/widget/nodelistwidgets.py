@@ -198,7 +198,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.viewpan = QStackedWidget()
     self.infostack = QStackedWidget()
     self.filterwidget = FilterWidget(self)
-#    self.filterwidget.connect(self.filterwidget.run, SIGNAL("clicked(bool)"), self.launchFilter)
     self.infostack.addWidget(self.filterwidget)
     self.infostack.hide()
     self.viewlayout.addWidget(self.infostack, 0)
@@ -258,7 +257,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def enterFilter(self, node):
     if self.filterwidget.lock.isChecked():
       self.browserview.enterDirectory(node)
-#      self.filterwidget.resetFilter()
       self.filterwidget.quickFilter()
     else:
       self.browserview.enterDirectory(node)
@@ -285,7 +283,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
           self.viewpan.setCurrentWidget(self.browserview)
         else:
           self.viewpan.setCurrentWidget(self.filterview)
-#        self.viewpan.setCurrentWidget(self.browserview)
         self.model().refresh(self.model().currentRow())
     else:
       if state:
@@ -296,7 +293,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
           self.viewpan.setCurrentWidget(self.searchview)
         else:
           self.viewpan.setCurrentWidget(self.filterview)
-#        self.viewpan.setCurrentWidget(self.searchview)
         self.leftpan.show()
       else:
         self.leftpan.removeWidget(self.searchwidget)
@@ -305,10 +301,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
           self.viewpan.setCurrentWidget(self.browserview)
         else:
           self.viewpan.setCurrentWidget(self.filterview)
-#        self.viewpan.setCurrentWidget(self.browserview)
         self.leftpan.hide()
     self.filterwidget.resetFilter()
-#        self.splitter.addWidget(self.leftpan )       
 
   def applyFilter(self):
     if self.filter.isChecked(): 
@@ -362,7 +356,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       return self.browserview
     else:
       return self.searchview
-#    return self.viewpan.currentWidget()
 
   def views(self):
     views = []
@@ -399,14 +392,12 @@ class FilterWidget(Ui_filterWidget, QWidget):
                        3: "\""}
     self.query = ""
     self.createFilterThread()
-#    self.parent.connect(self.parent.filterTH, SIGNAL("count"), self.update)
     self.connect(self.filterTH, SIGNAL("match"), self.updateMatchedNodes)
     self.connect(self.filterTH, SIGNAL("finished"), self.searchStoped)
     self.connect(self.filterTH, SIGNAL("started"), self.searchStarted)
     self.connect(self.filterTH, SIGNAL("stoped"), self.searchStoped)
     self.connect(self.clear, SIGNAL("clicked(bool)"), self.resetFilter)
     self.connect(self.stop, SIGNAL("clicked(bool)"), self.stopFilter)
-#    self.connect(self.loadfilters, SIGNAL("clicked(bool)"), self.loadFilters)
     self.connect(self.edit, SIGNAL("textChanged(QString)"), self.updateQuery)
     self.connect(self.mode, SIGNAL("currentIndexChanged(int)"), self.modeChanged)
     self.redstyle = QString("QWidget {color:red}")
@@ -419,7 +410,6 @@ class FilterWidget(Ui_filterWidget, QWidget):
     self.filtertagwidget = FilterTagWidget(self)
     self.filtertagwidget.hide()
     self.connect(self.timer, SIGNAL("timeout()"), self.quickFilter)
-#    self.connect(self.edit, SIGNAL("textEdited(QString)"), self.timer, SLOT(self.timer.start()))
 
   def createFilterThread(self):
     self.filterTH = SearchThread(self)
@@ -455,7 +445,6 @@ class FilterWidget(Ui_filterWidget, QWidget):
     else:
       q = query
     nodelist = self.sourceModel().list()
-#    nodelist = self.currentView().model.list()
     if len(nodelist) > 0:
       self.parent.filterview.model.clearList()
       q = str(unicode(query).encode('utf-8'))
@@ -522,7 +511,6 @@ class FilterWidget(Ui_filterWidget, QWidget):
 
   def searchStoped(self):
     QApplication.restoreOverrideCursor()
-#    self.run.setEnabled(True)
     self.stop.setEnabled(False)
 
   def searchStarted(self):
@@ -596,8 +584,6 @@ class TagAction(QToolButton):
     self.createStyle()
     self.connect(self, SIGNAL("clicked()"), self.toolbar.refreshQuery)
     self.setText(QString.fromUtf8(self.tag.name()))
-
-#    self.connect(self, SIGNAL("clicked()"), self.toolbar.refreshQuery)
 
   def createStyle(self):
     color = self.tag.color()
@@ -756,7 +742,6 @@ class NavigationBar(QWidget):
     self.history = ["/"]
     self.currentPathId = -1
     self.currentNode = self.vfs.getnode("/")
-#    self.currentNode = None
     # Create navigation buttons
     self.maintoolbar = QToolBar(self)
     self.maintoolbar.setIconSize(QSize(24,24))
@@ -833,17 +818,10 @@ class NavigationBar(QWidget):
         return True
     return False
 
-
   def goHome(self):
     home = self.vfs.getnode("/")
     if home != None:
       self.refreshNode(home)
-#      self.currentNode = home
-#      self.parent.changeList(home.children())
-#      self.changeNavigationState()
-#      self.parent.treeview.expandToNode(self.currentNode)
-#      self.parent.viewpan.currentWidget().refreshVisible()
-#      self.pathbar.hide()
 
   def moveToTop(self):
     if self.currentNode != None:

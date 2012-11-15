@@ -63,7 +63,7 @@ class SelectionManager(QObject):
     def getNodes(self):
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         nodes = []
-        #
+        
         for nodeid in self._selection:
             node = self.VFS.getNodeFromPointer(nodeid)
             if isinstance(node, VLink):

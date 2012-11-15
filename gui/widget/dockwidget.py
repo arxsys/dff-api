@@ -237,7 +237,6 @@ class DockWidget(QDockWidget):
     the fly.
     """
     if event.type() == QEvent.LanguageChange:
-#      self.widget().retranslateUi(self.widget())
       try:
         self.widget().retranslateUi(self)
       except AttributeError:

@@ -46,28 +46,6 @@ class NodeTableView(QTableView):
         self.connect(self.horizontalHeader(), SIGNAL("sectionClicked(int)"), self.headerClicked)
         self.verticalHeader().hide()
 
-#    def configureCheckHeaders(self):
-#        self.header = HeaderView(self)
-#        self.connect(self.header, SIGNAL("headerSelectionClicked"), self.headerSelection)
-#        self.setHorizontalHeader(self.header)
-#        self.horizontalHeader().setStretchLastSection(True)
-#        self.verticalHeader().hide()
-
-
-#    def headerSelection(self, state, parent=True):
-#        if parent:
-#            currentNode = self.model().currentNode()
-#            parentNode = currentNode.parent()
-#            if parentNode != None:
-#                if state:
-#                    self.model().selection.add(parentNode)
-#                else:
-#                    self.model().selection.rm(parentNode)
-#        else:
-#            nodelist = self.model().list()
-#            for node in nodelist:
-#                self.model().selection.add(node)
-
     def refreshVisible(self):
         height = self.factor * DEFAULT_SIZE
         try:
@@ -144,7 +122,6 @@ class HeaderView(QHeaderView):
         painter.restore()
         option = QStyleOptionButton()
         if logicalIndex == 0:
-#            self.setResizeMode(0, QHeaderView.ResizeToContents)
             option.rect = QRect(3,2,20,20)
             model = self.view.model()
             if (self.isOn):
@@ -211,11 +188,11 @@ class CheckStateDelegate(QStyledItemDelegate):
                       painter.setPen(oldPen)
                       
                       textCenter = options.rect
-#space to center text
+                      #space to center text
                       textCenter.setX(textCenter.x() + (self.tagBorderSpacement / 2))
                                       
                       painter.drawText(textCenter, Qt.AlignLeft | Qt.AlignVCenter, QString.fromUtf8(tag.name()))
-                                      #space between tag
+                      #space between tag
                       options.rect.setX(options.rect.x() + textRect.width() + self.tagSpacement) 
                       
                   painter.restore()
@@ -233,11 +210,6 @@ class CheckStateDelegate(QStyledItemDelegate):
                       model.selection.add(node)
                   else:
                       model.selection.rm(node)
-#                  if not self.view.model().allListChecked():
-#                      self.view.header.isOn = False
-#                  else:
-#                      self.view.header.isOn = True
-#                  self.view.header.headerDataChanged(Qt.Horizontal, 0, 0)
                   self.view.refreshVisible()
           return QStyledItemDelegate.editorEvent(self, event, model, option, index)
       else:

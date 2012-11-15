@@ -30,5 +30,3 @@ class TextEdit(QTextEdit):
   def puttext(self, text):
       if text:
         self.append(text)		
-
-

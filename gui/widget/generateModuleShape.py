@@ -95,7 +95,6 @@ class moduleShapeGenerator(QWidget, Ui_moduleGeneratorWidget):
             checkBox =  checkBoxWidget(self, winfo, warguments, self.labActivate.text())
             vlayout.addWidget(checkBox, 0)
 
-#        infolayout.addRow(self.labType.text(), QLabel(str(typeId.Get().typeToName(arg.type()))))
         tedit = QTextEdit(str(arg.description()))
         tedit.setReadOnly(True)
         infolayout.addRow(tedit)

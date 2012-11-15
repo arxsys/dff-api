@@ -155,7 +155,7 @@ class SearchPanel(Ui_searchPanel, QWidget):
       if r:
         self.searchTH.start()
     else:
-      box = QMessageBox(QMessageBox.Critical, "Error", "Please, specify your query", \
+      box = QMessageBox(QMessageBox.Critical, self.tr("Error"), self.tr("Please, specify your query"), \
                           QMessageBox.NoButton, self)
       box.exec_()
 
@@ -262,7 +262,7 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
       self.queryEdit.clear()
       self.queryEdit.insert(filt.buildRequest())
     except:
-      print "Error cellClicked"
+      pass
 
   def addFilter(self, name, query):
     filt = Filter(name, query)
@@ -315,7 +315,7 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
     return self.filters
 
   def closeEvent(self, event):
-    print "Close event"
+    pass
 
   def filterEnabled(self, filt):
     for count, f in enumerate(self.filters):
@@ -364,7 +364,7 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
         for name, query in f.FILTERS.iteritems():
           self.addFilter(name, query)
       except:
-        print "Error opening Query"
+        pass
 
 class Filter(Ui_filterAdd, QDialog):
   def __init__(self, fname=None, query=None):
@@ -388,7 +388,7 @@ class Filter(Ui_filterAdd, QDialog):
     if not self.name().isEmpty():
       QDialog.accept(self)
     else:
-      box = QMessageBox(QMessageBox.Critical, "Error", "Please, specify a query name", \
+      box = QMessageBox(QMessageBox.Critical, self.tr("Error"), self.tr("Please, specify a query name"), \
                           QMessageBox.NoButton, self)
       box.exec_()
     
@@ -445,13 +445,11 @@ class FilterRequests(QTableWidget):
     self.verticalHeader().hide()
 
   def addRequest(self, widget=None):
-#    print self.rowCount()
     currow = self.rowCount()
     self.setRowCount(self.rowCount() + 1)
     # Add conjonctions if not First widget
     if len(self.fieldMapper) != 0:
       conjonction = ConjonctionCombo(self)
-#      name.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
       self.setCellWidget(currow, 0, conjonction)
       self.horizontalHeader().setResizeMode(0, QHeaderView.ResizeToContents)
     else:

@@ -33,7 +33,7 @@ class TagEditDialog(QDialog, Ui_edittag):
        self.tagName = None 
        self.fill(tag)
      else:
-       self.tagName = unicode(self.tagEdit.text()) #if 'default in tag name do default + 1'
+       self.tagName = unicode(self.tagEdit.text())
        self.tagColor = (randint(0, 255), randint(0, 255),  randint(0, 255))
        self.setEditColor(QColor(*self.tagColor))
 
@@ -43,7 +43,7 @@ class TagEditDialog(QDialog, Ui_edittag):
      qcolor = QColor(color.r, color.g, color.b)  
      self.setEditColor(qcolor) 
 
-  def setEditName(self, name): #XXX si un autre tag a deja le meme nom si non ca peut foutre la merde car on le modifie la on ladd pas donc on c pas !!!!!! ou alors fo le mettre ds l api genre on peut pas setName si un autre tag a deja ce name
+  def setEditName(self, name):
      self.tagEdit.clear()
      self.tagEdit.insert(QString.fromUtf8(name))  
 
@@ -73,14 +73,14 @@ class TagEditDialog(QDialog, Ui_edittag):
      if self.tag:
        if self.tagName or self.tagColor:
          if self.tagName:
-	   self.tag.setName(unicode(self.tagName, 'UTF-8').encode('UTF-8')) #if name already exist
+	   self.tag.setName(unicode(self.tagName, 'UTF-8').encode('UTF-8'))
          if self.tagColor:
            self.tag.setColor(*self.tagColor)
          QDialog.accept(self)
          return
      else:
        try:
-         self.newTag = self.tagsManager.add(unicode(self.tagName, 'UTF-8').encode('UTF-8'), *self.tagColor) #if name alreadyexist
+         self.newTag = self.tagsManager.add(unicode(self.tagName, 'UTF-8').encode('UTF-8'), *self.tagColor)
        except:
 	 self.newTag = None
        QDialog.accept(self)

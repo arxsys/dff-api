@@ -23,11 +23,8 @@ class Extractor(QDialog, Ui_ExtractDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-
         self.translation()
-        
         self.nodes = None
-
         self.actions()
         self.showArgs()
         self.path = ""
@@ -37,7 +34,6 @@ class Extractor(QDialog, Ui_ExtractDialog):
     def launch(self, nodes):
         self.nodes = nodes
         self.exec_()
-
 
     def getArgs(self):
         args = {}
@@ -55,7 +51,6 @@ class Extractor(QDialog, Ui_ExtractDialog):
 
     def verify(self):
         if self.syspathLine.text() != "":
-            #self.checkIfExist()
             self.close()
             self.emit(SIGNAL("filled"))
         else:
@@ -131,5 +126,3 @@ class Extractor(QDialog, Ui_ExtractDialog):
             self.translation()
         else:
             QDialog.changeEvent(self, event)
-
-

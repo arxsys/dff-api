@@ -35,7 +35,6 @@ class FilterBar(Ui_filterBar, QWidget):
         if self.filterEdit.text() != "":
             query += "(name == w(\"" + str(unicode(self.filterEdit.text()).encode('utf-8')) + "\"))"
         else:
-            print "Display ERROR and return"
             return None
         return query
 

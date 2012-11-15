@@ -63,7 +63,7 @@ class TagManagerDialog(QDialog, Ui_Tags):
      self.msgNoNodes =  self.tr('No nodes was selected in the browser.')
      self.msgNoAllTags = self.tr("No tags was selected in the available tags list.")
      self.msgNoSelectedTags = self.tr("No tags was selected in the selected nodes tags list.")
-     self.msgDefaultTag = self.tr("This is a default tags it cannot be deleted. All concerned VFS nodes was untagged.")
+     self.msgDefaultTag = self.tr("This is a default tag it cannot be deleted. All tagged VFS nodes was untagged.")
      self.msgDelete = self.tr("Are you sure ? This will delete this tag for all nodes in the VFS !")
  
   def listNodes(self):
@@ -71,7 +71,7 @@ class TagManagerDialog(QDialog, Ui_Tags):
        return self.selectedNodes
      if len(self.selectedNodesList):
        self.selectedNodes = self.selectedNodesList
-     labelText = str(self.selectedLabel.text())
+     labelText = unicode(self.selectedLabel.text().toUtf8(), 'UTF-8')
      if labelText.find('(') == -1:
        text = labelText + ' (' + str(len(self.selectedNodes)) + ')'
        self.selectedLabel.setText(text)
@@ -180,4 +180,3 @@ class TagManagerDialog(QDialog, Ui_Tags):
        else:
 	 msgBox = QMessageBox(QMessageBox.Warning, self.msgWarning, self.msgNoAllTags, QMessageBox.Ok, self)
 	 msgBox.exec_()
-

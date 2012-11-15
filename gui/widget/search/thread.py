@@ -44,7 +44,7 @@ class SearchThread(QThread, EventHandler):
       self.filters.compile(query)
       return True
     except:
-      box = QMessageBox(QMessageBox.Critical, "Error", "Error compiling query", \
+      box = QMessageBox(QMessageBox.Critical, self.tr("Error"), self.tr("Error compiling query"), \
                           QMessageBox.NoButton, self.__parent)
       box.setDetailedText(QString.fromUtf8(query))
       box.exec_()
@@ -59,7 +59,7 @@ class SearchThread(QThread, EventHandler):
       return True
     except Exception as e:
       print e
-      box = QMessageBox(QMessageBox.Critical, "Error", "Error compiling query", \
+      box = QMessageBox(QMessageBox.Critical, self.tr("Error"), self.tr("Error compiling query"), \
                           QMessageBox.NoButton, self.__parent)
       box.setDetailedText(QString.fromUtf8(query))
       box.exec_()
@@ -70,7 +70,6 @@ class SearchThread(QThread, EventHandler):
       if e.value != None:
         if e.type == Filter.EndOfProcessing:
           self.emit(SIGNAL("finished"))
-          # UnSet cursor
         if e.type == Filter.TotalNodesToProcess:
           self.total = e.value.value()
         if e.type == Filter.ProcessedNodes:
@@ -91,9 +90,9 @@ class SearchThread(QThread, EventHandler):
   def run(self):
     self.emit(SIGNAL("started"))
     self.match = 0
-    self.processed=0
-    self.total =0
-    self.percent =0
+    self.processed = 0
+    self.total = 0
+    self.percent = 0
     try:
       if not self.listmode:
         self.filters.process(self.rootnode, True)

@@ -34,10 +34,8 @@ class NodeWidget(QWidget):
     """
     def __init__(self, selectionManager, tabmode=False, filtermode=False):
         QWidget.__init__(self)
-#        self.parentw = parent
         self.tabmode = tabmode
         self.filtermode = filtermode
-#        self.mainwindow = QApplication.instance().mainWindow
         # setup model and views
         self.viewid = TABLEVIEW_ID
         self.model = NodeListModel(selection=selectionManager)
@@ -54,7 +52,6 @@ class NodeWidget(QWidget):
         self.createStack()
         self.createScrollbar()
         self.createConnections()
-#        self.attributes = attributePanel
         self.menuManager(selectionManager)
         self.connect(self.model, SIGNAL("dataChanged"), self.dataChanged)
 
@@ -64,11 +61,9 @@ class NodeWidget(QWidget):
     def refreshIconSize(self, factor):
         self.tableview.factor = factor
         self.tableview.configure()
-#        self.tableview.refreshVisible()
         self.listview.factor = factor
         self.listview.configure()
         self.refreshVisible()
-#        self.listview.refreshVisible()
 
     def dataChanged(self, x, y):
         self.viewstack.currentWidget().dataChanged(x, y)
@@ -77,7 +72,6 @@ class NodeWidget(QWidget):
         self.vlayout = QVBoxLayout(self)
         self.vlayout.setSpacing(0)
         self.vlayout.setMargin(0)
-#        self.vlayout.addWidget(self.filterwidget)
         
     def createViewLayout(self):
         container = QWidget()
@@ -133,7 +127,6 @@ class NodeWidget(QWidget):
         else:
             node = self.model.currentNode()
             self.emit(SIGNAL("nodePressed"), node)
-#            QApplication.instance().mainWindow.emit(SIGNAL("previewUpdate"), node)
 
     def nodelistDoubleclicked(self, node):
         self.menumanager.openDefault(node)
@@ -144,16 +137,13 @@ class NodeWidget(QWidget):
             self.viewstack.setCurrentWidget(self.tableview)
             self.model.refresh(self.model.currentRow())
             self.scrollbar.setMaximum(self.scrollbar.value() - 2)
-#            self.tableview.refreshVisible()
         elif index == LISTVIEW_ID:
             self.viewstack.setCurrentWidget(self.listview)
             self.model.refresh(self.model.currentRow())
             self.scrollbar.setMaximum(self.scrollbar.value() + 2)
-#            self.listview.refreshVisible()
         self.refreshVisible()
 
     def openAsNewTab(self, rootnode):
-        #node = self.currentNode()
         QApplication.instance().mainWindow.addNodeBrowser(rootpath=rootnode)
 
 class ScrollBar(QScrollBar):
@@ -181,7 +171,6 @@ class ScrollBar(QScrollBar):
             self.setMaximum(m)
             self.setSingleStep(1)
             self.nodeview.hlayout.addWidget(self, 1)
-#        self.nodeview.refreshVisible()
 
     def updateCurrent(self, current):
         if current >= 0:

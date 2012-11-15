@@ -39,7 +39,6 @@ class ApplyModule(QDialog, Ui_applyModule):
         self.loader = loader.loader()
         self.vfs = vfs()
         self.valueArgs = {}
-
         self.translation()
     
     def initAllInformations(self, nameModule, typeModule, nodesSelected):

@@ -36,7 +36,6 @@ class NodeTreeView(QTreeView):
     QTreeView.__init__(self)
     self.VFS = VFS.Get()
     self.setSelectionMode(QAbstractItemView.NoSelection)
-#    self.setSelectionBehavior(QAbstractItemView.SelectItems)
     self.setState(QAbstractItemView.NoState)
     self.setUniformRowHeights(True)
     self.setSortingEnabled(False)
@@ -53,18 +52,6 @@ class NodeTreeView(QTreeView):
     node = self.model().getNodeFromIndex(index)
     if node != None:
       self.model().refreshModel(node)
-#      self.model().insertRows(index, node)
-#    except:
-#      print "TreeView:ExpandException"
-#      return
-
-#  def moveCursor (self, cursorAction, modifiers):
-#    if cursorAction==QtGui.QAbstractItemView.MoveNext and modifiers==QtCore.Qt.NoModifier:
-#      ix = self.currentIndex()
-#      (col, row, parent)=(ix.column(), ix.row(), ix.parent())
-#      if col < self.model().columnCount(parent)-2:
-#        return self.model().index(row, col+1, parent)
-#    return QtGui.QTreeView.moveCursor(self, cursorAction,  modifiers)
 
   def keyPressEvent(self, e):
     row = self.currentIndex().row()
@@ -96,8 +83,6 @@ class NodeTreeView(QTreeView):
   def mousePressEvent(self, e):
     try:
       index = self.indexAt(e.pos())
-#      print index.row(), index.column()
-#      node = self.model().getNodeFromIndex(index)
       if index.isValid():
         self.model().emit(SIGNAL("layoutAboutToBeChanged"))
         self.model().setCurrentIndex(self.currentIndex(), index)
@@ -122,14 +107,10 @@ class NodeTreeView(QTreeView):
     """
     try:
       index = self.indexAt(e.pos())
-#      node = self.model().getNodeFromIndex(index)
       if index.isValid():
         self.model().emit(SIGNAL("layoutAboutToBeChanged"))
         self.model().setCurrentIndex(self.currentIndex(), index)
         self.setCurrentIndex(index)
-#        self.model().setCurrentIndex(index)
-#        self.setCurrentIndex(index)
-#        self.emit(SIGNAL("nodeTreeClicked"), node, e.button())
         self.model().emit(SIGNAL("layoutChanged"))
     except:
       return
@@ -144,7 +125,6 @@ class NodeTreeView(QTreeView):
         n = self.model().getNodeFromIndex(index)
         self.model().setCurrentIndex(self.currentIndex(), index)
         self.setCurrentIndex(index)
-#        self.model().setCurrentIndex(index)
         self.setExpanded(index, True)
         self.scrollTo(index)
     else:
@@ -155,7 +135,6 @@ class NodeTreeView(QTreeView):
   def indexRowSizeHint(self, index):
     return 2
 
-  # XXX POC
   def loadStylesheet(self):
     path = os.path.abspath(os.path.join(os.getcwd(), "ui", "gui", "resources", "stylesheets", "treeview.qss"))
     f = QFile(path)
@@ -170,7 +149,6 @@ class CheckDelegate(QStyledItemDelegate):
     self.view = parent
 
   def paint(self, painter, options, index):
-#    QStyledItemDelegate.paint(self, painter, options, index)
     if index.isValid():
       if index.column() == 0:
         painter.save()
@@ -194,7 +172,6 @@ class CheckDelegate(QStyledItemDelegate):
       rec = index.data(Qt.UserRole + 3).toBool()
       pos = event.pos()
       newposx = event.pos().x() - 16
-#      print "tree view editor event ", 
       if event.type() not in [QEvent.MouseMove, QEvent.MouseButtonRelease] or not (option.state & QStyle.State_Enabled):
         if (newposx <= option.rect.x()) and (newposx >= option.rect.x() - 16):
           # We are on recursive icon

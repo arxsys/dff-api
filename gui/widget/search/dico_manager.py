@@ -35,7 +35,7 @@ class DicoManager(QWidget, Ui_dicoManager):
         self.connect(self.rmDico, SIGNAL("clicked()"), self.removeDictionnary)
         
     def addDictionnary(self):
-        fn = QFileDialog.getOpenFileName(self, "Select your dictionnary", os.path.expanduser('~'))
+        fn = QFileDialog.getOpenFileName(self, self.tr("Select your dictionnary"), os.path.expanduser('~'))
         if fn != "":
             ufn = str(unicode(fn).encode('utf-8'))
             dicname = self.autoDicName(ufn)
@@ -92,20 +92,12 @@ class DicoManager(QWidget, Ui_dicoManager):
             except TypeError as e:
                 print str(e)
 
-#    def validateTable(self):
-#        for row in xrange(0, self.dicos.rowCount()):
-#            dicname = self.dicos.item(row, 1).text()
-#            if dicname.isEmpty():
-#                print "empty name: ", row
-
     def selectedDictionnaries(self):
         # Return checked dictionnaries
         dicnames = []
-#        currow = 0
         for row in xrange(0, self.dicos.rowCount()):
             item = self.dicos.item(row, 0)
             if item.checkState() == Qt.Checked:
-                print "checked : ", row
                 itemname = self.dicos.item(row, 1)
                 dicname = str(unicode(itemname.text()).encode('utf-8'))
                 dicnames.append(dicname)
@@ -114,7 +106,6 @@ class DicoManager(QWidget, Ui_dicoManager):
     def selectedDicoNames(self):
         dicnames = self.selectedDictionnaries()
         dics = []
-#        ret = str("")
         if len(dicnames) > 0:
             for d in dicnames:
                 ret = ":" + d
@@ -130,7 +121,6 @@ class DicoDialog(QDialog):
         self.vbox = QVBoxLayout()
         self.manager = DicoManager()
         self.manager.populateList()
-#        self.manager = manager
         self.vbox.addWidget(self.manager)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         self.vbox.addWidget(buttons)
@@ -143,20 +133,4 @@ class DicoDialog(QDialog):
         QDialog.reject(self)
 
     def accept(self):
-#       self.manager.selectedDictionnaries()
-#        self.manager.populateDicoPath()
-#        self.
         QDialog.accept(self)
-#    if not self.filter.name().isEmpty():
-#      QDialog.accept(self)
-#    else:
-#      box = QMessageBox(QMessageBox.Critical, "Error", "Please, specify a query name", \
-#                          QMessageBox.NoButton, self)
-#      box.exec_()
-
-#        self.dicoPath.clear()
-#        self.dicoPath.insert(sFileName)
-
-
-#        filedict = FileDictionnary("test", "/mnt/dumps/data_search_test/patterns")
-#        dr.add("mail login pass", filedict)

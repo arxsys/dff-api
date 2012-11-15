@@ -138,8 +138,6 @@ class PropertyTable(VariantTreeWidget):
       self.resizeColumnToContents(0)
       self.resizeColumnToContents(1)
 
-
-
   def translation(self):
     self.nameText = self.tr('name')
     self.linkPath = self.tr('link path')

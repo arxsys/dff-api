@@ -335,4 +335,3 @@ class TreeModel(QStandardItemModel, EventHandler):
     """
     self.nameTr = self.tr('Name')
 
-

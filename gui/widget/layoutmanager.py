@@ -483,8 +483,6 @@ class multipleListWidget(QWidget):
         for item in selected:
             self.valuelist.insertItem(self.valuelist.count() + 1, item.text())
 
-
-
 class addLocalPathButton(QPushButton):
     lastPath = os.path.expanduser('~') 
     def __init__(self, parent, key, container, inputchoice=None, nodetype=False):
@@ -499,8 +497,6 @@ class addLocalPathButton(QPushButton):
         self.container = container
         self.parent = container
         self.nodetype = nodetype
-#        self.listpath = listpath
-#        self.ckey = ckey
         self.connect(self, SIGNAL("clicked()"), self.browse)
        
     def setLastPath(self, path):

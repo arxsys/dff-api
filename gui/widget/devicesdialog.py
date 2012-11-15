@@ -27,14 +27,11 @@ from dff.ui.gui.resources.ui_devicesdialog import Ui_DevicesDialog
 class DevicesDialog(QDialog, Ui_DevicesDialog):
   def __init__(self, parent = None):
     QDialog.__init__(self)
-
     self.setupUi(self)
-
     self.selectedDevice = None
-
     self.listdevices = {}
-
     self.devices = Devices()
+
     for n in range(0, len(self.devices)):
       self.combodevice.addItem(self.devices[n].model())
       self.listdevices[n] = self.devices[n]
