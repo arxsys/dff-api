@@ -441,9 +441,9 @@ class FilterWidget(Ui_filterWidget, QWidget):
 
   def launchFilter(self, query=None):
     if not query:
-      q = self.filterCombo.lineEdit().text()
+      query = self.filterCombo.lineEdit().text()
     else:
-      q = query
+      query = query
     nodelist = self.sourceModel().list()
     if len(nodelist) > 0:
       self.parent.filterview.model.clearList()
