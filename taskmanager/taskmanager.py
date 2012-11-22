@@ -157,6 +157,26 @@ class TaskManager():
       self.ppModules = ModulesConfig()
       self.ppAnalyses = ModulesConfig()
 
+    def addAnalyseDependencies(self):
+       requiered = set() 
+       for moduleName in self.ppAnalyses:
+	  try:
+            for module in self.loader.modules[moduleName].depends:
+	      requiered.add(module)
+	  except AttributeError:
+	    pass
+       for moduleName in requiered:
+          try:
+	     self.loader.modules[moduleName]
+             self.ppModules.add(moduleName)
+          except KeyError:
+	    try:  
+	      modules = self.loader.tags[moduleName]
+	      for moduleName in modules:
+		 self.ppModules.add(moduleName)
+	    except KeyError:
+		pass
+
     def moduleInstancesByName(self, name):
        instances = []
        for proc in self.processusManager:
@@ -276,7 +296,6 @@ class TaskManager():
   def add(self, cmd, args, exec_flags, endfunc = None):
        return self.__instance.add(cmd, args, exec_flags, endfunc)
 
-
 class ScanQueue(Queue):
    def __init__(self):
       Queue.__init__(self)
@@ -307,6 +326,7 @@ class ScanQueue(Queue):
    def scanJoin(self, root, modulesToApply = None):
       modMap = {}
       modCount = 0
+      jobs = []
       while not self.empty():
          task = self.get()
 	 if modulesToApply != None:
@@ -318,11 +338,13 @@ class ScanQueue(Queue):
 	 except KeyError:
 	   modMap[task[1][0]] = 1
 	 job2 = (self.task_done_scan, (root, task[1][0],))
-	 jobs = (task, job2)
-	 sched.enqueue(jobs)
+	 job = (task, job2)
+         jobs.append(job)
 	 modCount += 1
       if modCount:
         self.displayItem(root, modCount, modMap)
+      for job in jobs:
+        sched.enqueue(job)
       self.join()
       self.refresh()
 
@@ -363,6 +385,63 @@ class ProcessingQueue(ScanQueue):
       self.join() 
       self.refresh()
 
+class PostProcessDisplay():
+  def __init__(self, verbose = True):
+     self.state = True 
+     self.verbose = verbose
+     self.init()
+
+  def init(self):   
+     self.processingRoot = {}
+     self.processusRoot = {}
+     self.processusModules = {}
+     self.analyseRoot = {}
+     self.analyseModules = {}
+
+  def output(self, string):
+     if self.verbose:
+       print string
+
+  def info(self, root):
+     self.output(root.absolute())
+
+  def updateState(self, state):
+     self.state = state
+     self.init()
+     
+  def ask(self, messageName, message):
+     self.output(messageName + " " + message)
+
+  def askWait(self, messageName, message):
+     self.output(messageName + " " +  message)
+     return True
+
+  def processingItem(self, root, count):
+     self.processingRoot[root] = count 
+
+  def processingProgress(self, root, number):
+     self.output(root.absolute() + " " + str(number) + " / " + str(self.processingRoot[root]))
+
+  def processusItem(self, root, moduleCount, modMap):
+     self.processusRoot[root] = moduleCount
+     self.processusModules[root] = {}
+     for modname, count in modMap.iteritems():
+        self.processusModules[root][modname] = count
+
+  def processusProgress(self, root, count, module, moduleCount):
+     self.output(root.absolute() + " " + str(count) + " / " + str(self.processusRoot[root]))
+     self.output(root.absolute() + ":" + module + " " + str(moduleCount) + " / " + str(self.processusModules[root][module]))
+
+  def analyseItem(self, root, moduleCount, modMap):
+     self.analyseRoot[root] = moduleCount
+     self.analyseModules[root] = {}
+     for modname, count in modMap.iteritems():
+        self.analyseModules[root][modname] = count
+
+  def analyseProgress(self, root, count, module, moduleCount):
+     self.output(root.absolute() + " " + str(count) + " / " + str(self.analyseRoot[root]))
+     self.output(root.absolute() + ":" + str(module) + " " + str(moduleCount) + " / " + str(self.analyseModules[root][module]))
+
 class PostProcessScheduler():
      class __PostProcessScheduler():
         def __init__(self):
@@ -371,8 +450,11 @@ class PostProcessScheduler():
 	  self.processingQueue = ProcessingQueue()
 	  self.processusQueue = ScanQueue()
 	  self.analyseQueue = ScanQueue()
-	  self.display = None
-	  self.displayState = None
+	  self.display = PostProcessDisplay() 
+	  self.displayState = self.display
+          self.processingQueue.registerDisplay(self.display.processingItem, self.display.processingProgress)
+          self.processusQueue.registerDisplay(self.display.processusItem, self.display.processusProgress)
+          self.analyseQueue.registerDisplay(self.display.analyseItem, self.display.analyseProgress)
 	  self.fullAuto = True
 
         def fullAutoMode(self, mode):
@@ -428,9 +510,9 @@ class PostProcessScheduler():
 		    h[n[1][0]] += 1
 		  except KeyError:
 		    h[n[1][0]] = 1
-
+                
 	       modulesToApply = self.displayState.askModulesWait('Apply module', 'Please select modules to apply', h)
-	     
+
              self.processusQueue.scanJoin(root, modulesToApply)
 
         def scanAnalyse(self, root, firstRoot):
