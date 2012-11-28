@@ -50,14 +50,8 @@ private:
   chunk*			__prevChunk;
   uint32_t			__bsearch(uint64_t offset, uint32_t leftbound, uint32_t rightbound, bool* found);
   void				allocChunk(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset);
-  uint32_t			chunkCount(void);
-  chunk*			firstChunk(void);
-  chunk*			lastChunk(void);
   chunk*			chunkFromIdx(uint32_t idx);
-  uint32_t			chunkIdxFromOffset(uint64_t offset, uint32_t begidx=0);
-  std::vector<chunk *>		chunksFromOffsetRange(uint64_t begoffset, uint64_t endoffset);
   std::vector<chunk *>		chunksFromIdxRange(uint32_t begidx, uint32_t endidx);
-  std::vector<chunk *>		chunks(void);
 public:
   EXPORT 			FileMapping(Node* node);
   EXPORT 			~FileMapping();
@@ -68,6 +62,12 @@ public:
   EXPORT uint64_t		maxOffset();
   EXPORT chunk*			chunkFromOffset(uint64_t offset);
   EXPORT void			push(uint64_t offset, uint64_t size, class Node* origin=NULL, uint64_t originoffset=0);
+  EXPORT uint32_t			chunkCount(void);
+  EXPORT chunk*			firstChunk(void);
+  EXPORT chunk*			lastChunk(void);
+  EXPORT uint32_t			chunkIdxFromOffset(uint64_t offset, uint32_t begidx=0);
+  EXPORT std::vector<chunk *>		chunksFromOffsetRange(uint64_t begoffset, uint64_t endoffset);
+  EXPORT std::vector<chunk *>		chunks(void);
 };
 
 #endif
