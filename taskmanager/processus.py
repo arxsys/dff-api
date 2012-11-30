@@ -215,7 +215,7 @@ class Processus(Script):
     self.lock.release()
 
   def launch(self, args):
-    self.state = "exec"
+    self.state = "Running"
     self.lock.acquire()
     self.launchCount += 1
     self.timestart = time.time()
@@ -266,7 +266,7 @@ class Processus(Script):
          self.lock.acquire()
  	 #res = Variant(res)
          self.error_result += res 
-         self.state = "fail"
+         self.state = "Fail"
 	 self.lock.release()
 
   def setState(self):
@@ -276,8 +276,8 @@ class Processus(Script):
     self.launchCount -= 1
     if self.launchCount <= 0:
         self.timeend = time.time()
-        if self.state != "fail":
-          self.state = "finish"
+        if self.state != "Fail":
+          self.state = "Finish"
     self.lock.release()
 
   def __getattr__(self, attr):
