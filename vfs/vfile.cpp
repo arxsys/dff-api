@@ -71,6 +71,8 @@ pdata* VFile::read(void)
 	throw vfsError("VFile::read() can't allocate memory\n");
       memset(data->buff, 0, size);
       n = this->__fsobj->vread(this->__fd, (void*)data->buff, size);
+      if (n < 0)
+        throw vfsError(this->__fsobj->name + " read error\n");
       stat_read(n);
       data->len = n;
       return (data);
@@ -94,7 +96,7 @@ pdata* VFile::read(uint32_t size)
   data = new pdata;
   try
     {
-      data->buff = malloc(size); //XXX if size > node.size - node.tell() evite d alouer plus que lataille de la node ce qui peut dja etre huge
+      data->buff = malloc(size); 
       if (data->buff == NULL)
       {
         std::string error = this->node()->absolute() + "->VFile::read(uint32_t) can't allocate enough memory (" ;
@@ -105,6 +107,8 @@ pdata* VFile::read(uint32_t size)
       data->len = size;
       memset(data->buff, 0, size);
       n = this->__fsobj->vread(this->__fd, data->buff, size);
+      if (n < 0)
+        throw vfsError(this->__fsobj->name + " read error\n");
       data->len = n;
       stat_read(n);
       return (data);
@@ -119,7 +123,7 @@ pdata* VFile::read(uint32_t size)
 
 int VFile::read(void *buff, uint32_t size)
 {
-  uint32_t n;
+  int32_t n;
 
   if (this->__fd < 0)
     throw vfsError("VFile::read() on closed file " +  this->__fsobj->name + ":" + this->__node->absolute() + "\n");
@@ -127,6 +131,8 @@ int VFile::read(void *buff, uint32_t size)
   try 
   {
     n = this->__fsobj->vread(this->__fd, buff, size);
+    if (n < 0)
+      throw vfsError(this->__fsobj->name + " read error\n");
     stat_read(n);
     return (n);
   }

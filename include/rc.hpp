@@ -19,11 +19,12 @@ public:
     
   EXPORT int delref() const
   {
-    if (ref_count() == 0 || del_ref() == 0 )
-      {
+          //if (ref_count() == 0 || del_ref() == 0 )
+     if (del_ref() == 0)
+     {
 	delete this;
 	return 0;
-      } 
+     } 
     return ref_count();
   }
     

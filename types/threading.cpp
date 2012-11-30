@@ -16,81 +16,34 @@
 
 #include "threading.hpp"
 
+#include <iostream>
 
 namespace dff
 {
   Mutex::Mutex()
   {
-  //std::cout << "Initializing Mutex" << std::endl;
-#ifdef WIN32
- //   if (!InitializeCriticalSectionAndSpinCount(&__mutex, 0x00000400))  //XXX try smaller value or none value ?
-	InitializeCriticalSection(&__mutex);
-      //throw std::string("Cannot create CriticalSection");
-	//std::cout << "Mutex initialized" << std::endl;
-	//printf("%x\n", &__mutex); 
-#else
-    pthread_mutexattr_init(&__attr);
-    pthread_mutexattr_settype(&__attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&__mutex, &__attr);
-#endif    
+    mutex_init(&__mutex);
   }
   
   Mutex::Mutex(const Mutex& other)
   {
-#ifdef WIN32
-    //if (!InitializeCriticalSectionAndSpinCount(&__mutex, 0x00000400)) //XXX
-	InitializeCriticalSection(&__mutex); //XXX
-     // throw std::string("Cannot create CriticalSection");
-#else
-    pthread_mutexattr_init(&__attr);
-    pthread_mutexattr_settype(&__attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&__mutex, &__attr);    
-#endif
+    mutex_init(&__mutex);
   }
   
   Mutex::~Mutex()
   {
-#ifdef WIN32
-    DeleteCriticalSection(&__mutex);
-#else
-    pthread_mutexattr_destroy(&__attr);
-    pthread_mutex_destroy(&__mutex);
-#endif
+    mutex_destroy(&__mutex);
   }
 
-#ifdef WIN32
   void Mutex::lock()
   {
-    EnterCriticalSection(&__mutex); 
-  }
-
-  bool Mutex::tryLock()
-  {
-	return TryEnterCriticalSection(&__mutex);
-  }
-
-  void Mutex::release()
-  {
-	LeaveCriticalSection(&__mutex);
-  }
-#else
-  
-  void	Mutex::lock()
-  {
-    pthread_mutex_lock(&__mutex);
-  }
-
-  bool	Mutex::tryLock()
-  {
-    return pthread_mutex_trylock(&__mutex) == 0;
+    mutex_lock(&__mutex);
   }
 
   void	Mutex::release()
   {
-    pthread_mutex_unlock(&__mutex);
+    mutex_unlock(&__mutex);
   }
-
-#endif
   
   ScopedMutex::ScopedMutex(Mutex& mutex) : __mutex(mutex)
   {

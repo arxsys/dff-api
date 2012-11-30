@@ -47,16 +47,9 @@ namespace dff
     EXPORT ~Mutex();
     EXPORT Mutex(const Mutex& other);
     EXPORT void	lock();
-    EXPORT bool	tryLock();
     EXPORT void	release();
   private:
-    //further implementation must be done via Pimpl idiom to avoid ifdef
-#ifdef WIN32
-    CRITICAL_SECTION	__mutex; 
-#else
-    pthread_mutexattr_t __attr;
-    pthread_mutex_t	__mutex;
-#endif
+    mutex_def(__mutex); 
   };
 
   class ScopedMutex

@@ -72,8 +72,8 @@
 %ignore Variant::operator<=(T val);
 
 /* let SWIG handle reference counting for all RCObj derived classes */
-%feature("ref") RCObj "$this->addref();"
-%feature("unref") RCObj "$this->delref();"
+%refobject  RCObj "$this->addref();"
+%unrefobject RCObj "$this->delref();"
 
 
 %include "../include/rc.hpp"
