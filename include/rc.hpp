@@ -1,31 +1,41 @@
 #ifndef __RC_HPP__
 #define __RC_HPP__
 
+
+#ifndef WIN32
+ #include <stdint.h>
+#elif _MSC_VER >= 1600
+ #include <stdint.h>
+#else
+ #include "wstdint.h"
+#endif
+
 #include <iostream>
 #include <string>
 #include "export.hpp"
+#include "threading.hpp"
 
-struct RCObjBase  {
+struct RCObjBase  
+{
 public:
-  EXPORT int ref_count() const
+  EXPORT int32_t ref_count() const
   {
-    return refCount;
+    return (refCount);
   }
 
-  EXPORT int addref() const
+  EXPORT int32_t addref() const
   {
-    return  add_ref();
+    return (++refCount);
   }
     
-  EXPORT int delref() const
+  EXPORT int32_t delref() const
   {
-          //if (ref_count() == 0 || del_ref() == 0 )
-     if (del_ref() == 0)
-     {
-	delete this;
-	return 0;
-     } 
-    return ref_count();
+    if (refCount == 0 || --refCount == 0) 
+    {
+      delete this;
+      return (0);
+    } 
+    return (refCount);
   }
     
 protected:
@@ -36,90 +46,119 @@ protected:
 private:
 
   RCObjBase& operator=(const RCObjBase& );
-
   friend struct RCObj;
-
-  EXPORT int add_ref() const
-  {
-    return ++refCount;
-  }
-    
-  EXPORT int del_ref() const
-  {
-    return --refCount;
-  }
-    
-  mutable int refCount;
+  mutable int32_t refCount;
 };
 
 
 
-struct RCObj : virtual RCObjBase {
-protected:
-  RCObj()
-  {
-  }
+struct RCObj : virtual RCObjBase 
+{
+  protected:
+    RCObj()
+    {
+    }
 };
-/*! Reference an RCObj object
-  \return The input pointer \a r
-*/
-template <class T>
-inline
-T* addref(T* r)
+
+template <class T> inline T* addref(T* r)
 { 
-  return (r && r->addref() ) ? r : 0;
+  return (r && r->addref()) ? r : 0;
 }
   
-/*! Unreference an RCObj object.
-  \return The input pointer \a r or nil if the object was deleted.
-*/
-template <class T>
-inline
-T* delref(T* r)
-{ 
-  return ( r && r->delref() ) ? r : 0;
+template <class T> inline T* delref(T* r)
+{
+  return (r && r->delref()) ? r : 0;
 }
 
-template <class T>                     
-struct RCPtr  {
+template <class T> struct RCPtr  
+{
   typedef T* pointer_type;
   typedef T& refernce_type;
   typedef T  value_type;  
   
-  RCPtr() : pointee(0) {};
-  RCPtr(T* realPtr) :pointee(realPtr) { addref(pointee);  };
-  RCPtr(const RCPtr& rhs) : pointee(rhs.pointee) { addref(pointee);};
-
-  ~RCPtr() { delref(pointee) ; };
-
-  RCPtr& operator=(const RCPtr& rhs) { 
-  if (pointee != rhs.pointee) 
+  RCPtr() : pointee(0) 
   {
-    delref(pointee);
-    pointee = rhs.pointee;
+  };
+
+  RCPtr(T* realPtr) :pointee(realPtr) 
+  {
+   dff::ScopedMutex  locker(__mutex);
+   addref(pointee);  
+  };
+
+  RCPtr(const RCPtr& rhs) : pointee(rhs.pointee) 
+  { 
+    dff::ScopedMutex locker(__mutex);
     addref(pointee);
-  }
-  return *this;
-};
+  };
+
+  ~RCPtr() 
+  { 
+    dff::ScopedMutex locker(__mutex);
+    delref(pointee); 
+  };
+
+  RCPtr& operator=(const RCPtr& rhs) 
+  { 
+    dff::ScopedMutex locker(__mutex);
+
+    if (pointee != rhs.pointee) 
+    {
+      delref(pointee);
+      pointee = rhs.pointee;
+      addref(pointee);
+    }
+    return (*this);
+  };
   
-  T* operator->() { return pointee; }
-  T& operator*() { return *pointee; }
+  T* operator->() 
+  { 
+    return (pointee); 
+  }
+  T& operator*() 
+  { 
+    return (*pointee); 
+  }
 
-  const T* operator->() const { return pointee; }
-  const T& operator*() const { return *pointee; }
+  const T* operator->() const 
+  { 
+    return (pointee); 
+  }
+  const T& operator*() const 
+  { 
+    return (*pointee); 
+  }
 
-  operator T*() { return pointee; }
-  operator T&() { return *pointee; }  
+  operator T*() 
+  { 
+    return (pointee); 
+  }
+  operator T&() 
+  { 
+    return (*pointee);
+  }  
 
-  operator const T*() const { return pointee; }
-  operator const T&() const { return *pointee; }  
+  operator const T*() const 
+  { 
+    return (pointee); 
+  }
+  operator const T&() const 
+  { 
+    return (*pointee);
+  }  
 
-  T* get() { return pointee; }
-  T* get() const { return pointee; }
-
+  T* get() 
+  { 
+    return (pointee);
+  }
+  T* get() const 
+  { 
+    return (pointee);
+  }
     
 private:
   T* pointee;
+  dff::Mutex __mutex;
 };
 
 
