@@ -335,8 +335,16 @@ Attributes	Node::fsoAttributes()
   }
   catch (std::string)
   {
-    Attributes attributes =  this->_attributes();
-    AttributeCache::instance().insert(this, attributes);
+    Attributes attributes;
+    try 
+    {
+      attributes =  this->_attributes();
+      AttributeCache::instance().insert(this, attributes);
+    }
+    catch (...)
+    {
+      std::cout << this->absolute() << " fso attribute  raise error\n" << std::endl;
+    }
     return attributes;
   }
 }
@@ -359,8 +367,15 @@ Attributes	Node::dynamicAttributes()
     std::set<AttributesHandler*>::iterator handler;
     for (handler = this->__attributesHandlers.begin(); handler != this->__attributesHandlers.end(); handler++)
     {
-      if ((vptr = new Variant((*handler)->attributes(this))) != NULL)
-        attr[(*handler)->name()] = Variant_p(vptr); 
+      try
+      {
+        if ((vptr = new Variant((*handler)->attributes(this))) != NULL)
+          attr[(*handler)->name()] = Variant_p(vptr); 
+      }
+      catch (...)
+      {
+        std::cout << this->absolute() << " attribute handler " << (*handler)->name() << " raise error\n" << std::endl;
+      }
     }
     DynamicAttributesCache::instance().insert(this, attr, size);
   }
@@ -376,7 +391,14 @@ Attributes	Node::dynamicAttributes(std::string name)
   {
     if ((*handler)->name() == name)
     {
-      attrs = (*handler)->attributes(this);
+      try
+      {
+        attrs = (*handler)->attributes(this);
+      }
+      catch (...)
+      {
+        std::cout << this->absolute() << " attribute handler " << (*handler)->name() << " raise error\n" << std::endl;
+      }
       break;
     }
   }
@@ -431,7 +453,6 @@ bool			        Node::registerAttributes(AttributesHandler* ah)
   bool	ret;
   
   ret = this->__attributesHandlers.insert(ah).second;
-  //AttributesIndexer::Get().registerAttributes(this);
   return ret;
 }
 
