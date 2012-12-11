@@ -29,7 +29,6 @@ set(apiguiwidget_srcs
   reportedit.py
   nodewidget.py
   nodelistwidgets.py
-  renderer.py
 )
 
 install_file(apiguiwidget ${apiguiwidget_srcs})
