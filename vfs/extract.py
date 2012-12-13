@@ -63,13 +63,17 @@ class Extract(EventHandler):
   #
   # Public Interface
   # 
+  def __toUtf8(self, data):
+    if type(data) == types.UnicodeType:
+      return data.encode(data, 'utf-8', 'replace')
+    return data
 
   def extractFile(self, src, dst, preserve=False, overwrite=False):
+    dst = self.__toUtf8(dst)
     if preserve:
       dst = self.__makePreservedDirs(src, dst)
-    if type(dst) == types.UnicodeType:
-      dst = dst.encode('utf-8')
     absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
+    absfile = unicode(absfile, 'utf-8', 'replace').encode('utf-8')
     if absfile:
       #since requesting file extraction, if node is both file and folder, extract original filename
       if absfolder:
@@ -81,26 +85,23 @@ class Extract(EventHandler):
 
 
   def extractFolder(self, src, dst, preserve=False, overwrite=False):
+    dst = self.__toUtf8(dst)
     if preserve:
       dst = self.__makePreservedDirs(src, dst)
-    if type(dst) == types.UnicodeType:
-      dst = dst.encode('utf-8')
     self.__countItems(src, False, 1)
     self.__extractTree(src, dst, overwrite, False, 1)
 
     
   def extractTree(self, src, dst, preserve=False, overwrite=False, extract_original=False, depth=max_depth):
+    dst = self.__toUtf8(dst)
     if preserve:
       dst = self.__makePreservedDirs(src, dst)
-    if type(dst) == types.UnicodeType:
-      dst = dst.encode('utf-8')
     self.__countItems(src, extract_original, depth)
     self.__extractTree(src, dst, overwrite, extract_original, depth)
 
 
   def extractData(self, data, name, dst, overwrite=False):
-    if type(dst) == types.UnicodeType:
-      dst = dst.encode('utf-8')
+    dst = self.__toUtf8(dst)
     absfile, absfolder, renamed = self.__generateAbsolutePath(name, dst)
     if absfile:
       try:
@@ -141,7 +142,7 @@ class Extract(EventHandler):
 
 
   def __makePreservedDirs(self, node, dst):
-    npath = node.path()
+    npath = self.__toUtf8(node.path())
     if npath == "/":
       abspath = dst
     else:
@@ -161,15 +162,13 @@ class Extract(EventHandler):
 
 
   def __generateAbsolutePath(self, node, dst):
-    if type(dst) == types.UnicodeType:
-       dst = dst.encode('utf-8')
-    absfile = u""
-    absfolder = u""
+    absfile = ""
+    absfolder = ""
     renamed = False
     if node.isDir() or node.hasChildren():
       if node.size():
-        absfile = os.path.join(dst, self.__encode(node.name() + ".bin"))
-      absfolder = os.path.join(dst, self.__encode(node.name()))
+        absfile = os.path.join(dst, self.__encode(self.__toUtf8(node.name()) + ".bin"))
+      absfolder = os.path.join(dst, self.__encode(self.__toUtf8(node.name())))
     else:
       absfile, renamed = self.__generateItemName(dst, node)
       absfile = os.path.join(dst, absfile)
@@ -188,8 +187,6 @@ class Extract(EventHandler):
           self.__extractTree(child, absfolder, overwrite, extract_original, depth-1)
     elif len(absfile):
       self.__extractFile(src, absfile, overwrite)
-      
-
 
   def __extractFile(self, src, dst, overwrite):
     self.__notifyOverallProgress()
@@ -220,50 +217,33 @@ class Extract(EventHandler):
           self.__notifyFileProgress(src, percent)
       vfile.close()
       sysfile.close()
-      absnode = src.absolute()
-      if type(absnode) == types.StringType:
-        absnode = unicode(absnode.decode('utf-8'))
-      else:
-        absnode = absnode.encode('utf-8')
-      #self.log["files"]["ok"] += absnode + u" --> " + dst + u"\n"
       self.extracted_files += 1
     except (vfsError, OSError, IOError):
       self.files_errors += 1
       tb = traceback.format_exc()
       self.__notifyFailure(src, Extract.FileFailed, tb)
-      #self.log["files"]["nok"] += formatted_lines[-1] + "\n"
     self.__notifyOverallProgress()
 
 
   def __makeFolder(self, node, syspath, extract_original, depth):
     ret = True
-    if type(syspath) == types.UnicodeType:
-      syspath = syspath.encode('utf-8')
     if not os.path.exists(syspath):
       try:
         os.mkdir(syspath)
-        #self.log["folders"]["ok"] += syspath + "\n"
         self.extracted_folders += 1
       except OSError:
-        #self.folders_errors += 1
         tb = traceback.format_exc()
-        #self.log["folders"]["nok"] += formatted_lines[-1] + "\n"
         self.__notifyFailure(node, Extract.FolderFailed, tb)
         self.__countOmmited(node, extract_original, depth-1)
         ret = False
     else:
-      #self.log["folders"]["ok"] += syspath + "\n"
       self.extracted_folders += 1
     self.__notifyOverallProgress()
     return ret
 
 
   def __encode(self, path):
-    if type(path) == types.StringType:
-      path = unicode(path.decode('utf-8'))
-    else:
-      path = path.encode('utf-8')
-    apath = u""
+    apath = ""
     for byte in path:
       if ord(byte) <= 0x1f or byte in "\"*:<>?\/|":
         apath += "0x%0.2x" % ord(byte) 
@@ -271,33 +251,21 @@ class Extract(EventHandler):
         apath += byte
     for reserved in Extract.reservednames:
       if apath.startswith(reserved):
-        apath = u"_" + apath
+        apath = "_" + apath
         break
     path = apath
-    if type(path) == types.UnicodeType:
-      path = path.encode('utf-8')
     return path
 
 
   def __generateItemName(self, abspath, node):
-    item = self.__encode(node.name())
+    item = self.__encode(self.__toUtf8(node.name()))
     renamed = False
-    if type(abspath) == types.UnicodeType:
-      abspath = abspath.encode('utf-8')
     try:
       targets = os.listdir(abspath)
     except OSError:
       return ("", "")
-    if type(item) == types.UnicodeType:
-      item = item.encode('utf-8')
     item_base, item_ext = os.path.splitext(item)
-    if type(item_base) == types.UnicodeType:
-      item_base = item_base.encode('utf-8')
-    if type(item_ext) == types.UnicodeType:
-      item_ext = item_ext.encode('utf-8')
     for target in targets:
-      if type(target) == types.UnicodeType:
-        target = target.encode('utf-8')
       if item == target:
         item = item_base + "_" + str(node.uid()) + item_ext
         renamed = True
