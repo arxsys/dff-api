@@ -237,6 +237,8 @@ class Extract(EventHandler):
 
   def __makeFolder(self, node, syspath, extract_original, depth):
     ret = True
+    if type(syspath) == types.UnicodeType:
+      syspath = syspath.encode('utf-8')
     if not os.path.exists(syspath):
       try:
         os.mkdir(syspath)
@@ -272,14 +274,16 @@ class Extract(EventHandler):
         apath = u"_" + apath
         break
     path = apath
+    if type(path) == types.UnicodeType:
+      path = path.encode('utf-8')
     return path
 
 
   def __generateItemName(self, abspath, node):
     item = self.__encode(node.name())
     renamed = False
-    if type(abspath) == types.StringType:
-      abspath = unicode(abspath, 'utf-8')
+    if type(abspath) == types.UnicodeType:
+      abspath = abspath.encode('utf-8')
     try:
       targets = os.listdir(abspath)
     except OSError:
