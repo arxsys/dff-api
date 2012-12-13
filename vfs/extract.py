@@ -66,7 +66,7 @@ class Extract(EventHandler):
 
   def extractFile(self, src, dst, preserve=False, overwrite=False):
     if preserve:
-      dst = self.__makePreservedDirs(src, dst, overwrite)
+      dst = self.__makePreservedDirs(src, dst)
     if type(dst) == types.UnicodeType:
       dst = dst.encode('utf-8')
     absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
@@ -82,7 +82,7 @@ class Extract(EventHandler):
 
   def extractFolder(self, src, dst, preserve=False, overwrite=False):
     if preserve:
-      dst = self.__makePreservedDirs(src, dst, overwrite)
+      dst = self.__makePreservedDirs(src, dst)
     if type(dst) == types.UnicodeType:
       dst = dst.encode('utf-8')
     self.__countItems(src, False, 1)
