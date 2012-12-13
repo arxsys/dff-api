@@ -67,6 +67,8 @@ class Extract(EventHandler):
   def extractFile(self, src, dst, preserve=False, overwrite=False):
     if preserve:
       dst = self.__makePreservedDirs(src, dst, overwrite)
+    if type(dst) == types.UnicodeType:
+      dst = dst.encode('utf-8')
     absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst, overwrite)
     if absfile:
       #since requesting file extraction, if node is both file and folder, extract original filename
@@ -81,6 +83,8 @@ class Extract(EventHandler):
   def extractFolder(self, src, dst, preserve=False, overwrite=False):
     if preserve:
       dst = self.__makePreservedDirs(src, dst, overwrite)
+    if type(dst) == types.UnicodeType:
+      dst = dst.encode('utf-8')
     self.__countItems(src, False, 1)
     self.__extractTree(src, dst, overwrite, False, 1)
 
@@ -88,15 +92,22 @@ class Extract(EventHandler):
   def extractTree(self, src, dst, preserve=False, overwrite=False, extract_original=False, depth=max_depth):
     if preserve:
       dst = self.__makePreservedDirs(src, dst, overwrite)
+    if type(dst) == types.UnicodeType:
+      dst = dst.encode('utf-8')
     self.__countItems(src, extract_original, depth)
     self.__extractTree(src, dst, overwrite, extract_original, depth)
 
 
   def extractData(self, data, name, dst, overwrite=False):
+    if type(dst) == types.UnicodeType:
+      dst = dst.encode('utf-8')
     absfile, absfolder, renamed = self.__generateAbsolutePath(name, dst, overwrite)
     if absfile:
       try:
-        f = open(absfile)
+        if type(absfile) == types.UnicodeType:
+          f = open(absfile.encode('utf-8'))
+        else:
+          f = open(absfile)
         f.write(data)
         f.close()
       except Exception:
@@ -162,6 +173,8 @@ class Extract(EventHandler):
 
 
   def __generateAbsolutePath(self, node, dst, overwrite):
+    if type(dst) == types.UnicodeType:
+       dst = dst.encode('utf-8')
     absfile = u""
     absfolder = u""
     renamed = False
@@ -204,7 +217,10 @@ class Extract(EventHandler):
     self.__notifyOverallProgress()
     try:
       vfile = src.open()
-      sysfile = open(dst, 'wb')
+      if type(dst) == types.UnicodeType:
+        sysfile = open(dst.encode('utf-8'), 'wb')
+      else:
+        sysfile = open(dst, 'wb')
       readsize = 8192
       filesize = src.size()
       update = False
@@ -298,6 +314,12 @@ class Extract(EventHandler):
         ext_target = ""
       else:
         base_target, ext_target = os.path.splitext(target)
+      if type(base_target) == types.UnicodeType:
+        base_target = base_target.encode('utf-8')
+      if type(base_item) == types.UnicodeType:
+        base_item = base_item.encode('utf-8')
+      if type(ext_item) == types.UnicodeType:
+        ext_item = ext_item.encode('utf-8')
       if base_target.lower().startswith(base_item.lower()):
         if len(base_target) == len(base_item):
           rename = True
