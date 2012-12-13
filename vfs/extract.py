@@ -69,13 +69,13 @@ class Extract(EventHandler):
       dst = self.__makePreservedDirs(src, dst, overwrite)
     if type(dst) == types.UnicodeType:
       dst = dst.encode('utf-8')
-    absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst, overwrite)
+    absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
     if absfile:
       #since requesting file extraction, if node is both file and folder, extract original filename
       if absfolder:
         absfile = absfolder
       self.total_files += 1
-      self.__extractFile(src, absfile)
+      self.__extractFile(src, absfile, overwrite)
       return absfile
     return None
 
@@ -91,7 +91,7 @@ class Extract(EventHandler):
     
   def extractTree(self, src, dst, preserve=False, overwrite=False, extract_original=False, depth=max_depth):
     if preserve:
-      dst = self.__makePreservedDirs(src, dst, overwrite)
+      dst = self.__makePreservedDirs(src, dst)
     if type(dst) == types.UnicodeType:
       dst = dst.encode('utf-8')
     self.__countItems(src, extract_original, depth)
@@ -101,7 +101,7 @@ class Extract(EventHandler):
   def extractData(self, data, name, dst, overwrite=False):
     if type(dst) == types.UnicodeType:
       dst = dst.encode('utf-8')
-    absfile, absfolder, renamed = self.__generateAbsolutePath(name, dst, overwrite)
+    absfile, absfolder, renamed = self.__generateAbsolutePath(name, dst)
     if absfile:
       try:
         if type(absfile) == types.UnicodeType:
@@ -140,81 +140,63 @@ class Extract(EventHandler):
       self.total_files += 1
 
 
-  def __makePreservedDirs(self, node, dst, overwrite):
+  def __makePreservedDirs(self, node, dst):
     npath = node.path()
     if npath == "/":
-      if overwrite:
-        cpath = self.__encode(node.name())
-        abspath = os.path.join(dst, cpath)
-        if os.path.isfile(abspath):
-          os.remove(abspath)
-        elif os.path.isdir(abspath):
-          shutil.rmtree(abspath)
       abspath = dst
     else:
       lpath = os.path.dirname(npath[1:]).split("/")
-      if overwrite:
-        cpath = self.__encode(lpath[0])
-        abspath = os.path.join(dst, cpath)
-        if os.path.isfile(abspath):
-          os.remove(abspath)
-        elif os.path.isdir(abspath):
-          shutil.rmtree(abspath)
-      else:
-        cpath, renamed = self.__generateItemName(dst, lpath[0], True)
-        abspath = os.path.join(dst, cpath)
-      os.mkdir(abspath)
-      for path in lpath[1:]:
-        path, renamed = self.__generateItemName(os.path.join(dst, cpath), path, True)
-        cpath = os.path.join(cpath, path)
-        abspath = os.path.join(dst, cpath)
-        os.mkdir(abspath)
+      relpath = ""
+      for cpath in lpath:
+        encpath = self.__encode(cpath)
+        relpath = os.path.join(relpath, encpath)
+        abspath = os.path.join(dst, relpath)
+        if os.path.exists(abspath):
+          if os.path.isfile(abspath):
+            os.remove(abspath)
+            os.mkdir(abspath)
+        else:
+          os.mkdir(abspath)
     return abspath
 
 
-  def __generateAbsolutePath(self, node, dst, overwrite):
+  def __generateAbsolutePath(self, node, dst):
     if type(dst) == types.UnicodeType:
        dst = dst.encode('utf-8')
     absfile = u""
     absfolder = u""
     renamed = False
     if node.isDir() or node.hasChildren():
-      if overwrite:
-        if node.size():
-          absfile = os.path.join(dst, self.__encode(node.name() + ".bin"))
-        ename = self.__encode(node.name())
-      else:
-        if node.size():
-          absfile, renamed = self.__generateItemName(dst, node.name() + ".bin")
-          absfile = os.path.join(dst, absfile)
-        ename, renamed = self.__generateItemName(dst, node.name(), True)
-      absfolder = os.path.join(dst, ename)
+      if node.size():
+        absfile = os.path.join(dst, self.__encode(node.name() + ".bin"))
+      absfolder = os.path.join(dst, self.__encode(node.name()))
     else:
-      if overwrite:
-        ename = self.__encode(node.name())
-      else:
-        ename, renamed = self.__generateItemName(dst, node.name())
-      absfile = os.path.join(dst, ename)
+      absfile, renamed = self.__generateItemName(dst, node)
+      absfile = os.path.join(dst, absfile)
     return (absfile, absfolder, renamed)
 
 
   def __extractTree(self, src, dst, overwrite, extract_original, depth):
-    absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst, overwrite)
+    absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
     if len(absfolder):
       if len(absfile) and extract_original:
-        self.__extractFile(src, absfile)
+        self.__extractFile(src, absfile, overwrite)
       self.__makeFolder(src, absfolder, extract_original, depth)
       if depth > 0:
         children = src.children()
         for child in children:
           self.__extractTree(child, absfolder, overwrite, extract_original, depth-1)
     elif len(absfile):
-      self.__extractFile(src, absfile)
+      self.__extractFile(src, absfile, overwrite)
       
 
 
-  def __extractFile(self, src, dst):
+  def __extractFile(self, src, dst, overwrite):
     self.__notifyOverallProgress()
+    if os.path.exists(dst) and not overwrite:
+      self.extracted_files += 1
+      self.__notifyOverallProgress()
+      return
     try:
       vfile = src.open()
       if type(dst) == types.UnicodeType:
@@ -293,50 +275,30 @@ class Extract(EventHandler):
     return path
 
 
-  def __generateItemName(self, abspath, item, folder=False):
-    count = 1
+  def __generateItemName(self, abspath, node):
+    item = self.__encode(node.name())
+    renamed = False
     if type(abspath) == types.StringType:
       abspath = unicode(abspath, 'utf-8')
     try:
       targets = os.listdir(abspath)
     except OSError:
       return ("", "")
-    item = self.__encode(item)
-    rename = False
-    if folder:
-      base_item = item
-      ext_item = ""
-    else:
-      base_item, ext_item = os.path.splitext(item)
+    if type(item) == types.UnicodeType:
+      item = item.encode('utf-8')
+    item_base, item_ext = os.path.splitext(item)
+    if type(item_base) == types.UnicodeType:
+      item_base = item_base.encode('utf-8')
+    if type(item_ext) == types.UnicodeType:
+      item_ext = item_ext.encode('utf-8')
     for target in targets:
-      if folder:
-        base_target = target
-        ext_target = ""
-      else:
-        base_target, ext_target = os.path.splitext(target)
-      if type(base_target) == types.UnicodeType:
-        base_target = base_target.encode('utf-8')
-      if type(base_item) == types.UnicodeType:
-        base_item = base_item.encode('utf-8')
-      if type(ext_item) == types.UnicodeType:
-        ext_item = ext_item.encode('utf-8')
-      if base_target.lower().startswith(base_item.lower()):
-        if len(base_target) == len(base_item):
-          rename = True
-        else:
-          target_end = base_target[len(base_item):]
-          if len(target_end) and target_end[0] == "_" and target_end[1:].isdigit():
-            rename = True
-            digit_end = int(target_end[1:])
-            if digit_end > count:
-              count = int(digit_end)
-    if rename:
-      item = base_item + "_" + str(count+1)
-    else:
-      item = base_item
-    if len(ext_item):
-      item += ext_item
-    return (item, rename)
+      if type(target) == types.UnicodeType:
+        target = target.encode('utf-8')
+      if item == target:
+        item = item_base + "_" + str(node.uid()) + item_ext
+        renamed = True
+        break
+    return (item, renamed)
 
 
   def __notifyFileProgress(self, node, percent):
