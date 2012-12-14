@@ -33,6 +33,8 @@ class Extract(EventHandler):
   FileFailed = 0x04
   FolderFailed = 0x08
   DataFailed = 0x10
+  PreserveFailed = 0x20
+  RenameOccured = 0x40
 
   def __init__(self):
     EventHandler.__init__(self)
@@ -63,17 +65,22 @@ class Extract(EventHandler):
   #
   # Public Interface
   # 
-  def __toUtf8(self, data):
-    if type(data) == types.UnicodeType:
-      return data.encode(data, 'utf-8', 'replace')
-    return data
 
   def extractFile(self, src, dst, preserve=False, overwrite=False):
     dst = self.__toUtf8(dst)
     if preserve:
-      dst = self.__makePreservedDirs(src, dst)
-    absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
-    absfile = unicode(absfile, 'utf-8', 'replace').encode('utf-8')
+      try:
+        dst = self.__makePreservedDirs(src, dst)
+      except Exception:
+        tb = traceback.format_exc()
+        self.__notifyFailure(src.path(), Extract.PreserveFailed, tb)
+    try:
+      absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
+      absfile = unicode(absfile, 'utf-8', 'replace').encode('utf-8')
+    except Exception:
+      tb = traceback.format_exc()
+      self.__notifyFailure(src.absolute(), Extract.FileFailed, tb)
+      return None
     if absfile:
       #since requesting file extraction, if node is both file and folder, extract original filename
       if absfolder:
@@ -87,7 +94,12 @@ class Extract(EventHandler):
   def extractFolder(self, src, dst, preserve=False, overwrite=False):
     dst = self.__toUtf8(dst)
     if preserve:
-      dst = self.__makePreservedDirs(src, dst)
+      try:
+        dst = self.__makePreservedDirs(src, dst)
+      except Exception:
+        tb = traceback.format_exc()
+        self.__notifyFailure(src.path(), Extract.PreserveFailed, tb)
+        return
     self.__countItems(src, False, 1)
     self.__extractTree(src, dst, overwrite, False, 1)
 
@@ -95,29 +107,40 @@ class Extract(EventHandler):
   def extractTree(self, src, dst, preserve=False, overwrite=False, extract_original=False, depth=max_depth):
     dst = self.__toUtf8(dst)
     if preserve:
-      dst = self.__makePreservedDirs(src, dst)
+      try:
+        dst = self.__makePreservedDirs(src, dst)
+      except Exception:
+        tb = traceback.format_exc()
+        self.__notifyFailure(src.path(), Extract.PreserveFailed, tb)
+        return
     self.__countItems(src, extract_original, depth)
     self.__extractTree(src, dst, overwrite, extract_original, depth)
 
 
   def extractData(self, data, name, dst, overwrite=False):
-    dst = self.__toUtf8(dst)
-    absfile, absfolder, renamed = self.__generateAbsolutePath(name, dst)
-    if absfile:
-      try:
+    try:
+      dst = self.__toUtf8(dst)
+      absfile, absfolder, renamed = self.__generateAbsolutePath(name, dst)
+      if absfile:
         if type(absfile) == types.UnicodeType:
           f = open(absfile.encode('utf-8'))
         else:
           f = open(absfile)
         f.write(data)
         f.close()
-      except Exception:
-        tb = traceback.format_exc()
-        self.__notifyFailure(name, Extract.DataFailed, tb)
+    except Exception:
+      tb = traceback.format_exc()
+      self.__notifyFailure(name, Extract.DataFailed, tb)
 
   #
   # Private Interface
   # 
+
+  def __toUtf8(self, data):
+    if type(data) == types.UnicodeType:
+      return data.encode(data, 'utf-8', 'replace')
+    return data
+
 
   def __countItems(self, node, extract_original, depth):
     if node.size():
@@ -172,11 +195,21 @@ class Extract(EventHandler):
     else:
       absfile, renamed = self.__generateItemName(dst, node)
       absfile = os.path.join(dst, absfile)
+    if renamed:
+      self.__notifyRename(node.absolute(), absfile)
     return (absfile, absfolder, renamed)
 
 
   def __extractTree(self, src, dst, overwrite, extract_original, depth):
-    absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
+    try:
+      absfile, absfolder, renamed = self.__generateAbsolutePath(src, dst)
+    except Exception:
+      tb = traceback.format_exc()
+      if src.isFile():
+        self.__notifyFailure(src.absolute(), Extract.FileFailed, tb)
+      else:
+        self.__notifyFailure(src.absolute(), Extract.FolderFailed, tb)
+      return
     if len(absfolder):
       if len(absfile) and extract_original:
         self.__extractFile(src, absfile, overwrite)
@@ -187,6 +220,7 @@ class Extract(EventHandler):
           self.__extractTree(child, absfolder, overwrite, extract_original, depth-1)
     elif len(absfile):
       self.__extractFile(src, absfile, overwrite)
+
 
   def __extractFile(self, src, dst, overwrite):
     self.__notifyOverallProgress()
@@ -218,10 +252,10 @@ class Extract(EventHandler):
       vfile.close()
       sysfile.close()
       self.extracted_files += 1
-    except (vfsError, OSError, IOError):
+    except Exception:
       self.files_errors += 1
       tb = traceback.format_exc()
-      self.__notifyFailure(src, Extract.FileFailed, tb)
+      self.__notifyFailure(src.absolute(), Extract.FileFailed, tb)
     self.__notifyOverallProgress()
 
 
@@ -231,9 +265,9 @@ class Extract(EventHandler):
       try:
         os.mkdir(syspath)
         self.extracted_folders += 1
-      except OSError:
+      except Exception:
         tb = traceback.format_exc()
-        self.__notifyFailure(node, Extract.FolderFailed, tb)
+        self.__notifyFailure(node.absolute(), Extract.FolderFailed, tb)
         self.__countOmmited(node, extract_original, depth-1)
         ret = False
     else:
@@ -273,6 +307,16 @@ class Extract(EventHandler):
     return (item, renamed)
 
 
+  def __notifyRename(self, src, dst):
+    e = event()
+    e.thisown = False
+    e.type = Extract.RenameOccured
+    vl = VList()
+    vl.append(Variant(src))
+    vl.append(Variant(dst))
+    e.value = RCVariant(Variant(vl))
+    self.notify(e)
+
   def __notifyFileProgress(self, node, percent):
     e = event()
     e.thisown = False
@@ -289,10 +333,7 @@ class Extract(EventHandler):
     e.thisown = False
     e.type = ftype
     vl = VList()
-    if isinstance(src, Node):
-      vl.append(Variant(src.absolute()))
-    else:
-      vl.append(Variant(src))
+    vl.append(Variant(src))
     vl.append(Variant(str(tb)))
     e.value = RCVariant(Variant(vl))
     self.notify(e)
