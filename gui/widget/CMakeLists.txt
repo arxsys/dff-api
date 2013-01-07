@@ -26,7 +26,6 @@ set(apiguiwidget_srcs
   textedit.py
   devicesdialog.py
   generateModuleShape.py
-  reportedit.py
   nodewidget.py
   nodelistwidgets.py
 )
