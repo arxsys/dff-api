@@ -153,24 +153,31 @@ class ScrollBar(QScrollBar):
         self.nodeview = nodeview
         self.setMinimum(0)
         self.setMaximum(0)
+        self.setVisible(False)
         self.connect(self, SIGNAL("sliderMoved(int)"), self.moveTo)
         self.connect(self, SIGNAL("actionTriggered(int)"), self.triggered)
         # Model signals
         self.connect(self.model, SIGNAL("maximum"), self.updateMaximum)
         self.connect(self.model, SIGNAL("hideScroll"), self.hideScrollbar)
         self.connect(self.model, SIGNAL("current"), self.updateCurrent)
+        self.nodeview.hlayout.addWidget(self, 1)
+ 
 
     def hideScrollbar(self):
-        self.nodeview.hlayout.removeWidget(self)
+        self.setMinimum(0)
+        self.setMaximum(0)
+        self.setVisible(False)
 
     def updateMaximum(self, stop):
         if stop <= self.model.visibleRows():
-            self.nodeview.hlayout.removeWidget(self)
+           self.setMinimum(0)
+           self.setMaximum(0)
+           self.setVisible(False)
         else:
             m = stop - self.model.visibleRows()
             self.setMaximum(m)
             self.setSingleStep(1)
-            self.nodeview.hlayout.addWidget(self, 1)
+            self.setVisible(True)
 
     def updateCurrent(self, current):
         if current >= 0:

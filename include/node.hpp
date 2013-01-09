@@ -44,15 +44,6 @@ class Tag;
 
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
 
-enum	attributeNameType
-  {
-    ABSOLUTE_ATTR_NAME = 0,
-    RELATIVE_ATTR_NAME = 1
-  };
-
-// #define ABSOLUTE_ATTR_NAME	0x1
-// #define RELATIVE_ATTR_NAME	0x2
-
 class AttributesHandler
 {
   	std::string		__handlerName;
@@ -63,16 +54,39 @@ public:
   EXPORT std::string		name(void);
 };
 
+class AttributesHandlers
+{
+private:
+  uint64_t                              __state; 
+  std::set<AttributesHandler*>		__handlers; 
+public:
+                                        AttributesHandlers();
+                                        ~AttributesHandlers();
+  size_t                                count();
+  std::set<AttributesHandler*>&         handlers();
+  void                                  updateState(void);
+  const uint64_t                        state(void);
+  bool                                  add(AttributesHandler* attributeHandler);
+  bool                                  remove(AttributesHandler* attributeHandler);
+  bool                                  remove(std::string name);
+};
+
 #define ISFILE		0x01
 #define ISDIR		0x02
 #define ISLINK		0x04
 #define ISDELETED	0x08
 
+enum	attributeNameType
+{
+  ABSOLUTE_ATTR_NAME = 0,
+  RELATIVE_ATTR_NAME = 1
+};
+
 class Node
 {
 protected:
   class Node*				__parent;
-  std::set<AttributesHandler*>		__attributesHandlers; 
+  AttributesHandlers                    __attributesHandlers;
   std::vector<class Node *>		__children;
   uint32_t				__childcount;
   std::string				__name;
@@ -83,6 +97,7 @@ protected:
   uint64_t				__uid;
   uint64_t				__tags;
   EXPORT virtual Attributes		_attributes();
+  EXPORT virtual uint64_t               _attributesState();
   EXPORT void				attributesByTypeFromVariant(Variant_p rcvar, uint8_t, Attributes*, std::string current);
   
   EXPORT void	 			attributesByNameFromVariant(Variant_p rcvar, std::string name, std::list< Variant_p >* result);
@@ -103,69 +118,70 @@ public:
   uint32_t					__at;
   
   EXPORT void					setId(uint32_t	id);
-  EXPORT virtual	uint32_t		id();
+  EXPORT virtual	uint32_t		id(void);
   
-  EXPORT void					setFile();
-  EXPORT void					setDir();
-  EXPORT void					setLink();
-  EXPORT void					setDeleted();
+  EXPORT void					setFile(void);
+  EXPORT void					setDir(void);
+  EXPORT void					setLink(void);
+  EXPORT void					setDeleted(void);
   EXPORT void					setSize(uint64_t size);
   EXPORT void					setFsobj(fso* obj);
   EXPORT void					setParent(Node* parent);
 
   EXPORT virtual void				fileMapping(FileMapping *);
-  EXPORT virtual uint64_t			size();
+  EXPORT virtual uint64_t			size(void);
 
-  EXPORT std::string				path();
-  EXPORT std::string				name();
-  EXPORT std::string				absolute();
-  EXPORT std::string				extension();
+  EXPORT std::string				path(void);
+  EXPORT std::string				name(void);
+  EXPORT std::string				absolute(void);
+  EXPORT std::string				extension(void);
 
 
-  EXPORT virtual bool				isFile();
-  EXPORT virtual bool				isDir();
-  EXPORT virtual bool				isLink();
-  EXPORT virtual bool				isVDir();
-  EXPORT virtual bool				isDeleted();
+  EXPORT virtual bool				isFile(void);
+  EXPORT virtual bool				isDir(void);
+  EXPORT virtual bool				isLink(void);
+  EXPORT virtual bool				isVDir(void);
+  EXPORT virtual bool				isDeleted(void);
 
-  EXPORT virtual class fso*			fsobj();
+  EXPORT virtual class fso*			fsobj(void);
 
-  EXPORT Node*					parent();
+  EXPORT Node*					parent(void);
 
-  EXPORT std::vector<class Node*>		children();
+  EXPORT std::vector<class Node*>		children(void);
   EXPORT bool					addChild(class Node* child);
-  EXPORT bool					hasChildren();
-  EXPORT uint32_t				childCount();
+  EXPORT bool					hasChildren(void);
+  EXPORT uint32_t				childCount(void);
   EXPORT uint64_t				totalChildrenCount(uint32_t depth=(uint32_t)-1);
 
-  EXPORT virtual class VFile*			open();
-  EXPORT uint32_t				at();
-  EXPORT uint64_t				uid();
+  EXPORT virtual class VFile*			open(void);
+  EXPORT uint32_t				at(void);
+  EXPORT uint64_t				uid(void);
 
+  EXPORT virtual AttributesHandlers&            attributesHandlers(void);
   EXPORT virtual bool				registerAttributes(AttributesHandler*);
 
   EXPORT virtual Attributes			dataType(void); 
-  EXPORT virtual Attributes			attributes();
+  EXPORT virtual Attributes			attributes(void);
   EXPORT virtual Attributes			attributesByType(uint8_t type);
   EXPORT virtual std::list< Variant_p >		attributesByName(std::string name, attributeNameType tname=RELATIVE_ATTR_NAME);
   EXPORT virtual std::list<std::string>		attributesNames(attributeNameType tname=RELATIVE_ATTR_NAME);
   
-  EXPORT virtual std::map<std::string, uint8_t>	attributesNamesAndTypes();
-  EXPORT virtual std::string			icon();
+  EXPORT virtual std::map<std::string, uint8_t>	attributesNamesAndTypes(void);
+  EXPORT virtual std::string			icon(void);
   EXPORT virtual std::list<std::string>		compatibleModules(void);
   EXPORT virtual bool				isCompatibleModule(std::string);
   EXPORT virtual Attributes			dynamicAttributes(void);
   EXPORT virtual Attributes			dynamicAttributes(std::string name);
   EXPORT virtual std::list<std::string>		dynamicAttributesNames(void);
-  EXPORT virtual Attributes			fsoAttributes();
+  EXPORT virtual Attributes			fsoAttributes(void);
   EXPORT virtual bool				setTag(std::string name);  
   EXPORT virtual bool				setTag(uint32_t id);
   EXPORT virtual bool				removeTag(std::string name);
   EXPORT virtual bool				removeTag(uint32_t id);
   EXPORT virtual bool				isTagged(std::string name);
   EXPORT virtual bool				isTagged(uint32_t id);	
-  EXPORT virtual std::vector<Tag_p >		tags();
-  EXPORT virtual std::vector<uint32_t>		tagsId();
+  EXPORT virtual std::vector<Tag_p >		tags(void);
+  EXPORT virtual std::vector<uint32_t>		tagsId(void);
 };
 
 #endif
