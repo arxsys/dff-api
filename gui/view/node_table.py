@@ -41,7 +41,7 @@ class NodeTableView(QTableView):
 
     def configureHeaders(self):
         self.horizontalHeader().setStretchLastSection(True)
-        self.horizontalHeader().setSortIndicatorShown(True)
+#        self.horizontalHeader().setSortIndicatorShown(True)
 	self.horizontalHeader().setMovable(True)
         self.connect(self.horizontalHeader(), SIGNAL("sectionClicked(int)"), self.headerClicked)
         self.verticalHeader().hide()
@@ -107,6 +107,7 @@ class NodeTableView(QTableView):
         self.model().select(0)
 
     def headerClicked(self, col):
+      self.horizontalHeader().setSortIndicatorShown(True)
       if col in self.headerorder:
         if self.headerorder[col] == Qt.DescendingOrder:
           order = Qt.AscendingOrder
@@ -115,6 +116,7 @@ class NodeTableView(QTableView):
       else:
         order = Qt.DescendingOrder
       self.headerorder[col] = order
+#      print self.headerorder
       self.model().sort(col, order)
 
 class HeaderView(QHeaderView):

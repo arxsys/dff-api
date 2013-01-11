@@ -46,6 +46,7 @@ class NodeListModel(QAbstractItemModel):
     self.connectSignals()
     self.thumbnailer = Thumbnailer()
     self.connect(self.thumbnailer, SIGNAL("ThumbnailUpdate"), self.thumbnailUpdate)
+    self.headerorder = {0:0}
 
   def thumbnailUpdate(self, node, pixmap):
      currentRow = self.currentRow()
@@ -95,8 +96,8 @@ class NodeListModel(QAbstractItemModel):
           self.__list = nodelist
       except:
         print "Error while setting new node List"
-
-      self.refresh(self.__current_row)
+      # Sort list and refresh it 
+      self.sort(self.headerorder.keys()[0], self.headerorder[self.headerorder.keys()[0]])
       self.emit(SIGNAL("maximum"), len(self.__list))
       self.select(self.__current_row)
         
@@ -441,13 +442,24 @@ class NodeListModel(QAbstractItemModel):
     """
     Sort model's list and check.
     """
+    self.headerorder.clear()
+    self.headerorder[column] = order
     QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
     if order == Qt.DescendingOrder:
       Reverse = True
     else:
       Reverse = False
     attrs = self.availableAttributes()
-    attrpath = str(unicode(attrs[column]).encode('utf-8'))
+    try:
+      attrpath = str(unicode(attrs[column]).encode('utf-8'))
+    except IndexError:
+      QApplication.restoreOverrideCursor()
+      self.headerorder.clear()
+      self.headerorder = {0:0}
+      self.refresh(0)
+      self.select(0)
+      return
+
     if isinstance(self.__list, VecNode):
       tmplist = []
       for i in range(0, len(self.__list)):
