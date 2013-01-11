@@ -46,6 +46,7 @@ class NodeListModel(QAbstractItemModel):
     self.connectSignals()
     self.thumbnailer = Thumbnailer()
     self.connect(self.thumbnailer, SIGNAL("ThumbnailUpdate"), self.thumbnailUpdate)
+    self.headerorder = {0:0}
 
   def thumbnailUpdate(self, node, pixmap):
      currentRow = self.currentRow()
@@ -95,8 +96,8 @@ class NodeListModel(QAbstractItemModel):
           self.__list = nodelist
       except:
         print "Error while setting new node List"
-
-      self.refresh(self.__current_row)
+      # Sort list and refresh it 
+      self.sort(self.headerorder.keys()[0], self.headerorder[self.headerorder.keys()[0]])
       self.emit(SIGNAL("maximum"), len(self.__list))
       self.select(self.__current_row)
         
@@ -112,7 +113,7 @@ class NodeListModel(QAbstractItemModel):
         self.refresh(self.__current_row)
       except:
         print "Error while appending node"
-        pass
+        return
 
   def defaultAttributes(self):
     return self.__default_attributes
@@ -302,12 +303,19 @@ class NodeListModel(QAbstractItemModel):
     llist = len(self.__list)
     if start < 0:
       rstart = 0
-    elif (start >= llist) or ((llist - start) <= self.__visible_rows + 1):
+    elif (start >= llist):
+      # End of list
       rstart = llist - (self.__visible_rows)
       if rstart < 0:
         rstart = 0
+    # elif ((llist - start) <= self.__visible_rows + 1):
+    #   rstart = self.__current_row
+    #   if rstart < 0:
+    #     rstart = 0
     else:
       rstart = start
+
+    # End of List range
     if (rstart + self.__visible_rows) > len(self.__list):
       end = len(self.__list)
     else:
@@ -323,6 +331,7 @@ class NodeListModel(QAbstractItemModel):
           self.__rows.append(tmplist[nodeId])
       self.emit(SIGNAL("layoutAboutToBeChanged()"))
       self.emit(SIGNAL("layoutChanged()"))
+
       if self.__current_row >= 0:
         self.__current_row = rstart
       else:
@@ -433,13 +442,24 @@ class NodeListModel(QAbstractItemModel):
     """
     Sort model's list and check.
     """
+    self.headerorder.clear()
+    self.headerorder[column] = order
     QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
     if order == Qt.DescendingOrder:
       Reverse = True
     else:
       Reverse = False
     attrs = self.availableAttributes()
-    attrpath = str(unicode(attrs[column]).encode('utf-8'))
+    try:
+      attrpath = str(unicode(attrs[column]).encode('utf-8'))
+    except IndexError:
+      QApplication.restoreOverrideCursor()
+      self.headerorder.clear()
+      self.headerorder = {0:0}
+      self.refresh(0)
+      self.select(0)
+      return
+
     if isinstance(self.__list, VecNode):
       tmplist = []
       for i in range(0, len(self.__list)):
