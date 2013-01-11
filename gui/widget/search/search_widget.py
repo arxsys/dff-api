@@ -17,7 +17,7 @@ import sys
 from os.path import exists, expanduser, normpath
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QVariant, SIGNAL, QThread, Qt, QFile, QIODevice, QStringList, QRect, SLOT, QEvent, QString, QSignalMapper, pyqtSignal 
+from PyQt4.QtCore import QVariant, SIGNAL, QThread, Qt, QFile, QIODevice, QStringList, QRect, SLOT, QEvent, QString, QSignalMapper, pyqtSignal, pyqtSlot, SLOT
 from PyQt4.QtGui import QWidget, QDateTimeEdit, QLineEdit, QHBoxLayout, QLabel, QPushButton, QMessageBox, QListWidget, QTableWidget, QTableWidgetItem, QAbstractItemView, QIcon, QInputDialog, QTableView, QMessageBox, QVBoxLayout, QComboBox, QCheckBox, QHeaderView, QDialog, QTreeWidget, QIntValidator, QDialogButtonBox, QApplication, QCursor, QFileDialog
 
 from dff.api.vfs import vfs
@@ -108,6 +108,7 @@ class SearchPanel(Ui_searchPanel, QWidget):
     else:
       self.quickEdit.setEnabled(False)
       self.quickMode.setEnabled(False)
+#    self.refreshQueryEdit()
   
   def buttonsChecked(self):
     self.quickEdit.clear()
@@ -160,8 +161,8 @@ class SearchPanel(Ui_searchPanel, QWidget):
       box.exec_()
 
   def buildQuery(self):
-    query = ""
     if self.quickSearch.isChecked():
+      query = ""
       if self.quickEdit.text() != "":
         # Check if buttons are checked
         if not self.quickEdit.isEnabled():
@@ -176,19 +177,7 @@ class SearchPanel(Ui_searchPanel, QWidget):
         return None
       return query
     else:
-      enabled = 0
-      filters = self.filters.get()
-      for count, filt in enumerate(filters):
-#        filt = dial.filter
-        if self.filters.filterEnabled(filt):
-          if enabled > 0:
-            query += " and "
-          query += filt.buildRequest()
-          enabled += 1
-      if query != "":
-        return query
-      else:
-        return None
+      return self.filters.buildAllQueries()
       
   def updateProgressbar(self, count):
     self.searchProgress.setValue(count)
@@ -235,6 +224,7 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
     self.table.setSelectionMode(QAbstractItemView.SingleSelection)
     self.table.setColumnWidth(0, 180)
     self.filters = []
+    self.enabled = []
 
     self.connect(self.newButton, SIGNAL("clicked(bool)"), self.add)
     self.connect(self.deleteButton, SIGNAL("clicked(bool)"), self.remove)
@@ -247,6 +237,21 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
     self.deleteButton.setEnabled(False)
     self.saveButton.setEnabled(False)
     
+  def buildAllQueries(self):
+    query = ""
+    enabled = 0
+    filters = self.get()
+    for count, filt in enumerate(filters):
+      if self.filterEnabled(filt):
+        if enabled > 0:
+          query += " and "
+        query += filt.buildRequest()
+        enabled += 1
+    if query != "":
+      return query
+    else:
+      return None
+
   def cellClick(self, row, col):
     try:
       filt = self.filters[row]
@@ -259,13 +264,12 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
         self.saveButton.setEnabled(True)
       else:
         self.saveButton.setEnabled(False)
-      self.queryEdit.clear()
-      self.queryEdit.insert(filt.buildRequest())
+      self.refreshQueryEdit()
     except:
       pass
 
   def addFilter(self, name, query):
-    filt = Filter(name, query)
+    filt = Filter(self, name, query)
     currow = self.table.rowCount()
     self.table.setRowCount(self.table.rowCount() + 1)
     name = QTableWidgetItem(QString(name))
@@ -273,13 +277,16 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
     self.table.setItem(currow, 0, name)
     check = QCheckBox()
     check.setChecked(True)
-    self.table.setCellWidget(currow, 1, check)
     self.filters.append(filt)
     self.emit(SIGNAL("filterAdded"))
     self.table.horizontalHeader().setResizeMode(1, QHeaderView.ResizeToContents)
+    self.refreshQueryEdit()
+
+  def filterState(self, state):
+    self.refreshQueryEdit()
 
   def add(self):
-    filt = Filter()
+    filt = Filter(self)
     ret = filt.exec_()
     if ret == 1:
       currow = self.table.rowCount()
@@ -289,10 +296,18 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
       self.table.setItem(currow, 0, name)
       check = QCheckBox()
       check.setChecked(True)
+      self.connect(check, SIGNAL("stateChanged(int)"), self.filterState)
       self.table.setCellWidget(currow, 1, check)
       self.filters.append(filt)
+      self.refreshQueryEdit()
       self.emit(SIGNAL("filterAdded"))
       self.table.horizontalHeader().setResizeMode(1, QHeaderView.ResizeToContents)
+
+  def refreshQueryEdit(self):
+      self.queryEdit.clear()
+      query = self.buildAllQueries()
+      if not query: query = ""
+      self.queryEdit.insert(query)   
 
   def remove(self):
     row = self.table.currentRow()
@@ -302,6 +317,7 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
       self.emit(SIGNAL("filterRemoved"))
       if len(self.filters) == 0:
         self.editButton.setEnabled(False)
+      self.refreshQueryEdit()
 
   def edit(self):
     row = self.table.currentRow()
@@ -310,6 +326,7 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
     if ret == 1:
       cell = self.table.currentItem()
       cell.setText(QString(filt.name()))
+    self.refreshQueryEdit()
 
   def get(self):
     return self.filters
@@ -367,8 +384,9 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
         pass
 
 class Filter(Ui_filterAdd, QDialog):
-  def __init__(self, fname=None, query=None):
-    super(QDialog, self).__init__()
+  def __init__(self, filtertable, fname=None, query=None):
+    super(QDialog, self).__init__(filtertable)
+    self.filtertable = filtertable
     self.setupUi(self)
     self.editable = False
     self.defaultquery = None
@@ -413,8 +431,6 @@ class Filter(Ui_filterAdd, QDialog):
         res +=  widget.request()
         row += 1
       res += ")"
-      self.filterResult.clear()
-      self.filterResult.setText(QString.fromUtf8(res))
       return res
     else:
       return self.defaultquery
@@ -770,3 +786,4 @@ class OperatorCombo(QComboBox):
       self.addItem(QString("matches"))
     for op in OPERATORS:
       self.addItem(QString(op))
+
