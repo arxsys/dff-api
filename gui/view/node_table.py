@@ -59,10 +59,19 @@ class NodeTableView(QTableView):
       self.refreshVisible()
 
     def wheelEvent(self, event):
-      if event.delta() > 0:
-        v = self.model().seek(-3, 1)
-      else:
-        v = self.model().seek(3, 1)
+        currentrow = self.model().currentRow()
+        if self.model().size() <= self.model().visibleRows():
+            return
+        if event.delta() < 0:
+            if currentrow + 3 >= (self.model().size() - self.model().visibleRows()):
+                v = self.model().seek(self.model().size())
+                return
+        if event.delta() > 0:
+            v = self.model().seek(-3, 1)
+            return
+        else:
+            v = self.model().seek(3, 1)
+            return
 
     def mouseDoubleClickEvent(self, event):
         index = self.indexAt(event.pos())

@@ -112,7 +112,7 @@ class NodeListModel(QAbstractItemModel):
         self.refresh(self.__current_row)
       except:
         print "Error while appending node"
-        pass
+        return
 
   def defaultAttributes(self):
     return self.__default_attributes
@@ -302,12 +302,19 @@ class NodeListModel(QAbstractItemModel):
     llist = len(self.__list)
     if start < 0:
       rstart = 0
-    elif (start >= llist) or ((llist - start) <= self.__visible_rows + 1):
+    elif (start >= llist):
+      # End of list
       rstart = llist - (self.__visible_rows)
       if rstart < 0:
         rstart = 0
+    # elif ((llist - start) <= self.__visible_rows + 1):
+    #   rstart = self.__current_row
+    #   if rstart < 0:
+    #     rstart = 0
     else:
       rstart = start
+
+    # End of List range
     if (rstart + self.__visible_rows) > len(self.__list):
       end = len(self.__list)
     else:
@@ -323,6 +330,7 @@ class NodeListModel(QAbstractItemModel):
           self.__rows.append(tmplist[nodeId])
       self.emit(SIGNAL("layoutAboutToBeChanged()"))
       self.emit(SIGNAL("layoutChanged()"))
+
       if self.__current_row >= 0:
         self.__current_row = rstart
       else:
