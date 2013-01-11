@@ -27,7 +27,6 @@ bool    EventHandler::connection(class EventHandler *obs)
   for (it = this->watchers.begin(); it != this->watchers.end(); it++)
     if (*it == obs)
       {
-	std::cout << "already registered" << std::endl;
         return false;
       }
   this->watchers.push_back(obs);

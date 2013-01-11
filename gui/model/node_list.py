@@ -175,7 +175,7 @@ class NodeListModel(QAbstractItemModel):
 	try :
           val = node.attributesByName(attrpath, ABSOLUTE_ATTR_NAME)
 	except Exception as e:
-	   print "NodeListModel data can't get attribute by name " + str(e)
+	   print "NodeListModel data can't get attribute " + attrpath + " by name " + str(e)
 	   return QVariant()
         if len(val) == 1:
           if val[0].type() == typeId.VTime:
