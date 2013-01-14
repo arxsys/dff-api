@@ -21,13 +21,15 @@ from PyQt4.QtGui import QApplication, QImage, QPixmap, QPixmapCache, QPainter
 from dff.api.types.libtypes import Variant, VMap
 from dff.api.vfs.libvfs import AttributesHandler, Node
 
+
+#from dff.api.gui.video import video
 try:
   from dff.api.gui.video import video
   VIDEO_API_EXISTS = True
-except ImportError:
+except ImportError as e:
   VIDEO_API_EXISTS = False
-  print "Can't load video api"
-
+  print "Can't load video api : " + str(e)
+ 
 class CorruptedPictureHandler(AttributesHandler):
   def __init__(self):
      AttributesHandler.__init__(self, "Corrupted")

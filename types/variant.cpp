@@ -870,42 +870,48 @@ char	Variant::toChar() throw (std::string)
   if (this->_type == typeId::Char)
     res = this->__data.c;
 
-  if (this->_type == typeId::Int16)
-    if ((this->__data.s >= INT8_MIN) && (this->__data.s <= INT8_MAX))
-      res = static_cast<char>(this->__data.s);
-    else
-      err << "value [ " << this->__data.s;
-
+  else if (this->_type == typeId::Int16)
+    {
+      if ((this->__data.s >= INT8_MIN) && (this->__data.s <= INT8_MAX))
+	res = static_cast<char>(this->__data.s);
+      else
+	err << "value [ " << this->__data.s;
+    }
   else if (this->_type == typeId::Int32)
-    if ((this->__data.i >= INT8_MIN) && (this->__data.i <= INT8_MAX))
-      res = static_cast<char>(this->__data.i);
-    else
-      err << "value [ " << this->__data.i;
-
+    {
+      if ((this->__data.i >= INT8_MIN) && (this->__data.i <= INT8_MAX))
+	res = static_cast<char>(this->__data.i);
+      else
+	err << "value [ " << this->__data.i;
+    }
   else if (this->_type == typeId::Int64)
-    if ((this->__data.ll >= INT8_MIN) && (this->__data.ll <= INT8_MAX))
-      res = static_cast<char>(this->__data.ll);
-    else
-      err << "value [ " << this->__data.ll;
-
+    {
+      if ((this->__data.ll >= INT8_MIN) && (this->__data.ll <= INT8_MAX))
+	res = static_cast<char>(this->__data.ll);
+      else
+	err << "value [ " << this->__data.ll;
+    }
   else if (this->_type == typeId::UInt16)
-    if ((this->__data.us >= INT8_MIN) && (this->__data.us <= INT8_MAX))
-      res = static_cast<char>(this->__data.us);
-    else
-      err << "value [ " << this->__data.us;
-
+    {
+      if ((this->__data.us >= INT8_MIN) && (this->__data.us <= INT8_MAX))
+	res = static_cast<char>(this->__data.us);
+      else
+	err << "value [ " << this->__data.us;
+    }
   else if (this->_type == typeId::UInt32)
-    if (this->__data.ui <= INT8_MAX)
-      res = static_cast<char>(this->__data.ui);
-    else
-      err << "value [ " << this->__data.ui;
-
+    {
+      if (this->__data.ui <= INT8_MAX)
+	res = static_cast<char>(this->__data.ui);
+      else
+	err << "value [ " << this->__data.ui;
+    }
   else if (this->_type == typeId::UInt64)
-    if(this->__data.ull <= INT8_MAX)
-      res = static_cast<char>(this->__data.ull);
-    else
-      err << "value [ " << this->__data.ull;
-
+    {
+      if(this->__data.ull <= INT8_MAX)
+	res = static_cast<char>(this->__data.ull);
+      else
+	err << "value [ " << this->__data.ull;
+    }
   else if (this->_type == typeId::CArray)
     {
       std::istringstream istr(*(this->__data.str));
@@ -920,6 +926,7 @@ char	Variant::toChar() throw (std::string)
     }
   else
     throw std::string("type < " + this->typeName() + " > cannot be converted to < char >");
+
   if (!(err.str().empty()))
     {
       err << " ] of type < " << this->typeName() << " > does not fit in type < char >";

@@ -327,11 +327,16 @@ Attributes	Node::_attributes(void)
   return (attr);
 }
 
+uint64_t        Node::_attributesState(void)
+{
+  return (0);
+}
+
 Attributes	Node::fsoAttributes()
 {
   try 
   {
-    return AttributeCache::instance().find(this);
+    return AttributeCache::instance().find(this, this->_attributesState());
   }
   catch (std::string)
   {
@@ -339,7 +344,7 @@ Attributes	Node::fsoAttributes()
     try 
     {
       attributes =  this->_attributes();
-      AttributeCache::instance().insert(this, attributes);
+      AttributeCache::instance().insert(this, attributes, this->_attributesState());
     }
     catch (...)
     {
@@ -354,18 +359,20 @@ Attributes	Node::dynamicAttributes()
   Attributes	attr;
   Variant*	vptr;
 
-  size_t        size = this->__attributesHandlers.size();
+  size_t        size = this->__attributesHandlers.count();
 
   if (size == 0)
     return attr;
   try
   {
-    return DynamicAttributesCache::instance().find(this, size); 
+    return DynamicAttributesCache::instance().find(this, this->__attributesHandlers.state());
   }
   catch (std::string)
   {
+    std::set<AttributesHandler*>& handlers = this->__attributesHandlers.handlers();
     std::set<AttributesHandler*>::iterator handler;
-    for (handler = this->__attributesHandlers.begin(); handler != this->__attributesHandlers.end(); handler++)
+ 
+    for (handler = handlers.begin(); handler != handlers.end(); handler++)
     {
       try
       {
@@ -377,17 +384,18 @@ Attributes	Node::dynamicAttributes()
         std::cout << this->absolute() << " attribute handler " << (*handler)->name() << " raise error\n" << std::endl;
       }
     }
-    DynamicAttributesCache::instance().insert(this, attr, size);
+    DynamicAttributesCache::instance().insert(this, attr, this->__attributesHandlers.state());
   }
   return attr;
 }
 
 Attributes	Node::dynamicAttributes(std::string name)
 {
+  std::set<AttributesHandler*>& handlers = this->__attributesHandlers.handlers();
   std::set<AttributesHandler* >::iterator handler;
   Attributes	attrs;
 
-  for (handler = this->__attributesHandlers.begin(); handler != this->__attributesHandlers.end(); handler++)
+  for (handler = handlers.begin(); handler != handlers.end(); handler++)
   {
     if ((*handler)->name() == name)
     {
@@ -439,21 +447,24 @@ Attributes	                Node::attributes()
 
 std::list<std::string>		Node::dynamicAttributesNames(void)
 {
+  std::set<AttributesHandler*>& handlers = this->__attributesHandlers.handlers();
   std::set<AttributesHandler* >::iterator handler;
   std::list<std::string>	names;
 
-  for (handler = this->__attributesHandlers.begin(); handler != this->__attributesHandlers.end(); handler++)
+  for (handler = handlers.begin(); handler != handlers.end(); handler++)
     names.push_back((*handler)->name());
 
   return (names);
 }
 
+AttributesHandlers&              Node::attributesHandlers(void)
+{
+  return (this->__attributesHandlers);
+}
+
 bool			        Node::registerAttributes(AttributesHandler* ah)
 {
-  bool	ret;
-  
-  ret = this->__attributesHandlers.insert(ah).second;
-  return ret;
+  return (this->__attributesHandlers.add(ah)); 
 }
 
 
@@ -936,6 +947,11 @@ std::vector<uint32_t>	Node::tagsId()
   return (tags);
 }
 
+
+/*
+ *  Attributes Handler
+*/
+
 AttributesHandler::AttributesHandler(std::string handlerName)
 {
   this->__handlerName = handlerName;
@@ -948,4 +964,66 @@ std::string AttributesHandler::name(void)
 
 AttributesHandler::~AttributesHandler()
 {
+}
+
+/*
+ * Attributes Handlers
+ */
+
+
+AttributesHandlers::AttributesHandlers()
+{
+  this->__state = 0;
+}
+
+AttributesHandlers::~AttributesHandlers()
+{
+}
+
+size_t AttributesHandlers::count()
+{
+  return this->__handlers.size();
+}
+
+std::set<AttributesHandler* >& AttributesHandlers::handlers()
+{
+  return this->__handlers;
+}
+
+void    AttributesHandlers::updateState(void)
+{
+  this->__state++;
+}
+
+const uint64_t AttributesHandlers::state(void)
+{
+  return (this->__state);
+}       
+
+bool AttributesHandlers::add(AttributesHandler* ah)
+{
+  return this->__handlers.insert(ah).second;
+}
+
+bool AttributesHandlers::remove(AttributesHandler* attributeHandler)
+{
+  this->__handlers.erase(attributeHandler);
+
+  return true;
+}
+
+bool AttributesHandlers::remove(std::string handlerName)
+{
+  std::set<AttributesHandler*>::iterator handler;
+  
+  for (handler = this->__handlers.begin(); handler != this->__handlers.end(); handler++)
+  {
+     if (handlerName == (*handler)->name())
+     {
+       this->__handlers.erase(handler);
+       return true;
+     }
+  }
+
+  return false;
 }

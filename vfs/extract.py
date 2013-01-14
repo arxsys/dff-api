@@ -14,6 +14,9 @@
 #
 
 import os, shutil, time, traceback, types
+if os.name == "nt":
+  import ctypes, sys
+
 from dff.api.vfs.libvfs import Node
 from dff.api.exceptions.libexceptions import vfsError
 from dff.api.events.libevents import EventHandler, event
@@ -49,6 +52,22 @@ class Extract(EventHandler):
     self.ommited_files = 0
     self.ommited_folders = 0
 
+
+  @staticmethod
+  def freeSpace(path):
+     """Return available free space for the disk containing path"""
+     if  os.name == "posix":
+        st = os.statvfs(path)
+        return st.f_bavail * st.f_frsize
+     elif os.name == "nt":
+        freeSpace = ctypes.c_ulonglong()
+        if isinstance(path, unicode):
+           ctypes.windll.kernel32.GetDiskFreeSpaceExW(path, None, None, ctypes.byref(freeSpace))
+        else:
+           ctypes.windll.kernel32.GetDiskFreeSpaceExA(path, None, None, ctypes.byref(freeSpace))
+        return freeSpace.value   
+     else:
+        raise Exception("Extract.freeSpace is not implemented for this OS")   
 
   def checkFsCapacity(self):
     #perform more tests (reserved words, chars, links, ...)
