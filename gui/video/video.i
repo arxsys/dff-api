@@ -14,6 +14,8 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="api.gui.video", docstring="video api to extract thumbnail and metadata")  video 
 %feature("autodoc", 1);
 %feature("docstring") VideoDecoder::VideoDecoder

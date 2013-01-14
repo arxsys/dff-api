@@ -14,6 +14,8 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.exceptions", directors="1") libexceptions
 
 

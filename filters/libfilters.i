@@ -14,6 +14,8 @@
  *  Frederic B. <fba@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.filters") libfilters
 
 #ifndef WIN32

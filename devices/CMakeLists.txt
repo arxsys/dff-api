@@ -12,67 +12,27 @@
 # Author(s):
 #  Solal Jacob <sja@digital-forensic.org>
 
-FIND_PACKAGE(SWIG REQUIRED)
-INCLUDE(${SWIG_USE_FILE})
-
-#FIND_PACKAGE(PythonLibs)
-
-INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
-INCLUDE_DIRECTORIES(../include)
-
 if (UNIX)
-       if (HAVE_UDEV)
-	 add_definitions(-DHAVE_LIBUDEV_H)
-	 set(CMAKE_SWIG_FLAGS ${CMAKE_SWIG_FLAGS} -DHAVE_LIBUDEV_H=1)
-  	 set (libdevices_srcs
-       	    device.cpp
-       	    udevice.cpp
-            )
-       else (HAVE_UDEV)
-         set (libdevices_srcs
-	     device.cpp
-	    )
-       endif (HAVE_UDEV)
+  if (HAVE_UDEV)
+    set(cpp_files device.cpp udevice.cpp)
+    set(swig_flags "-DHAVE_LIBUDEV_H=1")
+    set(definitions "-DHAVE_LIBUDEV_H")
+    set(link_libraries ${UDEV_LIBRARY})
+  else ()
+    set(cpp_files device.cpp)
+  endif()
+  dff_cpp_api(devices
+    SWIG_FILE libdevices.i
+    CPP_FILES ${cpp_files}
+    LINK_LIBRARIES ${link_libraries}
+    DEFINITIONS ${definitions}
+    SWIG_FLAGS ${swig_flags}
+    PYFILES __init__.py devices.py dbushaldev.py
+    )
 else (UNIX)
-   set (libdevices_srcs
-       device.cpp
-       wmidev.cpp	
-     )
+  dff_cpp_api(devices
+    SWIG_FILE libdevices.i
+    CPP_FILES ${cpp_files}
+    PYFILES __init__.py devices.py
+    )  
 endif(UNIX)
-
-SET_SOURCE_FILES_PROPERTIES(libdevices.i PROPERTIES CPLUSPLUS ON)
-SWIG_ADD_MODULE(libdevices python libdevices.i ${libdevices_srcs})
-
-if (HAVE_UDEV)
-SWIG_LINK_LIBRARIES(libdevices ${PYTHON_LIBRARIES} ${UDEV_LIBRARY})
-else (HAVE_UDEV) 
-SWIG_LINK_LIBRARIES(libdevices ${PYTHON_LIBRARIES})
-endif (HAVE_UDEV)
-
-if (CMAKE_GENERATOR MATCHES "Visual Studio")
-set_target_properties (${SWIG_MODULE_libdevices_REAL_NAME} PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
-  RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}"
-  RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_CURRENT_BINARY_DIR}"
-  SUFFIX ".pyd"
-)
-endif ( CMAKE_GENERATOR MATCHES "Visual Studio")
-if (UNIX)
-set(libdevices_files
-  __init__.py
-  libdevices.py
-  devices.py
-  dbushaldev.py
-)
-else (UNIX)
-set(libdevices_files
-  __init__.py
-  libdevices.py
-  devices.py
-)
-endif(UNIX)
-
-install_lib(${SWIG_MODULE_libdevices_REAL_NAME})
-install_file(libdevices ${libdevices_files})
-

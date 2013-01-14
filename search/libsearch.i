@@ -14,6 +14,8 @@
  *  Frederic B. <fba@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.search") libsearch
 
  /*%module(package="dff.api.vfs",docstring="searching...", directors="1") libsearch */

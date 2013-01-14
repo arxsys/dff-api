@@ -14,6 +14,8 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.datatype", directors="1") libdatatype
 
 %feature("director") DataTypeHandler;

@@ -14,6 +14,8 @@
  *  Frederic Baguelin <fba@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.events",docstring="libevents: c++ generated inteface", directors="1") libevents 
 %feature("autodoc", 1);
 %feature("docstring");

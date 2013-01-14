@@ -14,6 +14,8 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.vfs",docstring="libvfs: c++ generated inteface", directors="1") libvfs 
 %feature("autodoc", 1); //1 = generate type for func proto, no work for typemap
 %feature("docstring");
@@ -677,7 +679,6 @@ Open the node and return a pointer to a VFile instance
 "
 #pragma SWIG nowarn=473
 %warnfilter(SWIGWARN_IGNORE_OPERATOR_EQ,SWIGWARN_LANG_IDENTIFIER);
-
 
 %include "std_string.i"
 %include "std_list.i"

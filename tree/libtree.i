@@ -14,6 +14,8 @@
  *  Frederic Baguelin <fba@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.tree") libtree
 
 %include "std_string.i"

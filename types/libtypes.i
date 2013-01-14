@@ -15,6 +15,8 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
+#include "pyrun.swg"
+
 %module(package="dff.api.types") libtypes
 %feature("autodoc", 1); //1 = generate type for func proto, no work for typemap
 %feature("docstring");
