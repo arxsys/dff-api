@@ -15,7 +15,7 @@
 
 #### Deploying python __init__ script
 
-set(apiguiwidget_srcs
+install_file(
   __init__.py
   dockwidget.py
   layoutmanager.py
@@ -27,7 +27,5 @@ set(apiguiwidget_srcs
   nodewidget.py
   nodelistwidgets.py
 )
-
-install_file(apiguiwidget ${apiguiwidget_srcs})
 
 add_subdirectory (search)

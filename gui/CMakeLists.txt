@@ -12,15 +12,12 @@
 # Author(s):
 #  Solal Jacob <sja@digital-forensic.org>
 
-#### Deploying python __init__ script
-set(apigui_srcs
-  __init__.py
-  thumbnail.py
-)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
 
-install_file(apigui ${apigui_srcs})
+install_file(
+  __init__.py
+  thumbnail.py
+  )
 
 # compiled
 add_subdirectory (dialog)

@@ -24,5 +24,5 @@ dff_cpp_api(datatype
   SWIG_FILE libdatatype.i
   CPP_FILES datatype.cpp
   LINK_LIBRARIES ${link_libraries}
-  PYFILES __init__.py mimetree.py magichandler.py   
+  EXTRA_FILES __init__.py mimetree.py magichandler.py   
   )

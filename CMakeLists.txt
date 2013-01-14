@@ -14,12 +14,7 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 
-#### Deploying python __init__ script
-set(api_srcs
-  __init__.py
-)
-
-install_file(api ${api_srcs})
+install_file(__init__.py)
 
 # compiled
 

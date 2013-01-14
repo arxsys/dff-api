@@ -18,5 +18,5 @@ dff_cpp_api(events
   SWIG_FILE libevents.i
   CPP_FILES eventhandler.cpp
   LINK_LIBRARIES types exceptions
-  PYFILES __init__.py
+  EXTRA_FILES __init__.py
   )

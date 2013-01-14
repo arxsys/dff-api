@@ -27,12 +27,12 @@ if (UNIX)
     LINK_LIBRARIES ${link_libraries}
     DEFINITIONS ${definitions}
     SWIG_FLAGS ${swig_flags}
-    PYFILES __init__.py devices.py dbushaldev.py
+    EXTRA_FILES __init__.py devices.py dbushaldev.py
     )
 else (UNIX)
   dff_cpp_api(devices
     SWIG_FILE libdevices.i
     CPP_FILES ${cpp_files}
-    PYFILES __init__.py devices.py
+    EXTRA_FILES __init__.py devices.py
     )  
 endif(UNIX)

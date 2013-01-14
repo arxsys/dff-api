@@ -17,7 +17,7 @@
 dff_cpp_api(exceptions
   CPP_FILES exceptions.cpp
   SWIG_FILE libexceptions.i
-  PYFILES __init__.py
+  EXTRA_FILES __init__.py
   )
 
 if (UNIX)

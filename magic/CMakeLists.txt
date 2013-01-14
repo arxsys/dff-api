@@ -14,14 +14,13 @@
 #  Frederic Baguelin <fba@digital-forensic.org>
 
 if(WIN32 AND NOT UNIX)
-  set(magic_srcs
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
+  install_file(magic_srcs
     __init__.py
     magic.mgc
     magic.py
     libmagic-1.dll
     libgnurx-0.dll
     )
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
 endif(WIN32 AND NOT UNIX)
 
-install_file(magic ${magic_srcs})

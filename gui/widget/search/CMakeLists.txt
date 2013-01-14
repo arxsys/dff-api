@@ -15,7 +15,7 @@
 #### Deploying python __init__ script
 
 
-set(apiguiwidgetsearch_srcs
+install_file(
   __init__.py
   search_widget.py
   filter.py
@@ -23,6 +23,4 @@ set(apiguiwidgetsearch_srcs
   dico_manager.py
   predefilters.py
 )
-
-install_file(apiguiwidgetsearch ${apiguiwidgetsearch_srcs})
 

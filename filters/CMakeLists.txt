@@ -57,5 +57,5 @@ dff_cpp_api(filters
   SWIG_FILE libfilters.i
   CPP_FILES factory.cpp dictionnary.cpp filter.cpp astnodes.cpp ${BISON_parser_OUTPUTS} ${FLEX_scanner_OUTPUTS}
   LINK_LIBRARIES events vfs types search
-  PYFILES __init__.py
+  EXTRA_FILES __init__.py
   )

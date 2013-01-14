@@ -13,11 +13,9 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 
-set(apswvfs_srcs
-  __init__.py
-  apswvfs.py
-)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
 
-install_file(apswvfs ${apswvfs_srcs})
+install_file(
+  __init__.py
+  apswvfs.py
+  )

@@ -12,16 +12,13 @@
 # Author(s):
 #  Solal Jacob <sja@digital-forensic.org>
 
-
-#### Deploying python __init__ script
-set(dialog_srcs
+install_file(
   __init__.py
   applymodule.py
   extractor.py
   tagmanager.py
   tagedit.py
   selectattributes.py
-)
+  )
 
-install_file(dialog ${dialog_srcs})
 

@@ -16,5 +16,5 @@
 dff_cpp_api(tree
   CPP_FILES TwoThreeTree.cpp TwoThreeNode.cpp
   SWIG_FILE libtree.i
-  PYFILES __init__.py
+  EXTRA_FILES __init__.py
   )

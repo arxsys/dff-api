@@ -13,13 +13,9 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 
-set(model_srcs
+install_file(
   __init__.py
-#  vfsitemmodel.py
-#  search_model.py
   node_list.py
   tree.py
   selection.py
 )
-
-install_file(model ${model_srcs})

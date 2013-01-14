@@ -13,11 +13,9 @@
 #  Jeremy MOUNIER <jmo@digital-forensic.org>
 
 
-set(view_srcs
+install_file(
   __init__.py
   node_list.py  
   node_table.py
   tree.py
 )
-
-install_file(view ${view_srcs})
