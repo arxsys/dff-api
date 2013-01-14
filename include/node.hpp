@@ -46,7 +46,7 @@ typedef std::map<std::string, RCPtr< class Variant > > Attributes;
 
 class AttributesHandler
 {
-  	std::string		__handlerName;
+  std::string   		__handlerName;
 public:
   EXPORT			AttributesHandler(std::string handlerName);
   EXPORT virtual		~AttributesHandler();
@@ -58,17 +58,17 @@ class AttributesHandlers
 {
 private:
   uint64_t                              __state; 
-  std::set<AttributesHandler*>		__handlers; 
+  std::set<AttributesHandler*>          __handlers; 
 public:
-                                        AttributesHandlers();
-                                        ~AttributesHandlers();
-  size_t                                count();
-  std::set<AttributesHandler*>&         handlers();
-  void                                  updateState(void);
-  const uint64_t                        state(void);
-  bool                                  add(AttributesHandler* attributeHandler);
-  bool                                  remove(AttributesHandler* attributeHandler);
-  bool                                  remove(std::string name);
+  EXPORT                                AttributesHandlers();
+  EXPORT                                ~AttributesHandlers();
+  EXPORT size_t                         count();
+  EXPORT std::set<AttributesHandler*>&  handlers();
+  EXPORT void                           updateState(void);
+  EXPORT const uint64_t                 state(void);
+  EXPORT bool                           add(AttributesHandler* attributeHandler);
+  EXPORT bool                           remove(AttributesHandler* attributeHandler);
+  EXPORT bool                           remove(std::string name);
 };
 
 #define ISFILE		0x01
