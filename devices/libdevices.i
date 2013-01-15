@@ -47,6 +47,7 @@
 #include "../include/udevice.hpp"
 #endif
 %}
+%include "../include/export.hpp"
 %include "../include/device.hpp"
 #ifdef WIN32
 %include "../include/wmidev.hpp"
