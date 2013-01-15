@@ -33,13 +33,13 @@ class WMIDevice : public Device
 private:
   IWbemClassObject	*pclsObj;
 public:
-				WMIDevice();
-				WMIDevice(IWbemClassObject *pcls);
-				~WMIDevice();
-  wchar_t* 			blockDevice(void);
-  wchar_t*	 		serialNumber(void);
-  wchar_t*	 		model(void);
-  uint64_t			size(void);
+  EXPORT			WMIDevice();
+  EXPORT			WMIDevice(IWbemClassObject *pcls);
+  EXPORT			~WMIDevice();
+  EXPORT wchar_t* 		blockDevice(void);
+  EXPORT wchar_t*	 	serialNumber(void);
+  EXPORT wchar_t*	 	model(void);
+  EXPORT uint64_t		size(void);
 
 };
 
@@ -50,8 +50,8 @@ private:
   IWbemServices				*pSvc;
 public:
   std::vector<Device *> 	deviceList;
-  				WMIDevices();
-			  	~WMIDevices();
+  EXPORT			WMIDevices();
+  EXPORT		  	~WMIDevices();
 };
 
 #endif

@@ -32,7 +32,7 @@ if (UNIX)
 else (UNIX)
   dff_cpp_api(devices
     SWIG_FILE libdevices.i
-    CPP_FILES ${cpp_files}
+    CPP_FILES device.cpp wmidev.cpp
     EXTRA_FILES __init__.py devices.py
     )  
 endif(UNIX)

@@ -19,8 +19,8 @@ def _init():
         ctypes.cdll.LoadLibrary('libgnurx-0.dll')
         return ctypes.cdll.LoadLibrary('libmagic-1.dll')
     else:
-        ctypes.cdll.LoadLibrary('api/magic/libgnurx-0.dll')
-        return ctypes.cdll.LoadLibrary('api/magic/libmagic-1.dll')
+        ctypes.cdll.LoadLibrary('dff/api/magic/libgnurx-0.dll')
+        return ctypes.cdll.LoadLibrary('dff/api/magic/libmagic-1.dll')
 
 _libraries = {}
 _libraries['magic'] = _init()

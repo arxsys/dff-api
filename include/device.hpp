@@ -25,22 +25,23 @@
 #endif
 #include <iostream>
 #include <vector>
+#include "export.hpp"
 
 class Device
 {
 public:
-				Device();
-  virtual			~Device();
-  virtual wchar_t*	 	blockDevice(void);
-  virtual wchar_t*		serialNumber(void);
-  virtual wchar_t*	 	model(void);
-  virtual uint64_t		size(void);
+  EXPORT			Device();
+  EXPORT virtual		~Device();
+  EXPORT virtual wchar_t*	blockDevice(void);
+  EXPORT virtual wchar_t*	serialNumber(void);
+  EXPORT virtual wchar_t*	model(void);
+  EXPORT virtual uint64_t	size(void);
 };
 
 class DeviceList
 {
 public:
-			        DeviceList();
+  EXPORT			DeviceList();
 };
 
 #endif

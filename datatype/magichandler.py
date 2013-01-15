@@ -35,7 +35,7 @@ class MagicHandler(DataTypeHandler):
        if hasattr(sys, "frozen"):
           self.mgc_path = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "resources/magic.mgc"))
        else:
-          self.mgc_path = sys.path[0] + "./api/magic/magic.mgc"
+          self.mgc_path = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
 
   def type(self, node):
     if node.size() > 0:
