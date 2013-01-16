@@ -23,12 +23,13 @@ from dff.api.vfs.libvfs import AttributesHandler, Node
 
 
 #from dff.api.gui.video import video
-try:
-  from dff.api.gui.video import video
-  VIDEO_API_EXISTS = True
-except ImportError as e:
-  VIDEO_API_EXISTS = False
-  print "Can't load video api : " + str(e)
+#try:
+  ##from dff.api.gui.video import video
+  ##VIDEO_API_EXISTS = True
+#except ImportError as e:
+  #VIDEO_API_EXISTS = False
+  #print "Can't load video api : " + str(e)
+VIDEO_API_EXISTS = False
  
 class CorruptedPictureHandler(AttributesHandler):
   def __init__(self):
@@ -54,49 +55,52 @@ class Scaler(QObject):
   def __init__(self):
      QObject.__init__(self)
      self.img = None
-
+     self.imageMaximumSize = 100000000 #don't try to create thumbnail for image larger than size (To avoid false positive)
+        
   def event(self, event):
      if (event.type() == 11003):
        try:
 	 self.convert(event)
-       except:
-	 pass
+       except Exception as e: 
+         print 'Thumbnailer event exceptions ' + e
+	 self.emit(SIGNAL("scaledFinished"), event.config, None)
        return True
      return QObject.event(self, event)
 
   def convert(self, event):
     node = event.config.node
     buff = ""
-    if VIDEO_API_EXISTS and (str(node.dataType()).find('video') != -1):
-      try:
-        md = video.VideoDecoder(node)
-	if event.config.frames == 1:
-          img = md.thumbnailAtPercent(event.config.percent, event.config.size)
-        else:
-          img = QImage(event.config.size * event.config.frames / 2, event.config.size * 2, 4)
-	  img.fill(0)
-          painter = QPainter(img)
-          for y in range(0, 2):
-            try:
-              for x in range(1, event.config.frames/2 + 1):
-	        try:
-	          frame = md.thumbnailAtPercent((x + ((event.config.frames/2) * y)) * (100/event.config.frames), event.config.size)
-	          painter.drawImage((x - 1) * event.config.size, y * event.config.size , frame)
-                except RuntimeError, e:
-	          raise e
-            except RuntimeError:
-	      break
-          painter.end()  
-        self.emit(SIGNAL("scaledFinished"), event.config, img)
-	return
-      except :
-	pass
+    if (str(node.dataType()).find('video') != -1):
+      if VIDEO_API_EXISTS:
+        try:
+          md = video.VideoDecoder(node)
+	  if event.config.frames == 1:
+            img = md.thumbnailAtPercent(event.config.percent, event.config.size)
+          else:
+            img = QImage(event.config.size * event.config.frames / 2, event.config.size * 2, 4)
+	    img.fill(0)
+            painter = QPainter(img)
+            for y in range(0, 2):
+              try:
+                for x in range(1, event.config.frames/2 + 1):
+	          try:
+	            frame = md.thumbnailAtPercent((x + ((event.config.frames/2) * y)) * (100/event.config.frames), event.config.size)
+	            painter.drawImage((x - 1) * event.config.size, y * event.config.size , frame)
+                  except RuntimeError, e:
+	            raise e
+              except RuntimeError:
+	        break
+            painter.end()  
+          self.emit(SIGNAL("scaledFinished"), event.config, img)
+	  return
+        except :
+	  pass
       self.emit(SIGNAL("scaledFinished"), event.config, None)  
       return 
-
     img = QImage()
     load = None
-    if str(node.dataType()).find('jpeg') != -1:
+    buff = ""
+    if str(node.dataType()).find('jpeg') != -1 and node.size() < self.imageMaximumSize:
       try:
         buff = self.jpegInternalThumbnail(node)
 	if (buff):
@@ -105,7 +109,7 @@ class Scaler(QObject):
 	   buff = ""
       except IOError:
         buff = ""
-    if not len(buff):
+    if not len(buff) and node.size() < self.imageMaximumSize:
       try:
         f = node.open()
         buff = f.read()
@@ -117,9 +121,8 @@ class Scaler(QObject):
       img = img.scaled(QSize(event.config.size, event.config.size), Qt.KeepAspectRatio, Qt.FastTransformation)
       self.emit(SIGNAL("scaledFinished"), event.config, img)
       return
-    else:
-      self.emit(SIGNAL("scaledFinished"), event.config, None)
-      return
+    self.emit(SIGNAL("scaledFinished"), event.config, None)
+    return
 
   def jpegInternalThumbnail(self, node):
      buff = ""
