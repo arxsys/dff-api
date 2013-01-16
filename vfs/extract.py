@@ -147,7 +147,9 @@ class Extract(EventHandler):
           f = open(absfile)
         f.write(data)
         f.close()
-    except Exception:
+    except Exception as e:
+      'Extract.Extract data ' + str(e)
+      f.close()
       tb = traceback.format_exc()
       self.__notifyFailure(name, Extract.DataFailed, tb)
 
@@ -272,8 +274,12 @@ class Extract(EventHandler):
       sysfile.close()
       self.extracted_files += 1
     except Exception:
+      sysfile.close()
+      vfile.close()
       self.files_errors += 1
       tb = traceback.format_exc()
+      print 'Extract.ExtractFile' + str(e)
+      print tb
       self.__notifyFailure(src.absolute(), Extract.FileFailed, tb)
     self.__notifyOverallProgress()
 
