@@ -275,7 +275,7 @@ class Extract(EventHandler):
           buff = vfile.read(toread)
           readed = len(buff)
           if readed != toread:
-            raise Exception("Can't read whole file.")
+            raise Exception("Can't read whole file " + src.absolute() + "\n (" + str(totalread) + "/" + str(filesize) + ") .")
         totalread += readed
         sysfile.write(buff)
         if update and percent < round(totalread * 100 / filesize):
@@ -284,13 +284,12 @@ class Extract(EventHandler):
       vfile.close()
       sysfile.close()
       self.extracted_files += 1
-    except Exception:
+    except Exception as e:
       sysfile.close()
       vfile.close()
       self.files_errors += 1
       tb = traceback.format_exc()
       print 'Extract.ExtractFile' + str(e)
-      print tb
       self.__notifyFailure(src.absolute(), Extract.FileFailed, tb)
     self.__notifyOverallProgress()
 
