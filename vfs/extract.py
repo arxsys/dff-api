@@ -249,6 +249,8 @@ class Extract(EventHandler):
       self.extracted_files += 1
       self.__notifyOverallProgress()
       return
+    sysfile = None
+    vfile = None
     try:
       vfile = src.open()
       if type(dst) == types.UnicodeType:
@@ -285,8 +287,10 @@ class Extract(EventHandler):
       sysfile.close()
       self.extracted_files += 1
     except Exception as e:
-      sysfile.close()
-      vfile.close()
+      if sysfile:
+        sysfile.close()
+      if vfile:
+        vfile.close()
       self.files_errors += 1
       tb = traceback.format_exc()
       print 'Extract.ExtractFile' + str(e)
