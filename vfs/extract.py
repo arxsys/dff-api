@@ -249,6 +249,8 @@ class Extract(EventHandler):
       self.extracted_files += 1
       self.__notifyOverallProgress()
       return
+    sysfile = None
+    vfile = None
     try:
       vfile = src.open()
       if type(dst) == types.UnicodeType:
@@ -260,26 +262,38 @@ class Extract(EventHandler):
       update = False
       if filesize > 10*1024*1024:
         update = True
-      buff = vfile.read(readsize)
-      totalread = len(buff)
       percent = 0
-      while len(buff):
+      totalread = 0 
+      readed = 1
+      while totalread < filesize and readed > 0:
+        toread = filesize - totalread
+        if  toread > readsize:
+          toread = readsize
+        buff = vfile.read(toread)
+        readed = len(buff)
+        if readed != toread:
+          #try a gain one time 
+          vfile.seek(totalread)
+          buff = vfile.read(toread)
+          readed = len(buff)
+          if readed != toread:
+            raise Exception("Can't read whole file " + src.absolute() + "\n (" + str(totalread) + "/" + str(filesize) + ") .")
+        totalread += readed
         sysfile.write(buff)
-        buff = vfile.read(readsize)
-        totalread += len(buff)
         if update and percent < round(totalread * 100 / filesize):
           percent = round(totalread * 100 / filesize)
           self.__notifyFileProgress(src, percent)
       vfile.close()
       sysfile.close()
       self.extracted_files += 1
-    except Exception:
-      sysfile.close()
-      vfile.close()
+    except Exception as e:
+      if sysfile:
+        sysfile.close()
+      if vfile:
+        vfile.close()
       self.files_errors += 1
       tb = traceback.format_exc()
       print 'Extract.ExtractFile' + str(e)
-      print tb
       self.__notifyFailure(src.absolute(), Extract.FileFailed, tb)
     self.__notifyOverallProgress()
 
