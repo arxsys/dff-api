@@ -28,8 +28,6 @@ except ImportError as e:
   VIDEO_API_EXISTS = False
   print "Can't load video api : " + str(e)
 
-VIDEO_API_EXISTS = False
- 
 class CorruptedPictureHandler(AttributesHandler):
   def __init__(self):
      AttributesHandler.__init__(self, "Corrupted")
