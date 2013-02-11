@@ -61,7 +61,7 @@ class WorkQueue():
 			for type in event_type:
 				self.event_func[type] = []
 			for i in range(max):
-				thread = threading.Thread(target = self.worker)
+				thread = threading.Thread(target = self.worker, name = "Worker" + str(i))
 				thread.setDaemon(True)
 				thread.start()
 
