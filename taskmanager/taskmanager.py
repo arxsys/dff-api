@@ -548,6 +548,6 @@ class PostProcessScheduler():
 
 ppsched = PostProcessScheduler()
 
-thread = threading.Thread(target = ppsched.launch)
+thread = threading.Thread(target = ppsched.launch, name = "TaskManager")
 thread.setDaemon(True)
 thread.start()
