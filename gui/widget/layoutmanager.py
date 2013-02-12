@@ -17,7 +17,7 @@
 import os, types
 
 from PyQt4.QtGui import QWidget, QMenu, QDialog, QLabel, QVBoxLayout, QSplitter, QDialogButtonBox, QFormLayout, QCheckBox, QComboBox, QLineEdit, QTextEdit, QListWidget, QHBoxLayout, QPushButton, QIcon, QFileDialog, QAbstractItemView, QRegExpValidator, QListWidgetItem, QApplication
-from PyQt4.QtCore import Qt, QEvent, SIGNAL, QRegExp, QSize
+from PyQt4.QtCore import Qt, QEvent, SIGNAL, QRegExp, QSize, QString
 
 from dff.api.vfs import vfs 
 from dff.api.vfs.libvfs import VFS, Node
@@ -54,7 +54,6 @@ class DialogNodeBrowser(QDialog):
     def getSelectedNode(self):
         try:
             n = self.getSelectedNodes()[0]
-            print n.absolute()
             return n
         except:
             return None
@@ -229,7 +228,7 @@ class layoutManager(QWidget):
             if selectednodes and len(selectednodes) > 0:
                 for node in selectednodes:
 		   if type(node) == Node and typeid == typeId.Node:
-                        listpathcontainer.insertItem(listpathcontainer.count() + 1, node.absolute())           
+                        listpathcontainer.insertItem(listpathcontainer.count() + 1, QString.fromUtf8(node.absolute())) 
 		   elif type(node) != Node:
 			listpathcontainer.insertItem(listpathcontainer.count() + 1, node)
             hbox = QHBoxLayout()
@@ -290,7 +289,7 @@ class layoutManager(QWidget):
                         pathcontainer.addItem(value.toString())
                 if typeid == typeId.Node:
                     for node in selectednodes:
-                        pathcontainer.addItem(node.absolute())
+                        pathcontainer.addItem(QString.fromUtf8(node.absolute()))
             else:
                 pathcontainer = QLineEdit()
                 pathcontainer.setReadOnly(not editable)
@@ -549,7 +548,7 @@ class addLocalPathButton(QPushButton):
                     index = 0
                     if len(nodes):
                         for node in nodes:
-                            self.container.insertItem(index, node.absolute())
+                            self.container.insertItem(index, QString.fromUtf8(node.absolute()))
                             index += 1
                         if isinstance(self.container, QListWidget):
                             self.container.setCurrentItem(self.container.item(0))
@@ -562,7 +561,7 @@ class addLocalPathButton(QPushButton):
                     print node
                     if node:
                         self.container.clear()
-                        self.container.insert(node.absolute())
+                        self.container.insert(QString.fromUtf8(node.absolute()))
             BrowseVFSDialog.browser.__del__()
 
 
