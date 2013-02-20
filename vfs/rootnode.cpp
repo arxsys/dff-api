@@ -70,10 +70,10 @@ void ModulesRootNode::Event(event* e)
         }
         else
           moduleRoot = it->second;
-        mutex_unlock(&this->__mutex);
         VLink* link = new VLink(root->parent(), moduleRoot);
         event*  e = new event;
         e->value = Variant_p(new Variant(link));
+        mutex_unlock(&this->__mutex);
         VFS::Get().notify(e);
       }
     }
