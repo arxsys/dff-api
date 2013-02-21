@@ -53,7 +53,6 @@ void ModulesRootNode::Event(event* e)
  
   if (variantNode)
   {
-        
     Node* root = variantNode->value<Node *>();
     if (root && (!dynamic_cast<VLink*>(root)) && root->parent()->parent()->absolute() != "/")
     {
@@ -70,6 +69,18 @@ void ModulesRootNode::Event(event* e)
         }
         else
           moduleRoot = it->second;
+        
+        std::vector<Node* >  children = moduleRoot->children();
+        std::vector<Node* >::iterator   child = children.begin();
+        for (; child != children.end(); child++)
+        {
+           VLink* childLink = NULL;
+           if (((childLink = dynamic_cast<VLink* >(*child)) != NULL) && (childLink->linkNode() == root->parent()))
+           {
+              mutex_unlock(&this->__mutex);
+              return ; 
+           }
+        }
         VLink* link = new VLink(root->parent(), moduleRoot);
         event*  e = new event;
         e->value = Variant_p(new Variant(link));
