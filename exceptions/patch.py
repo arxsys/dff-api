@@ -19,9 +19,14 @@ import os, sys
 if __name__ == "__main__":
    if len(sys.argv) == 2:
      file = open(sys.argv[1], 'r') 
-     buff = "import exceptions\n"
-     buff += file.read()
+     fbuff = file.read()
+     if fbuff.find("import exceptions") == -1:
+       buff = "import exceptions\n"
+       buff += fbuff
+     else:
+       buff = fbuff
      file.close()
+     buff = buff.replace('Error(_object)', 'Error(exceptions.Exception)')
      buff = buff.replace('Error(object)', 'Error(exceptions.Exception)')
      file = open(sys.argv[1], 'w')
      file.write(buff)
