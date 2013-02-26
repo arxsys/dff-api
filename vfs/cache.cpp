@@ -18,6 +18,10 @@
 #include "filemapping.hpp"
 #include "cache.hpp"
 
+VFilePool& poolInit = VFilePool::instance();
+Cache<Attributes>& attributeInit = AttributeCache::instance();
+Cache<Attributes>& dynamicAttributeInit = DynamicAttributesCache::instance();
+
 VFilePool& VFilePool::instance(void)
 {
   static VFilePool      pool(100);
