@@ -610,7 +610,7 @@ static yyconst flex_int32_t yy_rule_can_match_eol[69] =
 #line 1 "scanner.l"
 /*
  * DFF -- An Open Source Digital Forensics Framework
- * Copyright (C) 2009-2011 ArxSys
+ * Copyright (C) 2009-2013 ArxSys
  * This program is free software, distributed under the terms of
  * the GNU General Public License Version 2. See the LICENSE file
  * at the top of the source tree.
