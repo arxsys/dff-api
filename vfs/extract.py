@@ -148,7 +148,7 @@ class Extract(EventHandler):
         f.write(data)
         f.close()
     except Exception as e:
-      'Extract.Extract data ' + str(e)
+      print 'Extract.Extract data ' + str(e)
       f.close()
       tb = traceback.format_exc()
       self.__notifyFailure(name, Extract.DataFailed, tb)
@@ -252,11 +252,16 @@ class Extract(EventHandler):
     sysfile = None
     vfile = None
     try:
-      vfile = src.open()
       if type(dst) == types.UnicodeType:
         sysfile = open(dst.encode('utf-8'), 'wb')
       else:
         sysfile = open(dst, 'wb')
+      if src.size() == 0:
+        sysfile.close()
+        self.extracted_files += 1
+        self.__notifyOverallProgress()
+        return
+      vfile = src.open()
       readsize = 8192
       filesize = src.size()
       update = False
@@ -293,7 +298,7 @@ class Extract(EventHandler):
         vfile.close()
       self.files_errors += 1
       tb = traceback.format_exc()
-      print 'Extract.ExtractFile' + str(e)
+      print 'Extract.ExtractFile failed: ' + str(e)
       self.__notifyFailure(src.absolute(), Extract.FileFailed, tb)
     self.__notifyOverallProgress()
 
