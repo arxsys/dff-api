@@ -470,7 +470,7 @@ ComparisonExpression::ComparisonExpression(Expression* lhs, Expression* rhs, int
 	  __cmp = &ComparisonExpression::__eq;
 	  break;
 	case NEQ:
-	  __cmp = &ComparisonExpression::__lt;
+	  __cmp = &ComparisonExpression::__neq;
 	  break;
 	default:
 	  __cmp = NULL;
