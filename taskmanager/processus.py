@@ -59,7 +59,7 @@ class ProcessusManager(object):
     def __init__(self):
        self.processus = []
        self.dprocessus = {}
-       self.lock = threading.Lock() #add for 'single' module, certainly better to have them be real singleton
+       self.lock = threading.Lock()
        self.npid = 0
 	
     def pid(self, pid):
@@ -75,12 +75,12 @@ class ProcessusManager(object):
        """
        try:
          self.lock.acquire()
-	 procList = self.dprocessus[module.name] #map is thread safe
-	 for proc in procList: #proc list is not thread safe...
+	 procList = self.dprocessus[module.name]
+	 for proc in procList:
 	    flag = 1
-	    procArgs = proc.args #XXX if != singleton -> hash ! # vmap is not tgread 
+	    procArgs = proc.args
             if isinstance(procArgs, VMap):
-	      for k, v in procArgs.iteritems(): #des fois c pas un DICT ?
+	      for k, v in procArgs.iteritems():
 	        try :
 		   if str(v) != str(argument[k]):
 		    flag = 0
@@ -92,7 +92,7 @@ class ProcessusManager(object):
                   self.lock.release()
 		  return True 
 	    else:
-		print 'tm::exist::proc args ' + str(type(procArgs)) + ' mod: ' + str(module.name)	
+                print "vfs.taskmanager.exist type mismatch you should apply SWIG patch. Processus args " + str(type(procArgs)) + ' module ' + str(module.name) 
          self.lock.release()
 	 return False	   
        except KeyError:
@@ -193,7 +193,6 @@ class ProcessusManager(object):
 
 class Processus(Script):
   def __init__(self, mod, pid, args, exec_flags):
-    #ProcessusManager().add(self) done elswere
     self.vfs = vfs.vfs()
     self.mod = mod
     self.inst = mod.create()
@@ -207,7 +206,6 @@ class Processus(Script):
     self.timestart = 0
     self.timeend = 0
     self.streamOut = None
-    #XXX test for singleton module that could be launch multiple time foder locker/
     self.error_result = '' 
     self.lock = threading.Lock()
     self.lock.acquire()
@@ -245,7 +243,7 @@ class Processus(Script):
 
   def result(self):
     if self.res and len(self.res):
-      self.lock.acquire() #singleton module can modify results
+      self.lock.acquire()
       buff = self.vtreeprinter.fillMap(0, self.res)
       self.lock.release()
       print buff
@@ -264,14 +262,11 @@ class Processus(Script):
          for err in err_trace:
            res += err
          self.lock.acquire()
- 	 #res = Variant(res)
          self.error_result += res 
          self.state = "Fail"
 	 self.lock.release()
 
   def setState(self):
-    #if trace == None and"gui" in self.exec_flags and "gui" in self.mod.flags:
-      #self.state = "wait"
     self.lock.acquire()
     self.launchCount -= 1
     if self.launchCount <= 0:
