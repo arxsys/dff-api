@@ -171,7 +171,9 @@ class NodeListModel(QAbstractItemModel):
             return QVariant(node.childCount())
       elif attrpath == "is deleted":
           return QVariant(node.isDeleted())
-	
+      elif attrpath == "tags":
+          #Special case tag use a delegate to draw boxes
+          return QVariant()
       else:
 	try :
           val = node.attributesByName(attrpath, ABSOLUTE_ATTR_NAME)
@@ -187,7 +189,8 @@ class NodeListModel(QAbstractItemModel):
             return QVariant(QString.fromUtf8(val[0].value()))
           else:
             return QVariant(val[0].value())
-
+        else:
+          return QVariant()
     if role == Qt.ToolTipRole :
       return QVariant(QString.fromUtf8(node.name()))
 
