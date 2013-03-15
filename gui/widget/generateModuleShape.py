@@ -214,7 +214,7 @@ class moduleShapeGenerator(QWidget, Ui_moduleGeneratorWidget):
             self.setWindowTitle(title)
             self.translation()
         else:
-            QDialog.changeEvent(self, event)
+            QWidget.changeEvent(self, event)
 
 
 class checkBoxWidget(QCheckBox):
