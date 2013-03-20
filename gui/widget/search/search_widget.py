@@ -764,8 +764,8 @@ class AttributeRequest(Ui_filterAttributes, Request):
 
   def request(self):
     res = "(@" + str(unicode(self.key.text()).encode('utf-8')) + "@ "
-    res += str(self.operatorCombo.currentText()) + " \""
-    res += str(unicode(self.value.text()).encode('utf-8')) + "\")"
+    res += str(self.operatorCombo.currentText()) + " "
+    res += str(unicode(self.value.text()).encode('utf-8')) + ")"
     return res
 
 class FieldCombo(Ui_filterFields, Request):
