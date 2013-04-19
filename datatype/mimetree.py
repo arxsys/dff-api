@@ -21,7 +21,10 @@ class MimeTree():
     def __init__(self):
         self.mimetypes = {}
         if os.name == "nt":
-            self.mgc = sys.path[0] + "./api/magic/magic.mgc"
+            if hasattr(sys, "frozen"):
+                self.mgc = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "resources/magic.mgc"))
+            else:
+                self.mgc = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
         else:
             self.mgc = "/usr/share/misc/magic.mgc"
         try:
