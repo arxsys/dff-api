@@ -21,7 +21,6 @@ FileMapping::FileMapping(Node* node)
 {
   this->__node = node;
   this->__maxOffset = 0;
-  this->__prevChunk = NULL;
   this->__refcount = 1;
   mutex_init(&this->__fm_mutex); 
 }
@@ -220,7 +219,7 @@ chunk*			FileMapping::chunkFromOffset(uint64_t offset)
     {
       //otherwise, there are at least 2 chunks and two possibilities:
       // - either the chunk containing the requested offset is found
-      // - or the chunk containing thes requested offset is NOT found
+      // - or the chunk containing the requested offset is NOT found
       idx = this->__bsearch(offset, 0, this->__chunks.size() - 1, &found);
       if (found)
       {
@@ -287,6 +286,117 @@ chunk*			FileMapping::chunkFromOffset(uint64_t offset)
    }
 }
 
+
+chunk*		FileMapping::__makeChunk(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset)
+{
+  chunk		*c;
+
+  c = new chunk;
+  c->offset = offset;
+  c->size = size;
+  if (this->__maxOffset < offset + size)
+    this->__maxOffset = offset + size;
+  c->origin = origin;
+  c->originoffset = originoffset;
+  return c;
+}
+
+
+void		FileMapping::__manageConflicts(uint32_t idx, uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset)
+{
+  chunk*	c;
+  uint32_t	counter;
+  
+  if (size == 0)	// no data available, nothing to do
+    return;
+
+  // based on the algorithm of __bsearch, it must never happen but log it
+  if (offset < this->__chunks[idx]->offset)
+    {
+      //std::cout << "offset: (" << offset << ") is lesser than current idx (" << this->__chunks[idx]->offset << ")\n" << std::endl;
+    }
+
+  else if (offset == this->__chunks[idx]->offset)
+    {
+      //std::cout << "offset: " << offset << " -- size: " << size << " -- IDX: offset: " << this->__chunks[idx]->offset << " -- size: " << this->__chunks[idx]->size << std::endl;
+      if (size < this->__chunks[idx]->size)	// create new chunk and remove overlap from actual chunk
+	{
+	  c = this->__makeChunk(offset, size, origin, originoffset);
+	  this->__chunks[idx]->size -= size;
+	  this->__chunks[idx]->offset += size;
+	  this->__chunks[idx]->originoffset += size;
+	  this->__chunks.insert(this->__chunks.begin()+idx, c);
+	}
+      else if (size == this->__chunks[idx]->size)	// just rewrite new position on underlying layer
+	{
+	  this->__chunks[idx]->origin = origin;
+	  this->__chunks[idx]->originoffset = originoffset;
+	}
+      else	// size > this->__chunks[idx]->size
+	{
+	  if (this->__chunks.size() == 1)	// only one chunk, update size, origin and originoffset
+	    {
+	      this->__chunks[idx]->size = size;
+	      this->__chunks[idx]->origin = origin;
+	      this->__chunks[idx]->originoffset = originoffset;
+	    }
+	  else	// need to find chunk where overlap stops
+	    {
+	      counter = idx;
+	      while ((counter != this->__chunks.size() - 1) && (this->__chunks[counter]->offset+this->__chunks[counter]->size <= offset+size))
+		++counter;
+	      //std::cout << "idx: " << idx << "counter: " << counter << std::endl;
+	    }
+	}
+    }
+  else	// offset > this->__chunks[idx]->offset
+    { 
+      //std::cout << "offset > " << std::endl;
+      // chunk[idx] | current | chunk[idx]
+      // allocate one chunk for the current offset
+      // update chunks[idx] size to reflect overlap
+      // allocate a new one 
+      if (offset+size < this->__chunks[idx]->offset + this->__chunks[idx]->size)
+	{
+	  uint64_t	u_offset;
+	  uint64_t	u_size;
+	  uint64_t	u_originoffset;
+
+	  u_offset = offset+size;
+	  u_size = (this->__chunks[idx]->offset+this->__chunks[idx]->size) - u_offset;
+	  u_originoffset = this->__chunks[idx]->originoffset + u_offset + u_size;
+	  this->__chunks[idx]->size = offset - this->__chunks[idx]->offset;
+	  c = this->__makeChunk(offset, size, origin, originoffset);
+	  this->__chunks.insert(this->__chunks.begin()+idx+1, c);
+	  c = this->__makeChunk(u_offset, u_size, this->__chunks[idx]->origin, u_originoffset);
+	  this->__chunks.insert(this->__chunks.begin()+idx+2, c);
+	}
+      else if (offset+size == this->__chunks[idx]->offset + this->__chunks[idx]->size)
+	{
+	  this->__chunks[idx]->size = offset - this->__chunks[idx]->offset;
+	  c = this->__makeChunk(offset, size, origin, originoffset);
+	  this->__chunks.insert(this->__chunks.begin()+idx+1, c);
+	}
+      else // offset+size > chunks[idx]->offset+chunks[idx]->size
+	{
+	  if (this->__chunks.size() == 1)
+	    {
+	      this->__chunks[idx]->size = offset - this->__chunks[idx]->offset;
+	      c = this->__makeChunk(offset, size, origin, originoffset);
+	      this->__chunks.insert(this->__chunks.begin()+1, c);
+	    }
+	  else
+	    {
+	      counter = idx;
+	      while ((counter != this->__chunks.size() - 1) && (this->__chunks[counter]->offset+this->__chunks[counter]->size <= offset+size))
+		++counter;
+	      //std::cout << "idx: " << idx << "counter: " << counter << std::endl;
+	    }
+	}
+    }
+}
+
+
 uint32_t	FileMapping::chunkIdxFromOffset(uint64_t offset, uint32_t sidx)
 {
   uint32_t	idx;
@@ -315,6 +425,45 @@ uint32_t	FileMapping::chunkIdxFromOffset(uint64_t offset, uint32_t sidx)
       else
 	throw(std::string("provided offset is not mapped"));
     }
+}
+
+
+void				FileMapping::forceAllocChunk(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset)
+{
+  std::vector<chunk*>::iterator	it;
+  uint32_t			idx;
+  chunk				*c;
+  bool				found;
+
+  found = false;
+  if (this->__chunks.size() == 0)
+    it = this->__chunks.begin();
+  else if (this->__chunks.size() == 1)
+    {
+      if (offset < this->__chunks[0]->offset && offset+size < this->__chunks[0]->offset + this->__chunks[0]->size - 1)
+	it = this->__chunks.begin();
+      else if (offset > (this->__chunks[0]->offset + this->__chunks[0]->size - 1))
+	it = this->__chunks.begin() + 1;
+      else
+	return this->__manageConflicts(0, offset, size, origin, originoffset);
+    }
+  else
+    {
+      idx = this->__bsearch(offset, 0, this->__chunks.size() - 1, &found);
+      if (found)
+	return this->__manageConflicts(idx, offset, size, origin, originoffset);
+      if (idx >= 1)
+      	{
+      	  if (idx == this->__chunks.size() - 1)
+	    it = this->__chunks.end();
+      	  else if (offset >= (this->__chunks[idx-1]->offset + this->__chunks[idx-1]->size) && (offset + size) <= this->__chunks[idx+1]->offset)
+      	    it = this->__chunks.begin() + idx + 1;
+	}
+      else if ((offset + size) <= this->__chunks[idx]->offset)
+	it = this->__chunks.begin();
+    }
+  c = this->__makeChunk(offset, size, origin, originoffset);
+  this->__chunks.insert(it, c);
 }
 
 void				FileMapping::allocChunk(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset)
@@ -360,19 +509,15 @@ void				FileMapping::allocChunk(uint64_t offset, uint64_t size, class Node* orig
       else
       	throw (std::string("provided offset is already mapped !"));
     }
-  c = new chunk;
-  c->offset = offset;
-  c->size = size;
-  if (this->__maxOffset < offset + size)
-    this->__maxOffset = offset + size;
-  c->origin = origin;
-  c->originoffset = originoffset;
+  c = this->__makeChunk(offset, size, origin, originoffset);
   this->__chunks.insert(it, c);
-  this->__prevChunk = c;
 }
 
-void			FileMapping::push(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset)
+void			FileMapping::push(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset, bool force)
 {
+  if (force)
+    this->forceAllocChunk(offset, size, origin, originoffset);
+  else
     this->allocChunk(offset, size, origin, originoffset);
 }
 
