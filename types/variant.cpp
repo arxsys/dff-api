@@ -55,6 +55,8 @@ typeId::typeId()
 
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Invalid, "Invalid"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::String, "std::string"));
+  this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Char, "char"));
+  this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::CArray, "char*"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Int16, "int16_t"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::UInt16, "uint16_t"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Int32, "int32_t"));
@@ -989,7 +991,7 @@ bool	Variant::operator==(Variant* v)
       else if (this->_type == typeId::Bool)
 	return this->toBool() == v->toBool();
 
-      else if (this->_type == typeId::String)
+      else if (this->_type == typeId::String || this->_type == typeId::CArray)
 	{
 	  if ((v->type() == typeId::String) || (v->type() == typeId::CArray) || (v->type() == typeId::Char))
 	    {
@@ -1140,7 +1142,7 @@ bool	Variant::operator>(Variant* v)
       else
 	return false;
     }
-  else if (this->_type == typeId::String)
+  else if (this->_type == typeId::String || this->_type == typeId::CArray)
     {
       if ((v->type() == typeId::String) || (v->type() == typeId::CArray) || (v->type() == typeId::Char))
 	{
