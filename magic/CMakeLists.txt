@@ -14,13 +14,20 @@
 #  Frederic Baguelin <fba@digital-forensic.org>
 
 if(WIN32 AND NOT UNIX)
+  if (MAGIC_LIBRARIES_PATH)
+    find_library(MAGIC_LIBRARIES NAMES libgnurx-0 libmagic-1 PATHS MAGIC_LIBRARY_PATH)
+    if (MAGIC_LIBRARIES-NOTFOUND)
+      message (FATAL_ERROR "Cannot find magic libraries. Please provide the right path to magic libraries")
+    endif()
+  else ()
+    message (FATAL_ERROR "MAGIC_LIBRARIES_PATH not set. Cannot find needed libraries. Please set the path to magic libraries")
+  endif ()
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
   install_file(
     __init__.py
     magic.mgc
     magic.py
-    libmagic-1.dll
-    libgnurx-0.dll
+    ${MAGIC_LIBRARIES}
     )
 endif(WIN32 AND NOT UNIX)
 
