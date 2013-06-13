@@ -14,13 +14,25 @@
 #  Frederic Baguelin <fba@digital-forensic.org>
 
 if(WIN32 AND NOT UNIX)
+  if (MAGIC_ROOT)
+	set(CMAKE_FIND_LIBRARY_SUFFIXES ".dll")
+    find_library(MAGIC_LIBRARY NAMES libmagic-1 PATHS ${MAGIC_ROOT})
+    find_library(GNURX_LIBRARY NAMES libgnurx-0 PATHS ${MAGIC_ROOT})
+	message("${MAGIC_LIBRARIES}")
+	if (NOT ${MAGIC_LIBRARY} STREQUAL MAGIC_LIBRARY-NOTFOUND AND NOT ${GNURX_LIBRARY} STREQUAL GNURX_LIBRARY-NOTFOUND)
+		set(MAGIC_LIBRARIES ${MAGIC_LIBRARY} ${GNURX_LIBRARY})
+	else()
+      message (FATAL_ERROR "Cannot find magic libraries. Please provide the right path to magic libraries")
+    endif()
+  else ()
+    message (FATAL_ERROR "MAGIC_ROOT not set. Cannot find needed libraries. Please set the path to magic libraries")
+  endif ()
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
   install_file(
     __init__.py
     magic.mgc
     magic.py
-    libmagic-1.dll
-    libgnurx-0.dll
+    ${MAGIC_LIBRARIES}
     )
 endif(WIN32 AND NOT UNIX)
 
