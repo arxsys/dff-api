@@ -12,8 +12,9 @@
 # Author(s):
 #  Frederic Baguelin <fba@digital-forensic.org>
 
+set(search_files __init__.py)
+
 if (TRE_FOUND)
-  set(search_files __init__.py)
   if(WIN32)
     file(COPY ${TRE_DYN_LIBRARIES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     set(search_files ${search_files} tre.dll)
