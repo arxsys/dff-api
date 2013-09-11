@@ -20,10 +20,14 @@
 
 #ifndef WIN32
 #define IMPORT	extern
-#define EXPORT	 
+#define EXPORT
+#define PACK_START _Pragma("pack(push, 1)")
+#define PACK_END _Pragma("pack(pop)")
 #else
 #define EXPORT	 __declspec( dllexport )
 #define IMPORT 	__declspec(dllimport)
+#define PACK_START __pragma(pack(push, 1))
+#define PACK_END __pragma(pack(pop))
 #include <String>
 #include "windows.h"
 #endif
