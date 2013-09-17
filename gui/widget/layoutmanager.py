@@ -458,7 +458,7 @@ class multipleListWidget(QWidget):
                 self.container.setEditable(self.editable)
         else:
             self.container = QLineEdit()
-            self.container.setReadOnly(self.editable)
+#            self.container.setReadOnly(self.editable)
         self.headerlayout.addWidget(self.container, 2)
 
     def addPath(self):
