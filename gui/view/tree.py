@@ -45,6 +45,11 @@ class NodeTreeView(QTreeView):
 
     self.connect(self, SIGNAL("expanded(QModelIndex)"), self.indexExpanded)
 
+    # print "SCROLL BARRRR TREEEE"
+    # print self.horizontalScrollBarPolicy()
+    # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+    # print self.horizontalScrollBarPolicy()
+
 #    self.loadStylesheet()
 
   def indexExpanded(self, index):
@@ -52,6 +57,7 @@ class NodeTreeView(QTreeView):
     node = self.model().getNodeFromIndex(index)
     if node != None:
       self.model().refreshModel(node)
+      self.resizeColumnToContents(0)
 
   def keyPressEvent(self, e):
     row = self.currentIndex().row()
@@ -129,7 +135,7 @@ class NodeTreeView(QTreeView):
         self.scrollTo(index)
     else:
       self.model().refreshModel(node)
-      
+    self.resizeColumnToContents(0)
     QApplication.restoreOverrideCursor()
 
   def indexRowSizeHint(self, index):

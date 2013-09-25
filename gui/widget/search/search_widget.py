@@ -44,9 +44,9 @@ from dff.ui.gui.resources.ui_filter_mimedialog import Ui_filterMimeDialog
 from dff.ui.gui.resources.ui_search_customtable import Ui_searchCustomTable
 from dff.ui.gui.resources.ui_filter_conjunction import Ui_filterConjunction
 
-
 # DEFINES COLUMNS
-FIELDS = ["name", "data", "size", "time", "mime", "dico", "deleted","file", "attributes"]
+FIELDS = ["name", "data", "size", "time", "mime", "dico", "deleted","file", "attributes", "path", "extension", "expression"]
+
 SPECIAL_FIELDSID = range(5, 9)
 CONJONCTIONS = ["and", "and not", "or", "or not"]
 #ONLY = ["deleted", "file"]
@@ -264,7 +264,6 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
         self.saveButton.setEnabled(True)
       else:
         self.saveButton.setEnabled(False)
-      self.refreshQueryEdit()
     except:
       pass
 
@@ -280,10 +279,6 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
     self.filters.append(filt)
     self.emit(SIGNAL("filterAdded"))
     self.table.horizontalHeader().setResizeMode(1, QHeaderView.ResizeToContents)
-    self.refreshQueryEdit()
-
-  def filterState(self, state):
-    self.refreshQueryEdit()
 
   def add(self):
     filt = Filter(self)
@@ -296,18 +291,10 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
       self.table.setItem(currow, 0, name)
       check = QCheckBox()
       check.setChecked(True)
-      self.connect(check, SIGNAL("stateChanged(int)"), self.filterState)
       self.table.setCellWidget(currow, 1, check)
       self.filters.append(filt)
-      self.refreshQueryEdit()
       self.emit(SIGNAL("filterAdded"))
       self.table.horizontalHeader().setResizeMode(1, QHeaderView.ResizeToContents)
-
-  def refreshQueryEdit(self):
-      self.queryEdit.clear()
-      query = self.buildAllQueries()
-      if not query: query = ""
-      self.queryEdit.insert(query)   
 
   def remove(self):
     row = self.table.currentRow()
@@ -317,7 +304,6 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
       self.emit(SIGNAL("filterRemoved"))
       if len(self.filters) == 0:
         self.editButton.setEnabled(False)
-      self.refreshQueryEdit()
 
   def edit(self):
     row = self.table.currentRow()
@@ -326,7 +312,6 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
     if ret == 1:
       cell = self.table.currentItem()
       cell.setText(QString(filt.name()))
-    self.refreshQueryEdit()
 
   def get(self):
     return self.filters
@@ -382,6 +367,7 @@ class CustomFiltersTable(Ui_searchCustomTable, QWidget):
           self.addFilter(name, query)
       except:
         pass
+
 
 class Filter(Ui_filterAdd, QDialog):
   def __init__(self, filtertable, fname=None, query=None):
@@ -479,7 +465,7 @@ class FilterRequests(QTableWidget):
     self.fieldMapper.append(fields.fieldCombo)
     # Add Widget
     if widget == None:
-      widget = NameRequest(self)
+      widget = StringRequest(self, 'name')
     self.setCellWidget(currow, 2, widget)
     # Add request button
     add = self.createAddRequestButton()
@@ -496,9 +482,9 @@ class FilterRequests(QTableWidget):
       row = self.fieldMapper.index(fieldwidget)
       ftype = fieldwidget.currentIndex()
       if ftype == FIELDS.index("name"):
-        widget = NameRequest(self)
+        widget = StringRequest(self, FIELDS[ftype])
       elif ftype == FIELDS.index("data"):
-        widget = NameRequest(self, data=True)
+        widget = StringRequest(self, FIELDS[ftype])
       elif ftype == FIELDS.index("size"):
         widget = SizeRequest(self)
       elif ftype == FIELDS.index("time"):
@@ -513,6 +499,12 @@ class FilterRequests(QTableWidget):
         widget = OnlyRequest(self, field="file")
       elif ftype == FIELDS.index("attributes"):
         widget = AttributeRequest(self)
+      elif ftype == FIELDS.index("extension"):
+        widget = StringRequest(self, FIELDS[ftype])
+      elif ftype == FIELDS.index("path"):
+        widget = StringRequest(self, FIELDS[ftype])
+      elif ftype == FIELDS.index("expression"):
+        widget = RawStringRequest(self)
       else:
         return
       self.setCellWidget(row, 2, widget)
@@ -553,10 +545,25 @@ class ConjonctionCombo(Ui_filterConjunction, Request):
     self.setupUi(self)
     self.hlayout.addWidget(self.conjunctionCombo)
 
-class NameRequest(Ui_filterMatchMode, Request):
-  def __init__(self, parent, data=False):
+
+class RawStringRequest(Request):
+  def __init__(self, parent):
     Request.__init__(self, parent)
-    self.data = data
+    self.setContent()
+
+  def setContent(self):
+    self.lineEdit = QLineEdit()
+    self.hlayout.addWidget(self.lineEdit)
+
+  def request(self):
+    # XXX Unicode ?
+    return "(" + self.lineEdit.text() + ")"
+
+
+class StringRequest(Ui_filterMatchMode, Request):
+  def __init__(self, parent, keyword):
+    Request.__init__(self, parent)
+    self.key = keyword
     self.setupUi(self)
     self.setContent()
     self.setMatchMode()
@@ -575,10 +582,7 @@ class NameRequest(Ui_filterMatchMode, Request):
 
   def request(self):
     result = "("
-    if not self.data:
-      result += "name matches "
-    else:
-      result += "data matches "
+    result += self.key + " matches "
     result += MATCHMODE[self.matchModeCombo.currentIndex()]
     result += "\"" + str(unicode(self.content.text()).encode('utf-8')) + self.case() + ")"
     return result
@@ -588,6 +592,7 @@ class NameRequest(Ui_filterMatchMode, Request):
       return  "\",i)"
     else:
       return "\")"
+
 
 class SizeRequest(Request):
   def __init__(self, parent):
@@ -786,4 +791,3 @@ class OperatorCombo(QComboBox):
       self.addItem(QString("matches"))
     for op in OPERATORS:
       self.addItem(QString(op))
-

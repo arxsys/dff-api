@@ -21,6 +21,8 @@
 
 #include "eventhandler.hpp"
 #include "node.hpp"
+#include "fso.hpp"
+#include "vfs.hpp"
 #include "../filters/astnodes.hpp"
 #include "../filters/scanner.hpp"
 
@@ -39,8 +41,7 @@ public:
   EXPORT void			process(std::list<Node*> nodes) throw (std::string);
   EXPORT void			process(std::vector<Node*> nodes) throw (std::string);
   EXPORT void			process(uint64_t nodeid, bool recursive=true) throw (std::string);
-  EXPORT void			process(uint16_t fsoid, bool recursive=true) throw (std::string);
-  //bool			match(Node* ptr); throw (std::string);
+  EXPORT void			process(fso* fsobj) throw (std::string);
   EXPORT std::vector<Node*>	matchedNodes();
   enum EventTypes
     {

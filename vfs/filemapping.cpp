@@ -32,11 +32,8 @@ FileMapping::~FileMapping()
 
   for (i = 0; i != this->__chunks.size(); i++)
   {
-    if (this->__chunks[i] != NULL)
-    {
-      delete this->__chunks[i];
-      this->__chunks[i] = NULL;
-    }
+    delete this->__chunks[i];
+    this->__chunks[i] = NULL;
   }
   mutex_destroy(&this->__fm_mutex);
 }
