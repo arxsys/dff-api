@@ -266,6 +266,36 @@ void				Filter::process(std::vector<Node*> nodes) throw (std::string)
 }
 
 
+void			Filter::process(uint64_t nodeid, bool recursive) throw (std::string)
+{
+  Node*			node;
+
+  if ((node = VFS::Get().getNodeById(nodeid)) != NULL)
+    this->process(node, recursive);
+}
+
+void			Filter::process(fso* fsobj) throw (std::string)
+{
+  if (fsobj != NULL)
+    this->process(fsobj->nodes());
+}
+
+std::vector<Node*>	Filter::matchedNodes()
+{
+  return this->__matchednodes;
+}
+
+
+void			Filter::Event(event* e)
+{
+  if (e != NULL && e->type == Filter::StopProcessing)
+    {
+      this->__stop = true;
+      if (this->__ctx->root != NULL)
+	this->__ctx->root->Event(e);
+    }
+}
+
 
 void			Filter::__notifyNodesToProcess(uint64_t nodescount)
 {
@@ -353,28 +383,4 @@ bool			Filter::__eval(Node* node)
   if (vptr != NULL)
     delete vptr;
   return ret;
-}
-
-void			Filter::process(uint64_t nodeid, bool recursive) throw (std::string)
-{
-}
-
-void			Filter::process(uint16_t fsoid, bool recursive) throw (std::string)
-{
-}
-
-std::vector<Node*>	Filter::matchedNodes()
-{
-  return this->__matchednodes;
-}
-
-
-void			Filter::Event(event* e)
-{
-  if (e != NULL && e->type == Filter::StopProcessing)
-    {
-      this->__stop = true;
-      if (this->__ctx->root != NULL)
-	this->__ctx->root->Event(e);
-    }
 }
