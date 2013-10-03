@@ -47,9 +47,11 @@ private:
   Node*				__node;
   std::vector<chunk *>		__chunks;
   uint64_t			__maxOffset;
-  chunk*			__prevChunk;
+  chunk*			__makeChunk(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset);
+  void				__manageConflicts(uint32_t idx, uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset);
   uint32_t			__bsearch(uint64_t offset, uint32_t leftbound, uint32_t rightbound, bool* found);
   void				allocChunk(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset);
+  void				forceAllocChunk(uint64_t offset, uint64_t size, class Node* origin, uint64_t originoffset);
   chunk*			chunkFromIdx(uint32_t idx);
   std::vector<chunk *>		chunksFromIdxRange(uint32_t begidx, uint32_t endidx);
 public:
@@ -61,8 +63,8 @@ public:
   EXPORT Node*			node(void);
   EXPORT uint64_t		maxOffset();
   EXPORT chunk*			chunkFromOffset(uint64_t offset);
-  EXPORT void			push(uint64_t offset, uint64_t size, class Node* origin=NULL, uint64_t originoffset=0);
-  EXPORT uint32_t			chunkCount(void);
+  EXPORT void			push(uint64_t offset, uint64_t size, class Node* origin=NULL, uint64_t originoffset=0, bool force=false);
+  EXPORT uint32_t		chunkCount(void);
   EXPORT chunk*			firstChunk(void);
   EXPORT chunk*			lastChunk(void);
   EXPORT uint32_t			chunkIdxFromOffset(uint64_t offset, uint32_t begidx=0);
