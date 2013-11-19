@@ -119,15 +119,22 @@ UDevices::UDevices(void)
 	const char* model = udev_device_get_property_value(dev, "ID_MODEL");
 	const char* size = udev_device_get_sysattr_value(dev, "size");
 	const char* block_size = udev_device_get_sysattr_value(dev, "queue/physical_block_size");
-	
-	int bs = 512;
-	uint64_t realSize = 0;
 
-	if (block_size != NULL)
-	  bs = atoi(block_size);
-	realSize = atoll(size) * bs;
-	UDevice* ud = new UDevice(blockDevice, serialNumber, model, realSize);
-	this->deviceList.push_back(ud);
+        if (blockDevice != NULL && size != NULL)
+        {	
+	  int bs = 512;
+	  uint64_t realSize = 0;
+
+	  if (block_size != NULL)
+	    bs = atoi(block_size);
+	  realSize = atoll(size) * bs;
+          if (model == NULL)
+            model = "Unknown";
+          if (serialNumber == NULL)
+            serialNumber = "Unknown";
+	  UDevice* ud = new UDevice(blockDevice, serialNumber, model, realSize);
+	  this->deviceList.push_back(ud);
+        }
       }
     }
   }
