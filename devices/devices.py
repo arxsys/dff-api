@@ -16,7 +16,7 @@
 import os
 from dff.api.devices.libdevices import Device, DeviceList
 
-DevicesLib = None
+DevicesLib = list
 if os.name == "posix":
   try :
     from dff.api.devices.libdevices import UDevices

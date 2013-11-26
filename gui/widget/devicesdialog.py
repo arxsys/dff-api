@@ -36,8 +36,9 @@ class DevicesDialog(QDialog, Ui_DevicesDialog):
       self.combodevice.addItem(self.devices[n].model())
       self.listdevices[n] = self.devices[n]
 
-    self.setDeviceInformations(self.devices[0], True)
-    self.selectedDevice = self.devices[0]
+    if len(self.devices):
+      self.setDeviceInformations(self.devices[0], True)
+      self.selectedDevice = self.devices[0]
     self.connect(self.combodevice, SIGNAL("currentIndexChanged(int)"), self.deviceChanged) 
  
   def __del__(self):
