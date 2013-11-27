@@ -56,8 +56,20 @@ public :
   EXPORT uint32_t			linkChildCount();
   EXPORT Node*				linkNode();
 
+  EXPORT AttributesHandlers&            attributesHandlers(void);
+  EXPORT bool				registerAttributes(AttributesHandler*);
+
   EXPORT Attributes			dataType(void); 
-  EXPORT Attributes			attributes(void);	
+  EXPORT Attributes			attributes(void);
+  EXPORT Attributes			attributesByType(uint8_t type);
+  EXPORT std::list< Variant_p >		attributesByName(std::string name, attributeNameType tname=RELATIVE_ATTR_NAME);
+  EXPORT std::list<std::string>		attributesNames(attributeNameType tname=RELATIVE_ATTR_NAME);
+  EXPORT std::map<std::string, uint8_t>	attributesNamesAndTypes(void);
+  EXPORT Attributes			dynamicAttributes(void);
+  EXPORT Attributes			dynamicAttributes(std::string name);
+  EXPORT std::list<std::string>		dynamicAttributesNames(void);
+  EXPORT Attributes			fsoAttributes(void);
+
   EXPORT std::string			icon(void);
   EXPORT std::list<std::string>		compatibleModules(void);
   EXPORT bool				isCompatibleModule(std::string);
