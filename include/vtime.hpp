@@ -82,5 +82,11 @@ public:
   int			dst;
 };
 
+class vtimeMS128 : public vtime
+{
+public:
+  EXPORT  vtimeMS128(char *);
+}; 
+
 #endif
 

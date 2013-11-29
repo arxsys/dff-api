@@ -199,3 +199,22 @@ vtime::~vtime()
 {
 }
 
+vtimeMS128::vtimeMS128(char *_time)
+{
+  if (_time == NULL)
+    throw std::string("vtimeMS128, time is NULL");
+  
+  uint16_t* t = (uint16_t*)_time;
+  this->year = *t++;
+  this->month = *t++;
+  this->wday = *t++;
+  this->day = *t++;
+
+  this->hour = *t++;
+  this->minute = *t++;
+  this->second = *t++;
+  this->usecond = *t++;
+  this->yday = 0;
+  this->dst = 0;
+}
+
