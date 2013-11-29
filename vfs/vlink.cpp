@@ -121,6 +121,17 @@ VFile*		VLink::open()
   return this->__linkedNode->open();
 }
 
+bool		VLink::registerAttributes(AttributesHandler* ah)
+{
+  return this->__linkedNode->registerAttributes(ah);
+}
+
+AttributesHandlers&	VLink::attributesHandlers(void)
+{
+  return this->__linkedNode->attributesHandlers();
+}
+
+
 Attributes	VLink::dataType(void)
 {
   return this->__linkedNode->dataType();
@@ -129,6 +140,46 @@ Attributes	VLink::dataType(void)
 Attributes	VLink::attributes(void)
 {
   return this->__linkedNode->attributes();
+}
+
+Attributes	VLink::attributesByType(uint8_t type)
+{
+  return this->__linkedNode->attributesByType(type);
+}
+
+std::list< Variant_p >		VLink::attributesByName(std::string name, attributeNameType tname)
+{
+  return this->__linkedNode->attributesByName(name, tname);
+}
+
+std::list<std::string>		VLink::attributesNames(attributeNameType tname)
+{
+  return this->__linkedNode->attributesNames(tname);
+}
+
+std::map<std::string, uint8_t>	VLink::attributesNamesAndTypes(void)
+{
+  return this->__linkedNode->attributesNamesAndTypes();
+}
+
+Attributes			VLink::dynamicAttributes(void)
+{
+  return this->__linkedNode->dynamicAttributes();
+}
+
+Attributes			VLink::dynamicAttributes(std::string name)
+{
+  return this->__linkedNode->dynamicAttributes(name);
+}
+
+std::list<std::string>		VLink::dynamicAttributesNames(void)
+{
+  return this->__linkedNode->dynamicAttributesNames();
+}
+
+Attributes			VLink::fsoAttributes(void)
+{
+ return this->__linkedNode->fsoAttributes();
 }
 
 std::string	VLink::icon(void)
