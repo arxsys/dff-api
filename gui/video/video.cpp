@@ -124,7 +124,7 @@ VideoDecoder::VideoDecoder(Node* node)
 	this->_clear();	
         throw std::string("can't open input stream");
   }
-  if (av_find_stream_info(this->_formatContext) < 0)
+  if (avformat_find_stream_info(this->_formatContext, NULL) < 0)
   {
 	this->_clear();
 	throw std::string("can't find video info");
@@ -419,7 +419,7 @@ void 	VideoDecoder::_initializeVideo()
   }
 
   this->_codecContext->workaround_bugs = 1;
-  if (avcodec_open(this->_codecContext, this->_codec) < 0)
+  if (avcodec_open2(this->_codecContext, this->_codec, NULL) < 0)
   {
     this->_clear();
     throw std::string("Could not open video");
