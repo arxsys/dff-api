@@ -203,11 +203,11 @@ class TaskManager():
 
     def postProcessWalk(self, node):
        job = (self.postProcess, (node,))
-       ppsched.enqueueProcessing(job)	 	
+       ppsched.enqueueProcessing(job)	
        if node.hasChildren():
-	 childrens = node.children()
-	 for child in childrens:
-	     self.postProcessWalk(child)
+	 children = node.children()
+	 for i in xrange(0, len(children)):
+	     self.postProcessWalk(children[i])
 
     def postProcess(self, node, recursive = False):
      try:
