@@ -17,6 +17,7 @@ import threading, time, sys, traceback
 from Queue import Queue
 
 from dff.api.vfs import vfs
+from dff.api.vfs.libvfs import Node, VLink
 from dff.api.module.module import Script 
 from dff.api.types.libtypes import VMap, Variant
 from dff.api.taskmanager.scheduler import sched 
@@ -82,7 +83,18 @@ class ProcessusManager(object):
             if isinstance(procArgs, VMap):
 	      for k, v in procArgs.iteritems():
 	        try :
-		   if str(v) != str(argument[k]):
+                   #XXX list of node == list of node ?
+                   arg = argument[k].value()
+                   val  = v.value()
+                   if isinstance(arg, VLink):
+                     arg = arg.linkNode().this
+                   elif isinstance(arg, Node):
+                     arg = arg.this
+                   if isinstance(val, Node):
+                     val = val.this
+                   elif isinstance(val, VLink):
+                     val = val.linkNode().this
+		   if str(val) != str(arg):
 		    flag = 0
 		    break
 	        except (IndexError, KeyError, TypeError):
