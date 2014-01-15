@@ -67,7 +67,7 @@ class Magic(MagicHandler):
        MagicHandler.__init__(self, "magic")
 
     def magic_type(self):
-       return magic.MAGIC_NONE
+       return magic.MAGIC_CONTINUE
 
     def empty(self, node):
        if node.hasChildren():
