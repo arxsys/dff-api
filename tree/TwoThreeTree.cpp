@@ -260,7 +260,7 @@ bool	TwoThreeTree::find(uint64_t val)
 
 bool	TwoThreeTree::exists(uint64_t val)
 {
-  uint32_t	idx;
+  //uint32_t	idx;
   bool		found;
 
   found = false;
@@ -271,8 +271,8 @@ bool	TwoThreeTree::exists(uint64_t val)
       if (val >= this->__elems[0]->lhs && val <= this->__elems[0]->rhs)
 	found = true;
     }
-  else
-    idx = this->__bsearch(val, 0, this->__elems.size() - 1, &found);
+  //else
+  //idx = this->__bsearch(val, 0, this->__elems.size() - 1, &found);
   return found;
 }
 

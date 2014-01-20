@@ -242,12 +242,10 @@ int32_t 	mfso::vwrite(int32_t fd, void *buff, unsigned int size)
 
 int32_t 	mfso::vclose(int32_t fd)
 {
-  fdinfo*	fi;
-
   try
   {
-     fi = this->__fdmanager->get(fd);
-//     delete fi; ? 
+     //fdinfo* fi = this->__fdmanager->get(fd);
+     // delete fi; ? 
      this->__fdmanager->remove(fd);
   }
   catch (vfsError e)
