@@ -105,8 +105,8 @@ void		InterpreterContext::setCurrentNode(Node* node)
 	  this->__attributes["extension"] = new Variant(node->extension());
 	  this->__attributes["filesize"] = new Variant(node->size());
 	  this->__attributes["deleted"] = new Variant(node->isDeleted());
-	  this->__attributes["folder"] = new Variant(node->hasChildren() && (node->size() == 0));
-	  this->__attributes["file"] = new Variant((node->size() > 0));
+	  this->__attributes["folder"] = new Variant(node->isDir());
+	  this->__attributes["file"] = new Variant(node->isFile());
 	}
       if ((this->__qflags & QueryFlags::DataType) == QueryFlags::DataType)
 	{
