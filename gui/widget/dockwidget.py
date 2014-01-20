@@ -206,8 +206,6 @@ class DockWidget(QDockWidget):
 
   def init(self, widget):
     self.name = widget.name
-    self.setAllowedAreas(Qt.AllDockWidgetAreas)
-    self.setFeatures(QDockWidget.AllDockWidgetFeatures)
     self.setWidget(widget)
     self.connect(self, SIGNAL("topLevelChanged(bool)"), self.toplevel_changed)
     self.connect(self, SIGNAL("visibilityChanged(bool)"), self.setVisibility)
@@ -220,6 +218,8 @@ class DockWidget(QDockWidget):
       self.mainwindow.refreshTabifiedDockWidgets()
 
   def setVisibility(self, state):
+     if state and hasattr(self.childWidget, "updateStatus"):
+         self.childWidget.updateStatus()
      self.visibilityState = state
 
   def visibility(self):
@@ -229,7 +229,7 @@ class DockWidget(QDockWidget):
     if enable:
       self.raise_()
       self.setFocus()
-      
+
   def changeEvent(self, event):
     """ Search for a language change event
     
