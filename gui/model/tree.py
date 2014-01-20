@@ -36,10 +36,20 @@ class TreeModel(QStandardItemModel, EventHandler):
     self.createRootItems()
     self.currentIndex = self.root_item
     self.ch = True
+    self.displayCount = True
     self.selection = selection
     self.VFS.connection(self)
     # keep track of index - node pointers
     self.connect(self, SIGNAL("refreshModel"), self.refreshModel)
+
+    
+  def enableDisplayCount(self):
+    self.displayCount = True
+
+
+  def disableDisplayCount(self):
+    self.displayCount = False
+
 
   def createRootItems(self):
     # Add Root children items (bookmarks, logical etc.)
@@ -113,7 +123,10 @@ class TreeModel(QStandardItemModel, EventHandler):
     # in other cases, returns the requires data  : icon, color, etc. or an invalid QVariant()
     # if the role does not correpond to anything.
     if role == Qt.DisplayRole :
-      return QVariant(QString.fromUtf8(node.name()))
+      display = QString.fromUtf8(node.name())
+      if self.displayCount:
+        display += QString("  (" + str(node.childCount()) + ")")
+      return QVariant(display)
     if role == Qt.DecorationRole:
       pixmap = QPixmap(node.icon())
       if node.hasChildren():
@@ -132,7 +145,6 @@ class TreeModel(QStandardItemModel, EventHandler):
           painter.drawPixmap(0, 0, rootPixmap)
           painter.end()
       return QVariant(QIcon(pixmap))
-
     if role == Qt.BackgroundRole:
       if index == self.currentIndex:
         palette = QPalette().color(QPalette.Highlight)
