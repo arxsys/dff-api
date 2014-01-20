@@ -87,3 +87,4 @@ class SelectionManager(QObject):
 
     def clear(self):
         self._selection.clear()
+        self.emit(SIGNAL("selectionChanged()"))
