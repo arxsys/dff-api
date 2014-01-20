@@ -84,9 +84,16 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.connect(self, SIGNAL("refreshList"), self.refreshList)
     self.bookManager = BookmarkManager(self.model())
 
+
   def __del__(self):
     self.VFS.deconnection(self)
     self.treemodel.VFS.deconnection(self.treemodel)
+
+
+  def update(self):
+    self.updateStatus()
+    QWidget.update(self)
+
 
   def Event(self, e):
     """
@@ -94,6 +101,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     or is a directory).
     """
     self.emit(SIGNAL("refreshList"), e)
+
 
   def refreshList(self, e):
     if e.value != None:
@@ -165,7 +173,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.viewpan.setCurrentWidget(self.filterview)
       self.filterwidget.resetFilter()
       m = self.currentView().model
-#      if self.filter.isChecked():
       self.filterview.model.setDefaultAttributes()
       self.filterview.model.setSelectedAttributes(m.selectedAttributes())
       self.infostack.show()
@@ -234,12 +241,14 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.filterview = self.createNodeWidget(self.selection, filtermode=True)
     self.connect(self.filterview, SIGNAL("enterFilter"), self.enterFilter)
     self.connect(self.filterview, SIGNAL("nodePressed"), self.nodePressed)
+    self.connect(self.filterwidget, SIGNAL("finished()"), self.updateStatus)
     if self.mode == ADVANCED:
       self.navigation.connect(self.filterview, SIGNAL("pathChanged"), self.navigation.rootpathchanged)
     self.views.append(self.filterview)
     self.viewpan.addWidget(self.filterview)
     if self.mode == ADVANCED:
       self.searchwidget = SearchPanel(self, self.searchview)
+      self.connect(self.searchwidget, SIGNAL("finished()"), self.updateStatus)
       self.leftpan.addWidget(self.searchwidget)
     self.splitter.addWidget(self.leftpan)
     self.splitter.addWidget(self.viewstack)
@@ -253,6 +262,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def nodePressed(self, node):
     self.attributes.fill(node)
     self.mainwindow.emit(SIGNAL("previewUpdate"), node)
+    self.updateStatus()
+
 
   def enterFilter(self, node):
     if self.filterwidget.lock.isChecked():
@@ -266,6 +277,14 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.model().emit(SIGNAL("layoutChanged()"))
     if self.mode == ADVANCED:
       self.treemodel.emit(SIGNAL("layoutChanged()"))
+    self.updateStatus()
+
+  def updateStatus(self):
+    if self.filter.isChecked():
+      self.mainwindow.statusWidget.updateStatus(self.filterview.model.getStatus(), len(self.selection._selection))
+    else:
+      self.mainwindow.statusWidget.updateStatus(self.currentView().model.getStatus(), len(self.selection._selection))
+
 
   def activateSearchPan(self, state):
     if self.mode == ADVANCED:
@@ -303,6 +322,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
           self.viewpan.setCurrentWidget(self.filterview)
         self.leftpan.hide()
     self.filterwidget.resetFilter()
+    self.updateStatus()
 
   def applyFilter(self):
     if self.filter.isChecked(): 
@@ -323,6 +343,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.currentView().model.refresh(self.model().currentRow())
     self.currentView().refreshVisible()
     self.applyFilter()
+    self.updateStatus()
     QApplication.restoreOverrideCursor()
 
   def recurseNodes(self, node, res):
@@ -512,6 +533,7 @@ class FilterWidget(Ui_filterWidget, QWidget):
   def searchStoped(self):
     QApplication.restoreOverrideCursor()
     self.stop.setEnabled(False)
+    self.emit(SIGNAL("finished()"))
 
   def searchStarted(self):
     QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
@@ -607,7 +629,6 @@ class ToolButtonBar(QToolBar):
   def createStyle(self):
     self.mainstyle = "QToolBar {background: #eeeeee;spacing: 3px; border: 1px solid grey; border-radius: 2px;}"
     self.hoverstyle = "QToolBar {background: white;spacing: 3px; border: 1px solid grey; border-radius: 2px;}"
-#    self.teststyle = "QToolBar {background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffffff, stop: 1 #000000);}"
 
   def mousePressEvent(self, event):
     self.navigation.navbars.setCurrentIndex(1)

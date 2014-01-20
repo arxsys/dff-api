@@ -26,6 +26,7 @@ install_file(
   generateModuleShape.py
   nodewidget.py
   nodelistwidgets.py
+  statusbar.py
 )
 
 add_subdirectory (search)
