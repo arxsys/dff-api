@@ -41,6 +41,7 @@ class NodeListModel(QAbstractItemModel):
     self.__thumb = True
     self.__visible_rows = 0
     self.__visible_cols = 0
+    self.__status = ModelStatus()
     self.selection = selection
     self.setDefaultAttributes()
     self.connectSignals()
@@ -96,10 +97,18 @@ class NodeListModel(QAbstractItemModel):
           self.__list = nodelist
       except:
         print "Error while setting new node List"
-      # Sort list and refresh it 
+      # Sort list and refresh it
+      self.statCurrentList()
       self.sort(self.headerorder.keys()[0], self.headerorder[self.headerorder.keys()[0]])
       self.emit(SIGNAL("maximum"), len(self.__list))
       self.select(self.__current_row)
+
+
+  def statCurrentList(self):
+    self.__status.reset()
+    for i in xrange(0, len(self.__list)):
+      self.__status.statItem(self.__list[i])
+
         
   def appendList(self, node):
     """
@@ -108,6 +117,7 @@ class NodeListModel(QAbstractItemModel):
     if node != None:
       try:
         self.__list.append(node)
+        self.__status.statItem(node)
         self.emit(SIGNAL("nodeAppended"))
         self.emit(SIGNAL("maximum"), len(self.__list))
         self.refresh(self.__current_row)
@@ -120,6 +130,7 @@ class NodeListModel(QAbstractItemModel):
 
   def clearList(self):
     self.__list = []
+    self.__status.reset()
     self.__current_row = 0
     self.refresh(self.__current_row)
 
@@ -281,6 +292,7 @@ class NodeListModel(QAbstractItemModel):
     else:
       return None
 
+
   def getNode(self, row):
     try:
       node = self.__list[row]
@@ -290,6 +302,10 @@ class NodeListModel(QAbstractItemModel):
         return None
     except IndexError:
       return None
+
+  def getStatus(self):
+    return self.__status
+
 
   def index(self, row, column, parent = QModelIndex()):
     if not self.hasIndex(row, column, parent):
@@ -558,6 +574,84 @@ class NodeListModel(QAbstractItemModel):
     for node in self.__list:
       self.selection.add(node)
 
+
   def unselectAll(self):
     for node in self.__list:
       self.selection.rm(node)
+
+
+class ModelStatus():
+  def __init__(self):
+    self.__regularNodes = 0
+    self.__regularFiles = 0
+    self.__regularFolders = 0
+    self.__deletedNodes = 0
+    self.__deletedFiles = 0
+    self.__deletedFolders = 0
+    self.__totalBytes = 0
+
+
+  def regularNodes(self):
+    return self.__regularNodes
+
+
+  def regularFiles(self):
+    return self.__regularFiles
+
+
+  def regularFolders(self):
+    return self.__regularFolders
+
+  
+  def deletedNodes(self):
+    return self.__deletedNodes
+
+
+  def deletedFiles(self):
+    return self.__deletedFiles
+
+
+  def deletedFolders(self):
+    return self.__deletedFolders
+
+
+  def totalFiles(self):
+    return self.__regularFiles + self.__deletedFiles
+
+
+  def totalFolders(self):
+    return self.__regularFolders + self.__deletedFolders
+
+
+  def totalNodes(self):
+    return self.__regularNodes + self.__deletedNodes
+
+
+  def totalBytes(self):
+    return self.__totalBytes
+
+
+  def reset(self):
+    self.__regularNodes = 0
+    self.__regularFiles = 0
+    self.__regularFolders = 0
+    self.__deletedNodes = 0
+    self.__deletedFiles = 0
+    self.__deletedFolders = 0
+    self.__totalBytes = 0
+
+
+  def statItem(self, item):
+    self.__totalBytes += item.size()
+    if item.isDeleted():
+      self.__deletedNodes += 1
+      if item.isDir():
+        self.__deletedFolders += 1
+      elif item.isFile():
+        self.__deletedFiles += 1
+    else:
+      self.__regularNodes += 1
+      if item.isDir():
+        self.__regularFolders += 1
+      elif item.isFile():
+        self.__regularFiles += 1
