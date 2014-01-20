@@ -188,7 +188,6 @@ class SearchPanel(Ui_searchPanel, QWidget):
     self.searchview.refreshVisible()
 
   def searchStarted(self):
-    QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
     self.searchProgress.setValue(0)
     self.matchedNodeLabel.setText(QString("0"))
     self.startButton.setEnabled(False)
@@ -200,7 +199,7 @@ class SearchPanel(Ui_searchPanel, QWidget):
     if self.browser.filter.isChecked():
       self.browser.viewpan.setCurrentWidget(self.browser.filterview)
       self.browser.filterwidget.resetFilter()
-    QApplication.restoreOverrideCursor()
+    self.emit(SIGNAL("finished()"))
 
   def quickSearchMode(self, state):
     if state:
