@@ -174,9 +174,9 @@ int32_t		mfso::readFromMapping(FileMapping* fm, fdinfo* fi, void* buff, uint32_t
 
 int32_t 	mfso::vread(int32_t fd, void *buff, uint32_t size)
 {
-  fdinfo*	fi;
   uint64_t	realsize;
   int32_t	bytesread;
+  fdinfo*	fi = NULL;
   FileMapping*	fm = NULL;
 
   try
@@ -184,6 +184,13 @@ int32_t 	mfso::vread(int32_t fd, void *buff, uint32_t size)
     fi = this->__fdmanager->get(fd);
     if (fi->node != NULL)
       fm = this->mapFile(fi->node);
+  }
+  catch (...)
+  {
+    return (0);
+  }
+  try
+  {
     if (fm != NULL)
     {
        uint64_t fileSize = fm->maxOffset();
@@ -205,10 +212,6 @@ int32_t 	mfso::vread(int32_t fd, void *buff, uint32_t size)
        bytesread = this->readFromMapping(fm, fi, buff, realsize);
        fm->delref();
        return bytesread;
-    }
-    else
-    {
-      return (0);
     }
   }
   catch(...)
@@ -257,47 +260,46 @@ int32_t 	mfso::vclose(int32_t fd)
 
 uint64_t	mfso::vseek(int32_t fd, uint64_t offset, int32_t whence)
 {
-  fdinfo*	fi;
-  FileMapping*  fm;
+  fdinfo*	fi = NULL;
+  FileMapping*  fm = NULL;
   try
   {
      fi = this->__fdmanager->get(fd);
      fm = this->mapFile(fi->node);
-     if (fm == NULL)
-	throw std::string("can't allocate fm");
-     if (whence == 0)
-     {
-       if (offset > fm->maxOffset())
-       {
-	 fm->delref();
-         return ((uint64_t)-1);
-       }
-       else
-         fi->offset = offset;
-     }
-     else if (whence == 1)
-     {
-       if ((fi->offset + offset) > fm->maxOffset())
-       {
-	 fm->delref();
-         return ((uint64_t)-1);
-       }
-       else
-         fi->offset += offset;
-     }
-     else if (whence == 2)
-       fi->offset = fm->maxOffset();
-     fm->delref();
-     return (fi->offset);
   }
-  catch(...)
+  catch (...)
   {
-     std::cout << "problem while getting fd information" << std::endl;
+    std::cout << "problem while getting fd information" << std::endl;
+    return ((uint64_t)-1);
   }
-  if (fm != NULL)
-    fm->delref();
+  if (fm == NULL)
+    return((uint64_t)-1);
 
-  return ((uint64_t)-1);
+  if (whence == 0)
+  {
+    if (offset > fm->maxOffset())
+    {
+      fm->delref();
+      return ((uint64_t)-1);
+    }
+    else
+      fi->offset = offset;
+  }
+  else if (whence == 1)
+  {
+    if ((fi->offset + offset) > fm->maxOffset())
+    {
+      fm->delref();
+      return ((uint64_t)-1);
+    }
+    else
+      fi->offset += offset;
+  }
+  else if (whence == 2)
+    fi->offset = fm->maxOffset();
+
+  fm->delref();
+  return (fi->offset);
 }
 
 uint32_t	mfso::status(void)
