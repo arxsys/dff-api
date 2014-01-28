@@ -87,6 +87,13 @@ class NodeTableView(QTableView):
                 self.emit(SIGNAL("nodeListDoubleClicked"), node)
 
     def keyPressEvent(self, event):
+      if event.key() == Qt.Key_Space:
+        node = self.model().currentNode()
+        if node != None:
+          if not self.model().selection.isChecked(node):
+            self.model().selection.add(node)
+          else:
+            self.model().selection.rm(node)
       if event.matches(QKeySequence.MoveToNextLine):
         if self.model().activeSelection() + 1 >= self.model().visibleRows():
           self.model().seek(1, 1)

@@ -102,6 +102,13 @@ class NodeListView(QListView):
       v = self.model().seek(self.cols, 1)
 
   def keyPressEvent(self, event):
+    if event.key() == Qt.Key_Space:
+      node = self.model().currentNode()
+      if node != None:
+        if not self.model().selection.isChecked(node):
+          self.model().selection.add(node)
+        else:
+          self.model().selection.rm(node)
     if event.matches(QKeySequence.MoveToNextLine):
       if self.model().activeSelection() + self.cols >= self.model().visibleRows() - self.cols:
         self.model().seek(self.cols, 1)
@@ -133,18 +140,21 @@ class CheckStateListDelegate(QStyledItemDelegate):
     return QSize(w, h)
 
   def editorEvent(self, event, model, option, index):
-      if event.type() == QEvent.MouseButtonRelease and index.isValid():
-          model.select(index.row())
-          self.view.emit(SIGNAL("nodeListClicked"), event.button())
-          # Detect checkbox click in order to avoid column style detection
-          element = self.view.style().subElementRect(QStyle.SE_CheckBoxIndicator, option)
-          if element.contains(event.pos()):
-              node = model.currentNode()
-              if node != None:
-                  if not model.selection.isChecked(node):
-                      model.selection.add(node)
-                  else:
-                      model.selection.rm(node)
-          return QStyledItemDelegate.editorEvent(self, event, model, option, index)
-      else:
-          return False
+    if index.isValid():
+      select = False
+      if event.type() == QEvent.MouseButtonRelease:
+        model.select(index.row())
+        self.view.emit(SIGNAL("nodeListClicked"), event.button())
+        select = True
+      # Detect checkbox click in order to avoid column style detection
+      element = self.view.style().subElementRect(QStyle.SE_CheckBoxIndicator, option)
+      if select and element.contains(event.pos()):
+        node = model.currentNode()
+        if node != None:
+          if not model.selection.isChecked(node):
+            model.selection.add(node)
+          else:
+            model.selection.rm(node)
+      return QStyledItemDelegate.editorEvent(self, event, model, option, index)
+    else:
+      return False
