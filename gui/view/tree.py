@@ -80,6 +80,11 @@ class NodeTreeView(QTreeView):
       self.model().emit(SIGNAL("layoutChanged"))
       node = self.model().getNodeFromIndex(index)
       if (node != None):
+        if e.key() == Qt.Key_Space:
+          if not self.model().selection.isChecked(node):
+            self.model().selection.add(node)
+          else:
+            self.model().selection.rm(node)
         rec = index.data(Qt.UserRole + 3).toBool()
         self.emit(SIGNAL("nodeTreeClicked"), node, 0, rec)
 
