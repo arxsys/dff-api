@@ -140,6 +140,7 @@ class PropertyTable(VariantTreeWidget):
 
   def translation(self):
     self.nameText = self.tr('name')
+    self.pathText = self.tr('path')
     self.linkPath = self.tr('link path')
     self.nodeTypeText = self.tr('node type')
     self.fileText = self.tr('file')
