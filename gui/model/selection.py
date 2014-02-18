@@ -25,15 +25,17 @@ class SelectionManager(QObject):
         self._selection = set()
 
     def add(self, node):
+        cur = len(self._selection)
         if node.isDir() or node.hasChildren():
             QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
             self.recurseNodes(node, True)
             QApplication.restoreOverrideCursor()
         else:
             self._selection.add(long(node.this))
-        self.emit(SIGNAL("selectionChanged()"))
+        self.emit(SIGNAL("selectionChanged"), len(self._selection) - cur)
 
     def rm(self, node):
+        cur = len(self._selection)
         if node.isDir() or node.hasChildren():
             QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
             self.recurseNodes(node, False)
@@ -43,7 +45,7 @@ class SelectionManager(QObject):
                 self._selection.remove(long(node.this))
             except KeyError:
                 pass
-        self.emit(SIGNAL("selectionChanged()"))
+        self.emit(SIGNAL("selectionChanged"), len(self._selection) - cur)
 
     def get(self):
         return self._selection
@@ -86,5 +88,6 @@ class SelectionManager(QObject):
                 self.recurseNodes(child, add)
 
     def clear(self):
+        count = len(self._selection)
         self._selection.clear()
-        self.emit(SIGNAL("selectionChanged()"))
+        self.emit(SIGNAL("selectionChanged"), -count)

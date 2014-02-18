@@ -35,6 +35,9 @@ from dff.api.gui.widget.search.search_widget import SearchPanel
 from dff.api.gui.widget.search.filter import FilterBar
 from dff.api.gui.dialog.selectattributes import SelectAttributesWizard
 
+from dff.api.gui.model.status import NodeStatusModel
+from dff.api.gui.widget.status import NodeStatusWidget
+
 from dff.ui.gui.utils.menu import tagMenu, typeFilterMenu, BookmarkManager
 from dff.ui.gui.resources.ui_browser_toolbar import Ui_BrowserToolBar
 from dff.ui.gui.resources.ui_filter_widget import Ui_filterWidget
@@ -65,6 +68,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     #Define browser functions
     self.mode = mode
     self.mainwindow = QApplication.instance().mainWindow
+    self.__node_status = NodeStatusWidget(self)
+    self.__node_status.setStatusModel(NodeStatusModel(self))
     # Main layout
     self.mainlayout = QVBoxLayout()
     self.mainlayout.setSpacing(0)
@@ -126,7 +131,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
 
   def createSelection(self):
     self.selection = SelectionManager()
-    self.connect(self.selection, SIGNAL("selectionChanged()"), self.refreshModels)
+
 
   def createNavigationHeader(self):
     self.header = QSplitter(Qt.Horizontal)
@@ -218,6 +223,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.views = []
     self.splitter = QSplitter(self)
     self.browserview = self.createNodeWidget(self.selection)
+    self.connect(self.browserview.model, SIGNAL("layoutChanged()"), self.updateStatus)
     self.connect(self.browserview, SIGNAL("nodePressed"), self.nodePressed)
     # append
     self.views.append(self.browserview)
@@ -227,6 +233,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       # Tree view
       self.treeview = NodeTreeView(self)
       self.treemodel = TreeModel(self, self.selection)
+      self.connect(self.treemodel, SIGNAL("layoutChanged()"), self.updateStatus)
       self.treeview.setModel(self.treemodel)
       self.leftpan.addWidget(self.treeview)
       self.connect(self.treeview, SIGNAL("nodeTreeClicked"), self.nodetreeclicked)
@@ -241,6 +248,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.filterview = self.createNodeWidget(self.selection, filtermode=True)
     self.connect(self.filterview, SIGNAL("enterFilter"), self.enterFilter)
     self.connect(self.filterview, SIGNAL("nodePressed"), self.nodePressed)
+    self.connect(self.filterview.model, SIGNAL("layoutChanged()"), self.updateStatus)
     self.connect(self.filterwidget, SIGNAL("finished()"), self.updateStatus)
     if self.mode == ADVANCED:
       self.navigation.connect(self.filterview, SIGNAL("pathChanged"), self.navigation.rootpathchanged)
@@ -262,6 +270,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def nodePressed(self, node):
     self.attributes.fill(node)
     self.mainwindow.emit(SIGNAL("previewUpdate"), node)
+    self.emit(SIGNAL("nodePressed"), node)
     self.updateStatus()
 
 
@@ -273,17 +282,21 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.browserview.enterDirectory(node)
       self.filterwidget.resetFilter()
 
-  def refreshModels(self):
-    self.model().emit(SIGNAL("layoutChanged()"))
-    if self.mode == ADVANCED:
-      self.treemodel.emit(SIGNAL("layoutChanged()"))
-    self.updateStatus()
 
   def updateStatus(self):
     if self.filter.isChecked():
-      self.mainwindow.statusWidget.updateStatus(self.filterview.model.getStatus(), len(self.selection._selection))
+      status = self.filterview.viewstatus
+      node = self.filterview.model.currentNode()
     else:
-      self.mainwindow.statusWidget.updateStatus(self.currentView().model.getStatus(), len(self.selection._selection))
+      status = self.currentView().viewstatus
+      node = self.currentView().model.currentNode()
+    # special case when current view does not have any items (empty folder)
+    if node is None:
+      node = self.navigation.currentNode
+      self.emit(SIGNAL("emptyView"), node)
+    else:
+      self.emit(SIGNAL("currentNode"), node)
+    self.mainwindow.status.updateStatus(status, self.__node_status)
 
 
   def activateSearchPan(self, state):
@@ -339,7 +352,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       res = []
       self.recurseNodes(node, res)
       res.remove(node)
-      self.currentView().model.emit(SIGNAL("changeList"), res)
+      self.currentView().model.emit(SIGNAL("changeList"), res, True)
     self.currentView().model.refresh(self.model().currentRow())
     self.currentView().refreshVisible()
     self.applyFilter()

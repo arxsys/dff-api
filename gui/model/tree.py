@@ -38,9 +38,15 @@ class TreeModel(QStandardItemModel, EventHandler):
     self.ch = True
     self.displayCount = True
     self.selection = selection
+    if self.selection != None:
+      self.connect(self.selection, SIGNAL("selectionChanged"), self.updateSelected)
     self.VFS.connection(self)
     # keep track of index - node pointers
     self.connect(self, SIGNAL("refreshModel"), self.refreshModel)
+
+
+  def updateSelected(self, count):
+    self.emit(SIGNAL("layoutChanged()"))
 
     
   def enableDisplayCount(self):

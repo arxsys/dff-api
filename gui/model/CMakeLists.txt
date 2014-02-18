@@ -18,4 +18,5 @@ install_file(
   node_list.py
   tree.py
   selection.py
+  status.py
 )

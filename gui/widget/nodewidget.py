@@ -22,6 +22,9 @@ from dff.api.gui.view.node_list import NodeListView
 from dff.api.gui.view.node_table import NodeTableView
 from dff.api.gui.model.node_list import NodeListModel
 
+from dff.api.gui.widget.status import ViewStatusWidget
+from dff.api.gui.model.status import ViewStatusModel
+
 from dff.ui.gui.utils.menumanager import MenuManager
 from dff.ui.gui.resources.ui_filter_mode import Ui_filterMode
 
@@ -39,6 +42,8 @@ class NodeWidget(QWidget):
         # setup model and views
         self.viewid = TABLEVIEW_ID
         self.model = NodeListModel(selection=selectionManager)
+        self.viewstatus = ViewStatusWidget()
+        self.viewstatus.setStatusModel(ViewStatusModel(self.model, selectionManager))
         self.tableview = NodeTableView(self)
         self.listview = NodeListView(self)
         self.tableview.setModel(self.model)
