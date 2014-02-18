@@ -186,101 +186,101 @@ chunk*			FileMapping::chunkFromOffset(uint64_t offset)
     throw("provided offset too high");
   }
   if (this->__chunks.size() == 1)
+  {
+    //if there's only one chunk, there are two possibilities:
+    // - either file's mapping is represented by only one chunk starting from 0
+    // - or file's mapping is partial and only represents parts of the file. The stored chunk starts from an offset != 0
+    chk = this->__chunks[0];
+    //first, check if stored chunk contains the requested offset
+    if (offset >= chk->offset && offset <= chk->offset + chk->size - 1)
     {
-      //if there's only one chunk, there are two possibilities:
-      // - either file's mapping is represented by only one chunk starting from 0
-      // - or file's mapping is partial and only represents parts of the file. The stored chunk starts from an offset != 0
-      chk = this->__chunks[0];
-      //first, check if stored chunk contains the requested offset
-      if (offset >= chk->offset && offset <= chk->offset + chk->size - 1)
+      mutex_unlock(&this->__fm_mutex);
+      return chk;
+    }
+    // if not, it means the offset is lesser than the starting offset of the stored chunk
+    // if offset is greater than chk->offset + chk->size, an exception has been raised (offset > __maxOffset)
+    else
+    {
+       // a virtual chunk is created and is treated as a buffer full of 0 in mfso::readFromMapping
+       chk = new chunk;
+       chk->offset = 0;
+       chk->size = this->__chunks[0]->offset;
+       chk->origin = NULL;
+       chk->originoffset = 0;
+       this->__chunks.insert(this->__chunks.begin(), chk);
+       mutex_unlock(&this->__fm_mutex);
+       return chk;
+    }
+  } 
+  else
+  {
+    //otherwise, there are at least 2 chunks and two possibilities:
+    // - either the chunk containing the requested offset is found
+    // - or the chunk containing the requested offset is NOT found
+    idx = this->__bsearch(offset, 0, this->__chunks.size() - 1, &found);
+    if (found)
+    {
+      mutex_unlock(&this->__fm_mutex);
+      return this->__chunks[idx];
+    }
+    else
+    {
+      //__bsearch always provide the left-most chunk meaning provided offset
+      //is greater than chunk[idx]->offset + chunk[idx]->size - 1.
+      //We need to map the gap
+      //If returned idx is the last chunk, check if size of node is greater than
+      //chunks[idx]->offset + chunks[idx]->size ?
+      //at the moment, we throw an exception
+      if (idx == this->__chunks.size() - 1)
       {
     	mutex_unlock(&this->__fm_mutex);
-	return chk;
+	throw(std::string("no more chunk available. file is not complete"));
       }
-      // if not, it means the offset is lesser than the starting offset of the stored chunk
-      // if offset is greater than chk->offset + chk->size, an exception has been raised (offset > __maxOffset)
-      else
-	{
-	  // a virtual chunk is created and is treated as a buffer full of 0 in mfso::readFromMapping
+      //if idx is the first chunk, it means first part of the mapping of the file is
+      //missing. A virtual chunk is created to fill the gap.
+      else if (idx == 0)
+      {
+	if (offset < this->__chunks[0]->offset)
+        {
+          //std::cout << "offset < this->__chunks[0]->offset" << std::endl;
 	  chk = new chunk;
 	  chk->offset = 0;
 	  chk->size = this->__chunks[0]->offset;
 	  chk->origin = NULL;
 	  chk->originoffset = 0;
 	  this->__chunks.insert(this->__chunks.begin(), chk);
+     	  mutex_unlock(&this->__fm_mutex);
+	  return chk;
+	}
+	else
+	{
+	  chk = new chunk;
+	  //std::cout << "offset > this->__chunks[0]->offset" <<  std::endl;
+	  chk->offset = this->__chunks[0]->offset + this->__chunks[0]->size;
+	  chk->size = this->__chunks[1]->offset - chk->offset;
+	  chk->origin = NULL;
+	  chk->originoffset = 0;
+	  this->__chunks.insert(this->__chunks.begin()+1, chk);
     	  mutex_unlock(&this->__fm_mutex);
 	  return chk;
 	}
-    }
-  else
-    {
-      //otherwise, there are at least 2 chunks and two possibilities:
-      // - either the chunk containing the requested offset is found
-      // - or the chunk containing the requested offset is NOT found
-      idx = this->__bsearch(offset, 0, this->__chunks.size() - 1, &found);
-      if (found)
-      {
-    	mutex_unlock(&this->__fm_mutex);
-	return this->__chunks[idx];
       }
+      //requested offset is in the middle of two mapped chunks. A virtual chunk
+      //is created which fill the gap.
       else
-	{
-	  //__bsearch always provide the left-most chunk meaning provided offset
-	  //is greater than chunk[idx]->offset + chunk[idx]->size - 1.
-	  //We need to map the gap
-	  //If returned idx is the last chunk, check if size of node is greater than
-	  //chunks[idx]->offset + chunks[idx]->size ?
-	  //at the moment, we throw an exception
-	  if (idx == this->__chunks.size() - 1)
-          {
-    	    mutex_unlock(&this->__fm_mutex);
-	    throw(std::string("no more chunk available. file is not complete"));
-	  }
-	  //if idx is the first chunk, it means first part of the mapping of the file is
-	  //missing. A virtual chunk is created to fill the gap.
-	  else if (idx == 0)
-	    {
-	      if (offset < this->__chunks[0]->offset)
-		{
-		  //std::cout << "offset < this->__chunks[0]->offset" << std::endl;
-		  chk = new chunk;
-		  chk->offset = 0;
-		  chk->size = this->__chunks[0]->offset;
-		  chk->origin = NULL;
-		  chk->originoffset = 0;
-		  this->__chunks.insert(this->__chunks.begin(), chk);
-    	    	  mutex_unlock(&this->__fm_mutex);
-		  return chk;
-		}
-	      else
-		{
-		  chk = new chunk;
-		  //std::cout << "offset > this->__chunks[0]->offset" <<  std::endl;
-		  chk->offset = this->__chunks[0]->offset + this->__chunks[0]->size;
-		  chk->size = this->__chunks[1]->offset - chk->offset;
-		  chk->origin = NULL;
-		  chk->originoffset = 0;
-		  this->__chunks.insert(this->__chunks.begin()+1, chk);
-    	    	  mutex_unlock(&this->__fm_mutex);
-		  return chk;
-		}
-	    }
-	  //requested offset is in the middle of two mapped chunks. A virtual chunk
-	  //is created which fill the gap.
-	  else
-	    {
-	      chk = new chunk;
-	      //std::cout << idx << " < offset < " << (idx + 1) << std::endl;
-	      chk->offset = this->__chunks[idx]->offset + this->__chunks[idx]->size;
-	      chk->size = this->__chunks[idx+1]->offset - chk->offset;
-	      chk->origin = NULL;
-	      chk->originoffset = 0;
-	      this->__chunks.insert(this->__chunks.begin()+idx+1, chk);
-    	      mutex_unlock(&this->__fm_mutex);
-	      return chk;
-	    }
-	}
-   }
+      {
+	chk = new chunk;
+	//std::cout << idx << " < offset < " << (idx + 1) << std::endl;
+	chk->offset = this->__chunks[idx]->offset + this->__chunks[idx]->size;
+	chk->size = this->__chunks[idx+1]->offset - chk->offset;
+	chk->origin = NULL;
+	chk->originoffset = 0;
+	this->__chunks.insert(this->__chunks.begin()+idx+1, chk);
+    	mutex_unlock(&this->__fm_mutex);
+	return chk;
+      }
+    }
+  }
 }
 
 
