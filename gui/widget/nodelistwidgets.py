@@ -169,6 +169,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.infostack.setCurrentWidget(self.filterwidget)
       self.viewpan.setCurrentWidget(self.currentView())
       self.infostack.hide()
+    self.updateStatus()
 
   def factorminus(self):
     value = self.factorSlider.value() - 1
