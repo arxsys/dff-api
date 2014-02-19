@@ -30,6 +30,7 @@ class NodeTableView(QTableView):
         self.factor = 1
         self.configure()
 
+
     def configure(self):
         self.verticalHeader().setDefaultSectionSize(DEFAULT_SIZE * self.factor)
         self.setIconSize(QSize(DEFAULT_SIZE * self.factor, DEFAULT_SIZE * self.factor))
@@ -41,13 +42,14 @@ class NodeTableView(QTableView):
 
     def configureHeaders(self):
         self.horizontalHeader().setStretchLastSection(True)
-#        self.horizontalHeader().setSortIndicatorShown(True)
 	self.horizontalHeader().setMovable(True)
         self.connect(self.horizontalHeader(), SIGNAL("sectionClicked(int)"), self.headerClicked)
         self.verticalHeader().hide()
 
     def refreshVisible(self):
         height = self.factor * DEFAULT_SIZE
+        if height < self.rowHeight(0):
+            heigth = self.rowHeight(0)
         try:
             visible = self.viewport().height() / height
             if visible > 0:
@@ -73,6 +75,7 @@ class NodeTableView(QTableView):
             v = self.model().seek(3, 1)
             return
 
+
     def mouseDoubleClickEvent(self, event):
         index = self.indexAt(event.pos())
         self.model().select(index.row())
@@ -86,32 +89,47 @@ class NodeTableView(QTableView):
             else:
                 self.emit(SIGNAL("nodeListDoubleClicked"), node)
 
+
     def keyPressEvent(self, event):
-      if event.key() == Qt.Key_Space:
         node = self.model().currentNode()
         if node != None:
-          if not self.model().selection.isChecked(node):
-            self.model().selection.add(node)
-          else:
-            self.model().selection.rm(node)
-      if event.matches(QKeySequence.MoveToNextLine):
-        if self.model().activeSelection() + 1 >= self.model().visibleRows():
-          self.model().seek(1, 1)
-          self.model().select(self.model().visibleRows() - 1)
-        else:
-          self.model().select(self.model().activeSelection() + 1)
-      elif event.matches(QKeySequence.MoveToPreviousLine):
-        if self.model().activeSelection() - 1 <= 0:
-          self.model().seek(-1, 1)
-          self.model().select(0)
-        else:
-          self.model().select(self.model().activeSelection() - 1)
-      elif event.matches(QKeySequence.MoveToPreviousPage):
-        self.model().seek(-(self.model().visibleRows() - 1), 1)
-        self.model().select(0)
-      elif event.matches(QKeySequence.MoveToNextPage):
-        self.model().seek(self.model().visibleRows() - 1, 1)
-        self.model().select(0)
+            if isinstance(node, VLink):
+                node = node.linkNode()
+        if event.key() == Qt.Key_Backspace:
+            node = self.model().currentRoot()
+            if node:
+                self.emit(SIGNAL("enterDirectory"), node.parent())
+        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+            if node != None:
+                if node.isDir() or node.hasChildren():
+                    self.emit(SIGNAL("enterDirectory"), node)
+                else:
+                    self.emit(SIGNAL("nodeListDoubleClicked"), node)              
+        if event.key() == Qt.Key_Space:
+            if node != None:
+                if not self.model().selection.isChecked(node):
+                    self.model().selection.add(node)
+                else:
+                    self.model().selection.rm(node)
+        if event.matches(QKeySequence.MoveToNextLine):
+            if self.model().activeSelection() + 1 >= self.model().visibleRows():
+                self.model().seek(1, 1)
+                self.model().select(self.model().visibleRows() - 1)
+            else:
+                self.model().select(self.model().activeSelection() + 1)
+        elif event.matches(QKeySequence.MoveToPreviousLine):
+            if self.model().activeSelection() - 1 <= 0:
+                self.model().seek(-1, 1)
+                self.model().select(0)
+            else:
+                self.model().select(self.model().activeSelection() - 1)
+        elif event.matches(QKeySequence.MoveToPreviousPage):
+            self.model().seek(-(self.model().visibleRows() - 1), 1)
+            self.model().select(0)
+        elif event.matches(QKeySequence.MoveToNextPage):
+            self.model().seek(self.model().visibleRows() - 1, 1)
+            self.model().select(0)
+
 
     def headerClicked(self, col):
       self.horizontalHeader().setSortIndicatorShown(True)
@@ -123,8 +141,8 @@ class NodeTableView(QTableView):
       else:
         order = Qt.DescendingOrder
       self.headerorder[col] = order
-#      print self.headerorder
       self.model().sort(col, order)
+
 
 class HeaderView(QHeaderView):
     def __init__(self, view):

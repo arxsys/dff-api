@@ -26,7 +26,7 @@ class StatusLabel(QLabel):
         self.__model = model
         self.setTextInteractionFlags(Qt.LinksAccessibleByMouse|Qt.TextSelectableByMouse)
         self.connect(self.__model, SIGNAL("updateStatus"), self.updateLabel)
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(sizePolicy)
@@ -51,10 +51,10 @@ class StatusLabel(QLabel):
         self.setText(head + fmt.format(**fmtdata))
 
 
-class ViewStatusWidget(QWidget):
+class StatusWidget(QWidget):
     def __init__(self, parent=None):
         super(QWidget, self).__init__(parent)
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(sizePolicy)
@@ -80,54 +80,15 @@ class ViewStatusWidget(QWidget):
             self.__labels.append(label)
 
 
-class NodeStatusWidget(QWidget):
-    def __init__(self, emiter, parent=None):
-        super(QWidget, self).__init__(parent)
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-        sizePolicy.setHorizontalStretch(1)
-        sizePolicy.setVerticalStretch(0)
-        self.setSizePolicy(sizePolicy)
-        self.__hlayout = QHBoxLayout(self)
-        self.__hlayout.setSpacing(6)
-        self.__hlayout.setMargin(0)
-        self.__hlayout.setSizeConstraint(QLayout.SetMinimumSize)
-        self.__hlayout.setAlignment(Qt.AlignRight)
-        self.__pathLabel = LinkLabel()
-        self.__pathLabel.connect(emiter, SIGNAL("currentNode"), self.updateCurrent)
-        self.__pathLabel.connect(emiter, SIGNAL("emptyView"), self.updateEmpty)
-        self.__hlayout.addWidget(self.__pathLabel)
-        self.__labels = []
-
-
-    def updateCurrent(self, node):
-        self.__pathLabel.setLink(node)
-        for label in self.__labels:
-            label.show()
-
-    
-    def updateEmpty(self, node):
-        self.__pathLabel.setLink(node)
-        for label in self.__labels:
-            label.hide()
-
-
-    def setStatusModel(self, model):
-        self.__model = model
-        for idx in xrange(0, model.count()):
-            label = StatusLabel(self, model.status(idx))
-            self.__hlayout.addWidget(label)
-            if idx < model.count()-1:
-                line = QFrame(self)
-                line.setFrameShape(QFrame.VLine)
-                line.setFrameShadow(QFrame.Sunken)
-                self.__hlayout.addWidget(line)
-            self.__labels.append(label)
-
-
 class StatusBarWidget(QWidget):
+    
+    SplitterHandleStyle = """QSplitter::handle:horizontal {background: 
+    qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc);
+    border: 1px solid #777; width: 14px; margin-right: 4px; margin-left: 4px;}"""
+
     def __init__(self, parent = None):
         super(QWidget, self).__init__(parent)
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(1)
         self.setSizePolicy(sizePolicy)
@@ -136,24 +97,13 @@ class StatusBarWidget(QWidget):
         self.__hlayout.setSizeConstraint(QLayout.SetMinimumSize)
         self.__hlayout.setMargin(0)
         self.__splitter = QSplitter(Qt.Horizontal, parent)
-        self.__splitter.setHandleWidth(10)
+        self.__splitter.setHandleWidth(12)
         self.__hlayout.addWidget(self.__splitter)
-        self.__view = None
-        self.__node = None
 
 
-    def updateStatus(self, view, node):
-        for i in xrange(0, self.__splitter.count()):
-            self.__splitter.widget(i).setVisible(False)
-        viewidx = self.__splitter.indexOf(view)
-        nodeidx = self.__splitter.indexOf(node)
-        if viewidx != -1:
-            self.__splitter.widget(viewidx).setVisible(True)
-            self.__splitter.setStretchFactor(viewidx, 20)
-        else:
-            self.__splitter.addWidget(view)
-        if nodeidx != -1:
-            self.__splitter.widget(nodeidx).setVisible(True)
-            self.__splitter.setStretchFactor(nodeidx, 80)
-        else:
-            self.__splitter.addWidget(node)
+    def addStatusWidget(self, widget, stretch):
+        self.__splitter.setStyleSheet(StatusBarWidget.SplitterHandleStyle)
+        self.__splitter.addWidget(widget)
+        idx = self.__splitter.indexOf(widget)
+        self.__splitter.setStretchFactor(idx, stretch)
+

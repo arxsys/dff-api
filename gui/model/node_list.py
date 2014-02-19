@@ -41,7 +41,10 @@ class NodeListModel(QAbstractItemModel):
     self.__visible_rows = 0
     self.__visible_cols = 0
     self.__recursive = False
+    self.__root = None
     self.selection = selection
+    if self.selection != None:
+      self.connect(self.selection, SIGNAL("selectionChanged"), self.updateSelected)
     self.setDefaultAttributes()
     self.connectSignals()
     self.thumbnailer = Thumbnailer()
@@ -61,9 +64,20 @@ class NodeListModel(QAbstractItemModel):
            self.emit(SIGNAL("dataChanged"), modelIndex, modelIndex)
          index += 1
 
+     
+  def vfsNotification(self, node):
+    if long(node.parent().this) == long(self.__root.this):
+      self.changeList(self.__root, self.__recursive, self.__list[self.__row_selected])
+                      
+
+
+  def updateSelected(self, count):
+    self.emit(SIGNAL("layoutChanged()"))
+
+
   def connectSignals(self):
     self.connect(self, SIGNAL("appendList"), self.appendList)
-    self.connect(self, SIGNAL("changeList"), self.changeList)
+
 
   def setData(self, index, value, role):
     """
@@ -87,23 +101,73 @@ class NodeListModel(QAbstractItemModel):
     QAbstractItemModel.setData(self, index, value, role)
     return True
 
-  def changeList(self, nodelist, recursive=False):
-    """ Reset current list and set an existing node list to the model"""
-    self.__recursive = recursive
-    if nodelist != None:
+
+  def changeList(self, root, recursive=False, selected=None):
+    """ 
+    Change the current list based on root children.
+    If recursive is True, the list will be based on the recursion
+    If selected is provided it will automatically be the current row
+    """
+    if root != None:
+      self.__root = root
+      self.__recursive = recursive
       self.__list = []
       self.row_selected = 0
       self.__current_row = 0
-      try:
-          self.__list = nodelist
-      except:
-        print "Error while setting new node List"
-      # Sort list and refresh it
+      if recursive:
+        self.__fillRecursiveList(root.children())
+      else:
+        self.__list = root.children()
       self.sort(self.headerorder.keys()[0], self.headerorder[self.headerorder.keys()[0]])
+      idx = 0
+      if not recursive and selected != None:
+        for i in xrange(0, len(self.__list)):
+          if long(selected.this) == long(self.__list[i].this):
+            idx = i
+            break
       self.emit(SIGNAL("maximum"), len(self.__list))
-      self.select(self.__current_row)
+      if idx > self.__current_row + self.__visible_rows:
+        self.__current_row = idx
+        self.select(0)
+      else:
+        self.select(idx)
+      self.emit(SIGNAL("changeList"))
 
-        
+
+  def currentRoot(self):
+    return self.__root
+
+
+  def recursive(self):
+    return self.__recursive
+
+
+  def updateList(self, nodes, recursive=False, selected=None):
+    """ 
+    Update list from an existing one.
+    Useful when switching from filtered view
+    """
+    if len(nodes):
+      self.__recursive = recursive
+      self.__list = nodes
+      if not recursive and selected != None:
+        for i in xrange(0, len(self.__list)):
+          if long(selected.this) == long(self.__list[i].this):
+            self.__current_row = i
+            self.row_selected = i
+            break
+      self.emit(SIGNAL("maximum"), len(self.__list))
+      self.select(0)
+      self.emit(SIGNAL("changeList"))
+
+
+  def __fillRecursiveList(self, nodes):
+    for node in nodes:
+      self.__list.append(node)
+      if node.hasChildren():
+        self.__fillRecursiveList(node.children())
+
+
   def appendList(self, node):
     """
     Append a new node to the existing model's list and emit an appended signal with the new size.
@@ -123,6 +187,7 @@ class NodeListModel(QAbstractItemModel):
 
   def clearList(self):
     self.emit(SIGNAL("clearList"))
+    self.__recursive = False
     self.__list = []
     self.__current_row = 0
     self.refresh(self.__current_row)

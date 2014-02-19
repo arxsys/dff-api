@@ -22,8 +22,9 @@ from dff.api.gui.view.node_list import NodeListView
 from dff.api.gui.view.node_table import NodeTableView
 from dff.api.gui.model.node_list import NodeListModel
 
-from dff.api.gui.widget.status import ViewStatusWidget
-from dff.api.gui.model.status import ViewStatusModel
+from dff.api.gui.model.status import ViewStatusModel, NodeStatusModel
+from dff.api.gui.widget.status import StatusWidget, StatusBarWidget
+from dff.api.gui.widget.linklabel import LinkLabel
 
 from dff.ui.gui.utils.menumanager import MenuManager
 from dff.ui.gui.resources.ui_filter_mode import Ui_filterMode
@@ -42,8 +43,16 @@ class NodeWidget(QWidget):
         # setup model and views
         self.viewid = TABLEVIEW_ID
         self.model = NodeListModel(selection=selectionManager)
-        self.viewstatus = ViewStatusWidget()
-        self.viewstatus.setStatusModel(ViewStatusModel(self.model, selectionManager))
+        self.__statuswidget = StatusBarWidget()
+        QApplication.instance().mainWindow.status.addWidget(self.__statuswidget)
+        self.__viewstatus = StatusWidget()
+        self.__viewstatus.setStatusModel(ViewStatusModel(self.model, selectionManager))
+        self.__linklabel = LinkLabel()
+        self.__nodestatus = StatusWidget()
+        self.__nodestatus.setStatusModel(NodeStatusModel(self))
+        self.__statuswidget.addStatusWidget(self.__viewstatus, 20)
+        self.__statuswidget.addStatusWidget(self.__linklabel, 60)
+        self.__statuswidget.addStatusWidget(self.__nodestatus, 20)
         self.tableview = NodeTableView(self)
         self.listview = NodeListView(self)
         self.tableview.setModel(self.model)
@@ -60,6 +69,25 @@ class NodeWidget(QWidget):
         self.menuManager(selectionManager)
         self.connect(self.model, SIGNAL("dataChanged"), self.dataChanged)
 
+
+
+    def updateStatus(self):
+        visible = True
+        node = self.model.currentNode() if self.model.currentNode() is not None else self.model.currentRoot()
+        if node is not None:
+            self.__linklabel.setLink(node)
+            self.emit(SIGNAL("currentNode"), node)
+        else:
+            visible = False
+        self.__statuswidget.setVisible(visible)
+        QApplication.instance().mainWindow.status.setCurrentWidget(self.__statuswidget)
+        
+
+
+    def statusWidget(self):
+        return self.__statuswidget
+
+
     def menuManager(self, selectionManager):
         self.menumanager = MenuManager(selectionManager, self.model)
 
@@ -70,14 +98,17 @@ class NodeWidget(QWidget):
         self.listview.configure()
         self.refreshVisible()
 
+
     def dataChanged(self, x, y):
         self.viewstack.currentWidget().dataChanged(x, y)
+
 
     def createMainLayout(self):
         self.vlayout = QVBoxLayout(self)
         self.vlayout.setSpacing(0)
         self.vlayout.setMargin(0)
         
+
     def createViewLayout(self):
         container = QWidget()
         self.hlayout = QHBoxLayout()
@@ -86,20 +117,24 @@ class NodeWidget(QWidget):
         container.setLayout(self.hlayout)
         self.vlayout.addWidget(container)
 
+
     def createStack(self):
         self.viewstack = QStackedWidget()
         self.viewstack.addWidget(self.tableview)
         self.viewstack.addWidget(self.listview)
         self.hlayout.addWidget(self.viewstack, 99)
 
+
     def createScrollbar(self):
         self.scrollbar = ScrollBar(self)
         self.hlayout.addWidget(self.scrollbar, 1)
         self.scrollbar.lower()
 
+
     def refreshVisible(self):
         view = self.viewstack.currentWidget()
         view.refreshVisible()
+
 
     def createConnections(self):
         self.connect(self, SIGNAL("changeView"), self.changeView)
@@ -112,19 +147,21 @@ class NodeWidget(QWidget):
         self.connect(self.listview, SIGNAL("nodeListDoubleClicked"), self.nodelistDoubleclicked)
         self.connect(self.model, SIGNAL("nodeAppended"), self.refreshVisible)
 
+
     def enterDirectory(self, sourcenode):
         if sourcenode != None:
             if (not self.tabmode) and (not self.filtermode):
-                self.model.emit(SIGNAL("changeList"), sourcenode.children())
+                self.model.changeList(sourcenode)
                 self.emit(SIGNAL("pathChanged"), sourcenode)
                 if len(self.model.list()) > 0:
                     self.nodelistclicked(0)
             if self.filtermode:
+                self.model.clearList()
                 self.emit(SIGNAL("enterFilter"), sourcenode)
             if self.tabmode:
-                self.openAsNewTab(sourcenode)
-                
+                self.openAsNewTab(sourcenode)                
         self.refreshVisible()
+
 
     def nodelistclicked(self, button):
         if button == Qt.RightButton:
@@ -133,8 +170,10 @@ class NodeWidget(QWidget):
             node = self.model.currentNode()
             self.emit(SIGNAL("nodePressed"), node)
 
+
     def nodelistDoubleclicked(self, node):
         self.menumanager.openDefault(node)
+
 
     def changeView(self, index):
         self.viewid = index
@@ -148,8 +187,10 @@ class NodeWidget(QWidget):
             self.scrollbar.setMaximum(self.scrollbar.value() + 2)
         self.refreshVisible()
 
+
     def openAsNewTab(self, rootnode):
         QApplication.instance().mainWindow.addNodeBrowser(rootpath=rootnode)
+
 
 class ScrollBar(QScrollBar):
     def __init__(self, nodeview):

@@ -102,8 +102,21 @@ class NodeListView(QListView):
       v = self.model().seek(self.cols, 1)
 
   def keyPressEvent(self, event):
+    node = self.model().currentNode()
+    if node != None:
+      if isinstance(node, VLink):
+        node = node.linkNode()
+    if event.key() == Qt.Key_Backspace:
+      node = self.model().currentRoot()
+      if node:
+        self.emit(SIGNAL("enterDirectory"), node.parent())
+    if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+      if node != None:
+        if node.isDir() or node.hasChildren():
+          self.emit(SIGNAL("enterDirectory"), node)
+        else:
+          self.emit(SIGNAL("nodeListDoubleClicked"), node)              
     if event.key() == Qt.Key_Space:
-      node = self.model().currentNode()
       if node != None:
         if not self.model().selection.isChecked(node):
           self.model().selection.add(node)

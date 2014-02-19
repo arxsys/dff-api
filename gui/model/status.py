@@ -85,25 +85,30 @@ class AbstractStatusModel(QObject):
   
 
 class ViewStatusModel(AbstractStatusModel):
-  def __init__(self, emiter, selection):
+  def __init__(self, model, selection):
     AbstractStatusModel.__init__(self)
+    self._model = model
     self._order = ["Nodes", "Files", "Folders", "Selected"]
     self._status = {"Nodes": NodesCounterModel(),
                     "Files": FilesCounterModel(),
                     "Folders": FoldersCounterModel(),
                     "Selected": SelectedCounterModel(selection)}
-    self.connect(emiter, SIGNAL("changeList"), self.processList)
-    self.connect(emiter, SIGNAL("appendList"), self.process)
-    self.connect(emiter, SIGNAL("clearList"), self.clearList)
+    self.connect(model, SIGNAL("changeList"), self.processList)
+    self.connect(model, SIGNAL("appendList"), self.process)
+    self.connect(model, SIGNAL("clearList"), self.clearList)
 
 
   def clearList(self):
     for status in self._status.itervalues():
       status.setRecursive(False)
+      status.reset()
+    self.notify()
 
 
-  def processList(self, _list, recursive=False):
+  def processList(self):
     self.resetStatus()
+    _list = self._model.list()
+    recursive = self._model.recursive()
     if len(_list):
       for i in xrange(0, len(_list)):
         for status in self._status.itervalues():
@@ -120,7 +125,7 @@ class NodeStatusModel(AbstractStatusModel):
     #self._order = ["Mime", "First Cluster"]
     #self._status = {"Mime": AttributeStatusModel("Mime", "type.magic mime"),
     #                "First Cluster": AttributeStatusModel("First Cluster", "Fat File System.first cluster")}
-    self.connect(emiter, SIGNAL("nodePressed"), self.process)
+    self.connect(emiter, SIGNAL("currentNode"), self.process)
 
 
 class AbstractStatusItemModel(QObject):
@@ -235,6 +240,8 @@ class SelectedCounterModel(AbstractStatusItemModel):
         self.__count -= 1
       else:
         self.__count += 1
+    if self.__count < 0:
+      self.__count = 0
     self.notify()
 
   

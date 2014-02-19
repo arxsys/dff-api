@@ -22,8 +22,8 @@ class LinkLabel(QLabel):
     def __init__(self, parent=None):
         QLabel.__init__(self, parent)
         self.setTextInteractionFlags(Qt.LinksAccessibleByMouse|Qt.TextSelectableByMouse)
-        self.setAlignment(Qt.AlignCenter)
-        sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.setAlignment(Qt.AlignLeft)
+        sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(sizePolicy)
@@ -32,7 +32,9 @@ class LinkLabel(QLabel):
         self.connect(self, SIGNAL("linkActivated(QString)"), self.goto)
         
 
-    def setLink(self, node):
+    def setLink(self, node, width=-1):
+        if node is None:
+            return
         if isinstance(node, VLink):
             self.__node = node.linkNode()
         else:

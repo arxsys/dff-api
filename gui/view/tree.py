@@ -42,18 +42,9 @@ class NodeTreeView(QTreeView):
     self.coord = coord
     self.delegate = CheckDelegate(self)
     self.setItemDelegate(self.delegate)
-
     self.connect(self, SIGNAL("expanded(QModelIndex)"), self.indexExpanded)
 
-    # print "SCROLL BARRRR TREEEE"
-    # print self.horizontalScrollBarPolicy()
-    # self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-    # print self.horizontalScrollBarPolicy()
-
-#    self.loadStylesheet()
-
   def indexExpanded(self, index):
- #   try:
     node = self.model().getNodeFromIndex(index)
     if node != None:
       self.model().refreshModel(node)

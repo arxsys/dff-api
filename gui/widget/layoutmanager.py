@@ -558,7 +558,6 @@ class addLocalPathButton(QPushButton):
                 iReturn = BrowseVFSDialog.exec_()
                 if iReturn :
                     node = BrowseVFSDialog.getSelectedNode()
-                    print node
                     if node:
                         self.container.clear()
                         self.container.insert(QString.fromUtf8(node.absolute()))

@@ -35,9 +35,6 @@ from dff.api.gui.widget.search.search_widget import SearchPanel
 from dff.api.gui.widget.search.filter import FilterBar
 from dff.api.gui.dialog.selectattributes import SelectAttributesWizard
 
-from dff.api.gui.model.status import NodeStatusModel
-from dff.api.gui.widget.status import NodeStatusWidget
-
 from dff.ui.gui.utils.menu import tagMenu, typeFilterMenu, BookmarkManager
 from dff.ui.gui.resources.ui_browser_toolbar import Ui_BrowserToolBar
 from dff.ui.gui.resources.ui_filter_widget import Ui_filterWidget
@@ -68,8 +65,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     #Define browser functions
     self.mode = mode
     self.mainwindow = QApplication.instance().mainWindow
-    self.__node_status = NodeStatusWidget(self)
-    self.__node_status.setStatusModel(NodeStatusModel(self))
     # Main layout
     self.mainlayout = QVBoxLayout()
     self.mainlayout.setSpacing(0)
@@ -109,23 +104,12 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
 
 
   def refreshList(self, e):
-    if e.value != None:
-      if self.mode == ADVANCED:
+    if e.value != None and self.mode == ADVANCED:
         node = e.value.value()
-        if node == None or self.navigation.currentNode == None:
+        if node == None:
           return
         try:
-          parent = node.parent()
-          navnode = self.navigation.currentNode
-        # XXX Identify event type (add node or apply module)
-          if navnode.absolute() == parent.absolute():
-            child = parent.children()
-          elif navnode.absolute() == parent.parent().absolute():
-            child = parent.parent().children()
-          else:
-            return
-          self.currentView().model.changeList(child)
-          self.currentView().refreshVisible()
+          self.currentView().model.vfsNotification(node)
         except:
           pass
 
@@ -283,20 +267,21 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.filterwidget.resetFilter()
 
 
+  def setCurrentContext(self, rootpath=None, recursive=False, selected=None):
+    if rootpath == None:
+      rootpath = self.VFS.GetNode('/')
+      self.navigation.rootpathchanged(rootpath)
+    else:
+      self.navigation.rootpathchanged(rootpath)
+      self.treeview.expandToNode(rootpath)
+    self.currentView().model.changeList(rootpath, recursive, selected)
+
+
   def updateStatus(self):
     if self.filter.isChecked():
-      status = self.filterview.viewstatus
-      node = self.filterview.model.currentNode()
+      self.filterview.updateStatus()
     else:
-      status = self.currentView().viewstatus
-      node = self.currentView().model.currentNode()
-    # special case when current view does not have any items (empty folder)
-    if node is None:
-      node = self.navigation.currentNode
-      self.emit(SIGNAL("emptyView"), node)
-    else:
-      self.emit(SIGNAL("currentNode"), node)
-    self.mainwindow.status.updateStatus(status, self.__node_status)
+      self.currentView().updateStatus()
 
 
   def activateSearchPan(self, state):
@@ -346,14 +331,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
 
   def nodetreeclicked(self, node, button, rec=False):
     QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-    if not rec:
-      self.currentView().model.emit(SIGNAL("changeList"), node.children())
-    else:
-      res = []
-      self.recurseNodes(node, res)
-      res.remove(node)
-      self.currentView().model.emit(SIGNAL("changeList"), res, True)
-    self.currentView().model.refresh(self.model().currentRow())
+    self.currentView().model.changeList(node, rec)
+    #self.currentView().model.refresh(self.model().currentRow())
     self.currentView().refreshVisible()
     self.applyFilter()
     self.updateStatus()
@@ -366,9 +345,11 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
        for child in childs:
 	  self.recurseNodes(child, res)
 
+
   def viewChanged(self, index):
     curentview = self.viewpan.currentWidget()
     curentview.emit(SIGNAL("changeView"), index)
+
 
   def selectAttributes(self):
     model = self.currentView().model
@@ -406,9 +387,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def model(self):
     return self.viewpan.currentWidget().model
 
-  def changeList(self, nodelist):
-    self.browserview.model.emit(SIGNAL("changeList"), nodelist)
-
 
 ########################################
 #  NAVIGATION
@@ -419,7 +397,7 @@ class FilterWidget(Ui_filterWidget, QWidget):
     QWidget.__init__(self, parent)
     self.setupUi(self)
     self.parent = parent
-    self.edit = self.filterCombo.lineEdit()    
+    self.edit = self.filterCombo.lineEdit()
     self.filterMode = {0: "$",
                        1: "~",
                        2: "/",
@@ -523,7 +501,7 @@ class FilterWidget(Ui_filterWidget, QWidget):
 
   def resetFilter(self):
     self.edit.setStyleSheet(self.blackstyle)
-    self.parent.filterview.model.changeList(self.sourceModel().list())
+    self.parent.filterview.model.updateList(self.sourceModel().list())
     count = len(self.sourceModel().list())
     if count > 0:
       self.reslabel.setStyleSheet(self.greenstyle)
@@ -877,7 +855,7 @@ class NavigationBar(QWidget):
 
   def refreshNode(self, node):
     if node != None:
-      self.parent.changeList(node.children())
+      self.parent.setCurrentContext(node)
       self.currentNode = node
       self.changeNavigationState()
       self.parent.treeview.expandToNode(self.currentNode)
