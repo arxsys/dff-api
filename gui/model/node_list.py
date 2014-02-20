@@ -23,6 +23,9 @@ from dff.api.types.libtypes import typeId
 
 from dff.api.gui.thumbnail import Thumbnailer
 
+from functools import cmp_to_key
+import locale
+
 IMAGES = ["bmp", "gif", "jpg", "jpeg", "png", "psd", "tif", "BMP", "GIF", "JPG", "JPEG", "PNG", "PSD", "TIF"]
 DOCUMENT = ["doc", "docx", "odt", "DOC", "DOCX", "ODT"]
 SPREADSHEET = ["xlsx", "xls", "ods", "XLSX", "XLS", "ODF"]
@@ -541,23 +544,23 @@ class NodeListModel(QAbstractItemModel):
       self.__list = tmplist
     if attrpath in self.__default_attributes:
       if attrpath == "name":
-        self.__list = sorted(self.__list,
+        self.__list = sorted(self.__list, cmp=locale.strcoll,
                            key=lambda Node: Node.name(), 
                            reverse=Reverse)
       elif attrpath == "size":
-        self.__list = sorted(self.__list, 
+        self.__list = sorted(self.__list,
                            key=lambda Node: Node.size(),
                            reverse=Reverse)
       elif attrpath == "extension":
-        self.__list = sorted(self.__list, 
+        self.__list = sorted(self.__list, cmp=locale.strcoll,
                            key=lambda Node: Node.extension(),
                            reverse=Reverse)
       elif attrpath == "path":
-        self.__list = sorted(self.__list, 
+        self.__list = sorted(self.__list, cmp=locale.strcoll,
                            key=lambda Node: Node.path(),
                            reverse=Reverse)
       elif attrpath == "absolute":
- 	self.__list = sorted(self.__list,
+ 	self.__list = sorted(self.__list, cmp=locale.strcoll,
 			     key=lambda Node: Node.absolute(),
 			     reverse=Reverse)
       elif attrpath == "module":
