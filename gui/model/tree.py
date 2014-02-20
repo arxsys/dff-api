@@ -263,26 +263,38 @@ class TreeModel(QStandardItemModel, EventHandler):
         return item
     return None
 
+
   def refreshModel(self, node):
-    parents = self.getParentNodeList(node)
-    for parent in parents:
-      try:
-        item = self.indexmap[long(parent.this)]
-	if item.rowCount() !=0:
-          dircount = self.dirCount(parent)
-          if item.rowCount() != dircount:
-            new_nodes = self.getItemsToInsert(item, parent)
-            if len(new_nodes) == (dircount - item.rowCount()):
-    	      self.emit(SIGNAL("layoutAboutToBeChanged()"))
-              self.insertRows(item, new_nodes)
-    	      self.emit(SIGNAL("layoutChanged()"))
-        else:
+    # special case when adding a folder at root level
+    if long(node.parent().this) == long(self.root_node.this) and node.hasChildren() and node.absolute() != "/":
+      can_append = True
+      for i in xrange(0, self.root_item.rowCount()):
+        idx = self.root_item.child(i).data(Qt.UserRole + 1).toULongLong()[0]
+        if idx == long(node.this):
+          can_append = False
+      if can_append:
+        item = self.createItem(node)
+        self.root_item.appendRow(item)
+    else:
+      parents = self.getParentNodeList(node)
+      for parent in parents:
+        try:
+          item = self.indexmap[long(parent.this)]
+          if item.rowCount() !=0:
+            dircount = self.dirCount(parent)
+            if item.rowCount() != dircount:
+              new_nodes = self.getItemsToInsert(item, parent)
+              if len(new_nodes) == (dircount - item.rowCount()):
+                self.emit(SIGNAL("layoutAboutToBeChanged()"))
+                self.insertRows(item, new_nodes)
+                self.emit(SIGNAL("layoutChanged()"))
+          else:
             children = parent.children()
     	    self.emit(SIGNAL("layoutAboutToBeChanged()"))
             self.insertRows(item, children)
     	    self.emit(SIGNAL("layoutChanged()"))
-      except KeyError:
-        continue
+        except KeyError:
+          continue
 
 
   def getChildrenDirectories(self, parent):
