@@ -18,7 +18,7 @@ from os.path import exists, expanduser, normpath
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QVariant, SIGNAL, QThread, Qt, QFile, QIODevice, QStringList, QRect, SLOT, QEvent, QString, QSignalMapper, pyqtSignal, pyqtSlot, SLOT
-from PyQt4.QtGui import QWidget, QDateTimeEdit, QLineEdit, QHBoxLayout, QLabel, QPushButton, QMessageBox, QListWidget, QTableWidget, QTableWidgetItem, QAbstractItemView, QIcon, QInputDialog, QTableView, QMessageBox, QVBoxLayout, QComboBox, QCheckBox, QHeaderView, QDialog, QTreeWidget, QIntValidator, QDialogButtonBox, QApplication, QCursor, QFileDialog
+from PyQt4.QtGui import QWidget, QDateTimeEdit, QLineEdit, QHBoxLayout, QLabel, QPushButton, QMessageBox, QListWidget, QTableWidget, QTableWidgetItem, QAbstractItemView, QIcon, QInputDialog, QTableView, QMessageBox, QVBoxLayout, QComboBox, QCheckBox, QHeaderView, QDialog, QTreeWidget, QIntValidator, QDialogButtonBox, QApplication, QCursor, QFileDialog, QSizePolicy, QLayout, QSplitter, QTextEdit
 
 from dff.api.vfs import vfs
 from dff.api.vfs.libvfs import VFS, Node, VLink
@@ -376,13 +376,35 @@ class Filter(Ui_filterAdd, QDialog):
     self.editable = False
     self.defaultquery = None
     self.fname = None
+    sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+    sizePolicy.setHorizontalStretch(1)
+    sizePolicy.setVerticalStretch(1)
+    self.setSizePolicy(sizePolicy)
+    self.requestLayout.setSpacing(6)
+    self.requestLayout.setSizeConstraint(QLayout.SetMinimumSize)
+    self.requestLayout.setMargin(0)
+    self.__splitter = QSplitter(Qt.Vertical)
+    self.__splitter.setHandleWidth(12)
+    self.requestLayout.addWidget(self.__splitter)
+    self.__query = QTextEdit()
+    self.__query.setReadOnly(True)
     if (fname == None) and (query == None):
       self.editable = True
       self.filterRequest = FilterRequests(self)
-      self.requestLayout.addWidget(self.filterRequest)
+      self.connect(self.filterRequest, SIGNAL("queryUpdated"), self.updateQuery)
+      self.__splitter.addWidget(self.filterRequest)
+      self.__splitter.addWidget(self.__query)
+      self.__splitter.setStretchFactor(0, 80)
+      self.__splitter.setStretchFactor(1, 20)
     else:
       self.defaultquery = query
       self.fname = fname
+
+
+  def updateQuery(self):
+    query = self.buildRequest()
+    self.__query.setText(query)
+
 
   def reject(self):
     QDialog.reject(self)
@@ -451,6 +473,7 @@ class FilterRequests(QTableWidget):
     # Add conjonctions if not First widget
     if len(self.fieldMapper) != 0:
       conjonction = ConjonctionCombo(self)
+      self.connect(conjonction, SIGNAL("queryUpdated"), self.updateQuery)
       self.setCellWidget(currow, 0, conjonction)
       self.horizontalHeader().setResizeMode(0, QHeaderView.ResizeToContents)
     else:
@@ -465,6 +488,7 @@ class FilterRequests(QTableWidget):
     # Add Widget
     if widget == None:
       widget = StringRequest(self, 'name')
+    self.connect(widget, SIGNAL("queryUpdated"), self.updateQuery)
     self.setCellWidget(currow, 2, widget)
     # Add request button
     add = self.createAddRequestButton()
@@ -474,6 +498,12 @@ class FilterRequests(QTableWidget):
     self.removeMapper.append(rm)
     self.connect(rm, SIGNAL("removeRequest"), self.removeRequest)
     self.setCellWidget(currow, 4, rm)
+    self.updateQuery()
+
+  
+  def updateQuery(self):
+    self.emit(SIGNAL("queryUpdated"))
+
 
   def changeFilterType(self, fieldwidget, index):
     # ["name", "data", "size", "time", "mime", "file", "deleted", "attributes"]
@@ -506,7 +536,10 @@ class FilterRequests(QTableWidget):
         widget = RawStringRequest(self)
       else:
         return
+      self.connect(widget, SIGNAL("queryUpdated"), self.updateQuery)
       self.setCellWidget(row, 2, widget)
+      self.updateQuery()
+
 
   def removeRequest(self, rmbutton):
     if (rmbutton in self.removeMapper):
@@ -515,6 +548,7 @@ class FilterRequests(QTableWidget):
         self.removeRow(row)
         self.fieldMapper.pop(row)
         self.removeMapper.pop(row)
+        self.updateQuery()
 
   def createAddRequestButton(self):
     addRequestButton = QPushButton()
@@ -543,6 +577,11 @@ class ConjonctionCombo(Ui_filterConjunction, Request):
     Request.__init__(self, parent)
     self.setupUi(self)
     self.hlayout.addWidget(self.conjunctionCombo)
+    self.connect(self.conjunctionCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.conjunctionCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
 
 
 class RawStringRequest(Request):
@@ -553,6 +592,11 @@ class RawStringRequest(Request):
   def setContent(self):
     self.lineEdit = QLineEdit()
     self.hlayout.addWidget(self.lineEdit)
+    self.connect(self.lineEdit, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.lineEdit, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
 
   def request(self):
     # XXX Unicode ?
@@ -567,10 +611,19 @@ class StringRequest(Ui_filterMatchMode, Request):
     self.setContent()
     self.setMatchMode()
     self.setCase()
+    self.connect(self.matchModeCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.matchModeCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+
 
   def setContent(self):
     self.content = QLineEdit(self)
     self.hlayout.addWidget(self.content)
+    self.connect(self.content, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.content, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+
 
   def setMatchMode(self):
     self.hlayout.addWidget(self.matchModeCombo)
@@ -578,6 +631,7 @@ class StringRequest(Ui_filterMatchMode, Request):
   def setCase(self):
     self.casse.setChecked(True)
     self.hlayout.addWidget(self.casse)
+    self.connect(self.casse, SIGNAL("stateChanged ( int )"), self.updateQuery)
 
   def request(self):
     result = "("
@@ -603,12 +657,22 @@ class SizeRequest(Request):
   def setOperators(self):
     self.operatorCombo = OperatorCombo(self)
     self.hlayout.addWidget(self.operatorCombo)
+    self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+
 
   def setContent(self):
     self.content = QLineEdit(self)
     self.validator = QIntValidator(0,2147483647, self)
     self.content.setValidator(self.validator)
     self.hlayout.addWidget(self.content)
+    self.connect(self.content, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.content, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+
 
   def setSizeType(self):
     self.stype = QComboBox(self)
@@ -616,6 +680,9 @@ class SizeRequest(Request):
     self.stype.addItem(QString("MB"))
     self.stype.addItem(QString("GB"))
     self.hlayout.addWidget(self.stype)
+    self.connect(self.stype, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.stype, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
 
   def request(self):
     operator = str(self.operatorCombo.currentText())
@@ -634,11 +701,19 @@ class DateRequest(Request):
   def setOperators(self):
     self.operatorCombo = OperatorCombo(self)
     self.hlayout.addWidget(self.operatorCombo)
+    self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
 
   def setDateTime(self):
     self.datetime = QDateTimeEdit(self)
     self.datetime.setCalendarPopup(True)
     self.hlayout.addWidget(self.datetime, 50)
+    self.connect(self.datetime, SIGNAL("dateChanged ( const QDate &)"), self.updateQuery)
+    self.connect(self.datetime, SIGNAL("dateTimeChanged ( const QDateTime &)"), self.updateQuery)
+    self.connect(self.datetime, SIGNAL("timeChanged ( const QTime &)"), self.updateQuery)
 
   def request(self):
     res = "(time " +  str(self.operatorCombo.currentText())
@@ -656,6 +731,12 @@ class MimeRequest(Ui_filterMime, Request):
   def setContent(self):
     self.content.setReadOnly(True)
     self.hlayout.addWidget(self.content, 50)
+    self.connect(self.content, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.content, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+    
 
   def setSelectButton(self):
     self.hlayout.addWidget(self.selectButton)
@@ -701,6 +782,17 @@ class DicoRequest(Ui_filterDico, Request):
     self.hlayout.addWidget(self.dicoType, 10)
     self.hlayout.addWidget(self.dicoMatch, 10)
     self.connect(self.dicoManager, SIGNAL("clicked()"), self.selectDico)
+    self.connect(self.dicoPath, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.dicoPath, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+    self.connect(self.dicoType, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.dicoType, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+    self.connect(self.dicoMatch, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.dicoMatch, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+
 
   def selectDico(self):
     dialog = DicoDialog(self)
@@ -735,6 +827,13 @@ class OnlyRequest(Ui_filterOnly, Request):
 
   def setOnly(self):
     self.hlayout.addWidget(self.onlyCombo)
+    self.connect(self.onlyCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.onlyCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+
 
   def request(self):
     index = self.onlyCombo.currentIndex()
@@ -765,6 +864,17 @@ class AttributeRequest(Ui_filterAttributes, Request):
     self.hlayout.addWidget(self.key)
     self.hlayout.addWidget(self.operatorCombo)
     self.hlayout.addWidget(self.value)
+    self.connect(self.key, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.key, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+    self.connect(self.value, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.value, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+    self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
+    self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
+
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+
 
   def request(self):
     res = "(@" + str(unicode(self.key.text()).encode('utf-8')) + "@ "
@@ -777,7 +887,6 @@ class FieldCombo(Ui_filterFields, Request):
     Request.__init__(self, parent)
     self.setupUi(self)
     self.hlayout.addWidget(self.fieldCombo)
-
     self.connect(self.fieldCombo, SIGNAL("currentIndexChanged(int)"), self.indexChangedMapper)
 
   def indexChangedMapper(self, index):
