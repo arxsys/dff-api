@@ -217,8 +217,10 @@ class TaskManager():
          if (node.isCompatibleModule(mod)) or ("generic" in moduleObj.flags):
 	   (args, exec_flags) = self.ppModules[mod]
  	   nodeName = moduleObj.conf.argumentsByType(typeId.Node)[0].name()
-           if args == None:
-             args = {}
+           finalargs = {}
+           if args != None:
+             for key in args.iterkeys():
+               finalargs[key] = args[key]
            if exec_flags == None:
              exec_flags = ["console", "thread"]
 	   else:
@@ -226,8 +228,8 @@ class TaskManager():
 	        exec_flags.append("console")
               if not "thread" in exec_flags:
 	        exec_flags.append("thread")
-           args[nodeName] = node
-           arg = moduleObj.conf.generate(args)
+           finalargs[nodeName] = node
+           arg = moduleObj.conf.generate(finalargs)
 	   if not self.processusManager.exist(moduleObj, arg):
              ppsched.enqueueProcessus((self.add, (mod, arg, exec_flags, True)))
      except:
