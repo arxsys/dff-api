@@ -131,7 +131,7 @@ class TreeModel(QStandardItemModel, EventHandler):
     if role == Qt.DisplayRole :
       display = QString.fromUtf8(node.name())
       if self.displayCount:
-        display += QString("  (" + str(node.childCount()) + ")")
+        display += QString("  (" + str(node.totalChildrenCount()) + ")")
       return QVariant(display)
     if role == Qt.DecorationRole:
       pixmap = QPixmap(node.icon())
