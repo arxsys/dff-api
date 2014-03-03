@@ -40,10 +40,12 @@ class ApplyModule(QDialog, Ui_applyModule):
         self.vfs = vfs()
         self.valueArgs = {}
         self.translation()
+
     
     def initAllInformations(self, nameModule, typeModule, nodesSelected):
         self.__nodesSelected = nodesSelected
         self.nameModule = nameModule
+
         try: 
 	  self.module = self.loader.modules[str(nameModule)]
         except KeyError:
@@ -151,10 +153,10 @@ class ApplyModule(QDialog, Ui_applyModule):
                         for param in plist:
                             params.append(self.vfs.getnode(param))
                     elif arg.type() == typeId.Node and arg.inputType() == Argument.Single:
-                        params = self.vfs.getnode(lmanager.get(argname))
+                        params = lmanager.get(argname)
                     elif arg.inputType() == Argument.Empty:
                         params = True
-                    else:                        
+                    else:
                         params = lmanager.get(argname)
                     args[argname] = params
             genargs = self.conf.generate(args)

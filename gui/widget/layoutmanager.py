@@ -119,6 +119,7 @@ class layoutManager(QWidget):
 		self.connect(w, SIGNAL("currentIndexChanged(QString)"), self.argumentChanged)
                 w.setEditable(editable)
                 w.setValidator(QIntValidator())
+                w.setMinimumContentsLength(20)
                 for value in predefs:
                     if type(value).__name__=='str':
                         if w.findText(value) == -1:
@@ -235,6 +236,7 @@ class layoutManager(QWidget):
             buttonbox = QDialogButtonBox()
             if typeid == typeId.Path:
                 combo = QComboBox()
+                combo.setMinimumContentsLength(20)
 	        self.connect(combo, SIGNAL("editTextChanged(QString)"), self.argumentChanged)
 		self.connect(combo, SIGNAL("currentIndexChanged(QString)"), self.argumentChanged)
                 combo.addItem(self.inputFile)
@@ -278,20 +280,21 @@ class layoutManager(QWidget):
                 vbox.addWidget(combo)
             layout = QHBoxLayout()
             if len(predefs) > 0 or len(selectednodes) > 0:
-                pathcontainer = QComboBox()
+                pathcontainer = ComboNode()
 	        self.connect(pathcontainer, SIGNAL("editTextChanged(QString)"), self.argumentChanged)
 		self.connect(pathcontainer, SIGNAL("currentIndexChanged(QString)"), self.argumentChanged)
                 pathcontainer.setEditable(editable)
                 for value in predefs:
-                    if typeid == typeId.Node:
-                        pathcontainer.addItem(value.value().name())
+                    if typeid == typeId.pathcontainer:
+                        Node.addItem(value.value().name())
                     else:
                         pathcontainer.addItem(value.toString())
                 if typeid == typeId.Node:
                     for node in selectednodes:
                         pathcontainer.addItem(QString.fromUtf8(node.absolute()))
+                        pathcontainer.addNode(node)
             else:
-                pathcontainer = QLineEdit()
+                pathcontainer = NodeLineEdit()
                 pathcontainer.setReadOnly(not editable)
 		self.connect(pathcontainer, SIGNAL("editingFinished()"), self.argumentChanged)
             if typeid == typeId.Path:
@@ -323,7 +326,9 @@ class layoutManager(QWidget):
     def get(self, key):
         for k, v in self.widgets.iteritems():
             if k == key:
-                if isinstance(self.widgets[k], QLineEdit):
+                if isinstance(self.widgets[k], ComboNode) or isinstance(self.widgets[k], NodeLineEdit):
+                    return self.widgets[k].node()
+                elif isinstance(self.widgets[k], QLineEdit):
                     return str(v.text().toUtf8())
                 elif isinstance(self.widgets[k], QListWidget):
                     items = []
@@ -450,6 +455,7 @@ class multipleListWidget(QWidget):
     def addSingleArgument(self):
         if len(self.predefs) > 0:
             self.container = QComboBox()
+#            self.container.set
             for value in self.predefs:
                 if self.typeid == typeId.Node:
                     self.container.addItem(value.value().name())
@@ -541,7 +547,7 @@ class addLocalPathButton(QPushButton):
             self.manager.emit(SIGNAL("managerChanged"))
         else:
             BrowseVFSDialog = DialogNodeBrowser(self)
-            if isinstance(self.container, QListWidget) or isinstance(self.container, QComboBox):
+            if isinstance(self.container, QListWidget):
                 iReturn = BrowseVFSDialog.exec_()
                 if iReturn :
                     nodes = BrowseVFSDialog.getSelectedNodes()
@@ -550,19 +556,22 @@ class addLocalPathButton(QPushButton):
                         for node in nodes:
                             self.container.insertItem(index, QString.fromUtf8(node.absolute()))
                             index += 1
-                        if isinstance(self.container, QListWidget):
-                            self.container.setCurrentItem(self.container.item(0))
-                        else:
-                            self.container.setCurrentIndex(0)
+                        self.container.setCurrentItem(self.container.item(0))
             else:
                 iReturn = BrowseVFSDialog.exec_()
                 if iReturn :
                     node = BrowseVFSDialog.getSelectedNode()
                     if node:
-                        self.container.clear()
-                        self.container.insert(QString.fromUtf8(node.absolute()))
+                        if isinstance(self.container, NodeLineEdit):
+                            self.container.clear()
+                            self.container.insert(QString.fromUtf8(node.absolute()))
+                            self.container.setNode(node)
+                        if isinstance(self.container, ComboNode) or isinstance(self.container, QComboBox):
+                            self.container.insertItem(0, QString.fromUtf8(node.absolute()))
+                            self.container.setCurrentIndex(0)
+                            if isinstance(self.container, ComboNode):
+                                self.container.addNode(node)
             BrowseVFSDialog.browser.__del__()
-
 
 class rmLocalPathButton(QPushButton):
     def __init__(self, parent, container):
@@ -578,4 +587,39 @@ class rmLocalPathButton(QPushButton):
             row = self.container.row(item)
             self.container.takeItem(row)
         self.manager.emit(SIGNAL("managerChanged"))
+
+
+class NodeLineEdit(QLineEdit):
+    def __init__(self):
+        QLineEdit.__init__(self)
+        self._node = None
+
+    def setNode(self, node):
+        self._node = node
+
+    def node(self):
+        return self._node
+
+class ComboNode(QComboBox):
+    def __init__(self):
+        QComboBox.__init__(self)
+        self.nodes = []
+        # Avoid XXL line edit size
+        self.setMinimumContentsLength(20)
+
+    def addNode(self, node):
+        self.nodes.append(node)
+
+    def node(self):
+        return self.nodes[0]
+
+# class NodeList(QListWidget):
+#     def __init__(self):
+#         QListWidget.__init__(self)
+
+#     def addNode(self, node):
+#         pass
+
+#     def rmNode(self, index):
+#         pass
 
