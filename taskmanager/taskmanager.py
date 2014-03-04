@@ -23,7 +23,7 @@ from dff.api.types.libtypes import Variant, VMap, typeId, Argument, Parameter, C
 from dff.api.taskmanager.scheduler import sched
 from dff.api.taskmanager.processus import ProcessusManager, Processus 
 from dff.api.loader import loader 
-
+from dff.api.types.libtypes import Config
 
 class ModulesConfig():
   def __init__(self):
@@ -277,6 +277,11 @@ class TaskManager():
 	    return proc
         except AttributeError:
 	    pass
+      if not isinstance(args, Config):
+        try:
+          args = mod.conf.generate(args)
+        except:
+          pass
       if enqueued:
 	 proc.launch(args)
       else:
