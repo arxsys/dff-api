@@ -46,4 +46,4 @@ class LinkLabel(QLabel):
 
     def goto(self, path):
         if path and self.__node:
-            QApplication.instance().mainWindow.addNodeBrowser(rootpath=self.__node)
+            QApplication.instance().mainWindow.addNodeBrowser(self.__node.parent(), self.__node)
