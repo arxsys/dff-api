@@ -67,7 +67,7 @@ class apswVFile(apsw.VFSFile):
     else:
       return ""
 
-  def xWrite(self):
+  def xWrite(self, buff, size):
     return 0
 
   def xClose(self):
