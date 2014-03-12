@@ -13,5 +13,5 @@
 #  Frederic Baguelin <fba@digital-forensic.org>
 #  Solal Jacob <sja@digital-forensic.org>
 
-__version__ = "${API_TASKMANAGER_VERSION}"
+__version__ = "1.1.0"
 __all__ = ["taskmanager","scheduler",  "processus"]

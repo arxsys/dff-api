@@ -13,5 +13,5 @@
 #  Frederic Baguelin <fba@digital-forensic.org>
 #  Solal Jacob <sja@digital-forensic.org>
 
-__version__ = "${API_LOADER_VERSION}"
+__version__ = "1.3.0"
 __all__ = ["loader"]

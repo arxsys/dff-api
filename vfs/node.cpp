@@ -34,12 +34,12 @@ Node::Node(std::string name, uint64_t size, Node* parent, fso* fsobj)
   this->__fsobj = fsobj;
   this->__size = size;
   this->__parent = parent;
-  if (this->__fsobj != NULL and parent) //FIX for modules without parent but with fsobj (used as sub-layer)
+  if (this->__fsobj != NULL and parent != NULL) //FIX for modules without parent but with fsobj (used as sub-layer)
     this->__uid = this->__fsobj->registerNode(this);
-  if (this->__fsobj != NULL and parent != NULL)
-  {
-    this->__uid = VFS::Get().registerOrphanedNode(this);
-  }
+  //if (this->__fsobj != NULL and parent == NULL)
+  //{
+  //this->__uid = VFS::Get().registerOrphanedNode(this);
+  //}
   else
     this->__uid = 0;
   if (this->__parent != NULL)

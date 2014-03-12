@@ -12,5 +12,5 @@
 # Author(s):
 #  Solal Jacob <sja@digital-forensic.org>
 
-__version__ = "${API_ENV_VERSION}"
+__version__ = "1.1.0"
 __all__ = ["apswvfs"]
