@@ -286,7 +286,7 @@ class layoutManager(QWidget):
                 pathcontainer.setEditable(editable)
                 for value in predefs:
                     pathcontainer.addItem(value.value().name())
-#                    pathcontainer.addItem(value.toString())
+                    pathcontainer.addNode(value.value())
                 if typeid == typeId.Node:
                     for node in selectednodes:
                         pathcontainer.addItem(QString.fromUtf8(node.absolute()))
@@ -611,13 +611,4 @@ class ComboNode(QComboBox):
     def node(self):
         return self.nodes[0]
 
-# class NodeList(QListWidget):
-#     def __init__(self):
-#         QListWidget.__init__(self)
-
-#     def addNode(self, node):
-#         pass
-
-#     def rmNode(self, index):
-#         pass
 
