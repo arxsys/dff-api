@@ -44,9 +44,7 @@ class mfso: public fso
 {
 private:
   bool					__verbose;
-  class VFile*				__vfile;
   std::list<class mfso*>		__children;
-  class mfso*				__parent;
   FileMappingCache*			__fmCache;
   int32_t				readFromMapping(FileMapping* fm, fdinfo* fi, void* buff, uint32_t size);
   FileMapping*				mapFile(Node* node);
