@@ -199,8 +199,8 @@ class FileMappingCache : private Cache < FileMapping* >
 {
 public:
   EXPORT                        FileMappingCache(uint32_t CacheSize);
-  EXPORT FileMapping*           find(Node* node);
-  EXPORT bool		        insert(FileMapping* fm);
+  EXPORT FileMapping*           find(Node* node, uint64_t state);
+  EXPORT bool		        insert(FileMapping* fm, uint64_t state);
 };
 
 #endif

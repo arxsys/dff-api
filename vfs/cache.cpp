@@ -116,9 +116,7 @@ bool	VFilePool::insert(VFile *vfile)
 
   uint64_t  oldest = ((int64_t)-1);
   int32_t   oldestIt = 0;
-
-
-  VFile* toClose = NULL;
+  VFile*    toClose = NULL;
 
   for (i = 0; i < this->__poolSize; i++)
   {
@@ -170,7 +168,7 @@ FileMappingCache::FileMappingCache(uint32_t cacheSize) : Cache(cacheSize)
 {
 }
 
-FileMapping*	FileMappingCache::find(Node* node)
+FileMapping*	FileMappingCache::find(Node* node, uint64_t state)
 {
   uint32_t	i;
   FileMapping*  fm;
@@ -181,7 +179,7 @@ FileMapping*	FileMappingCache::find(Node* node)
      if (this->__cacheSlot[i]->used == true)
      {
        fm = (FileMapping*)this->__cacheSlot[i]->content;
-       if (node == fm->node())
+       if (node == fm->node() && this->__cacheSlot[i]->state == state)
        {
 	  this->__cacheSlot[i]->cacheHits++;
           fm->addref();
@@ -195,7 +193,7 @@ FileMapping*	FileMappingCache::find(Node* node)
   return (NULL);
 }
 
-bool		FileMappingCache::insert(FileMapping* fm)
+bool		FileMappingCache::insert(FileMapping* fm, uint64_t state)
 {
   uint32_t	i;
 
@@ -205,6 +203,7 @@ bool		FileMappingCache::insert(FileMapping* fm)
      if (this->__cacheSlot[i]->used == false)
      {
 	this->__cacheSlot[i]->content = (void*)fm;
+        this->__cacheSlot[i]->state = state;
         this->__cacheSlot[i]->used = true;
 	this->__cacheSlot[i]->cacheHits = 1;
 	fm->addref();
@@ -226,9 +225,10 @@ bool		FileMappingCache::insert(FileMapping* fm)
   }
   ((FileMapping*)this->__cacheSlot[oldestIt]->content)->delref();
   this->__cacheSlot[oldestIt]->content = (void*)fm;
+  this->__cacheSlot[oldestIt]->state = state;
   this->__cacheSlot[oldestIt]->cacheHits = 1;
   fm->addref();
   mutex_unlock(&this->__mutex);
 
-  return false;
+  return (false);
 }

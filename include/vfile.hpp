@@ -50,7 +50,6 @@ private:
   class fso*	__fsobj;
   int32_t	__fd;
   class Node*  	__node;
-  bool		__recordUnread;
   bool		__stop;
 public:
   EXPORT VFile(int32_t fd, class fso *fsobj, class Node *node);

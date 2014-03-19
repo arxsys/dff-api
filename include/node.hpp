@@ -129,6 +129,7 @@ public:
   EXPORT void					setParent(Node* parent);
 
   EXPORT virtual void				fileMapping(FileMapping *);
+  EXPORT virtual uint64_t                       fileMappingState(void);
   EXPORT virtual uint64_t			size(void);
 
   EXPORT std::string				path(void);

@@ -60,6 +60,11 @@ void            Node::fileMapping(FileMapping *)
 {
 }
 
+uint64_t        Node::fileMappingState(void)
+{
+  return (0);
+}
+
 void	        Node::setFsobj(fso *obj)
 {
   this->__fsobj = obj;

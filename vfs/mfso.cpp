@@ -37,12 +37,12 @@ FileMapping*		mfso::mapFile(Node* node)
 {
   FileMapping*		fm;
 
-  fm = this->__fmCache->find(node);
+  fm = this->__fmCache->find(node, node->fileMappingState());
   if (fm == NULL)
   {
-     fm = new FileMapping(node);
-     node->fileMapping(fm);
-     this->__fmCache->insert(fm);
+    fm = new FileMapping(node);
+    node->fileMapping(fm);
+    this->__fmCache->insert(fm, node->fileMappingState());
   }
 
   return fm;
@@ -101,7 +101,7 @@ int32_t		mfso::readFromMapping(FileMapping* fm, fdinfo* fi, void* buff, uint32_t
   bool			eof;
   uint32_t		relativesize;
   CacheContainer*	container;
-  VFilePool&		vfilePool = VFilePool::instance(); //this->vfilePool ? 
+  VFilePool&		vfilePool = VFilePool::instance();
 
   eof = false;
   totalread = 0;
