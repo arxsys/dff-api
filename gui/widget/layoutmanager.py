@@ -285,8 +285,13 @@ class layoutManager(QWidget):
 		self.connect(pathcontainer, SIGNAL("currentIndexChanged(QString)"), self.argumentChanged)
                 pathcontainer.setEditable(editable)
                 for value in predefs:
-                    pathcontainer.addItem(value.value().name())
-                    pathcontainer.addNode(value.value())
+                    val = value.value()
+                    if hasattr(val, "name"):
+                        name = val.name()
+                    else:
+                        name = val.path
+                    pathcontainer.addItem(name)
+                    pathcontainer.addNode(val)
                 if typeid == typeId.Node:
                     for node in selectednodes:
                         pathcontainer.addItem(QString.fromUtf8(node.absolute()))
