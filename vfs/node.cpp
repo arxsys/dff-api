@@ -34,7 +34,7 @@ Node::Node(std::string name, uint64_t size, Node* parent, fso* fsobj)
   this->__fsobj = fsobj;
   this->__size = size;
   this->__parent = parent;
-  if (this->__fsobj != NULL and parent != NULL) //FIX for modules without parent but with fsobj (used as sub-layer)
+  if (this->__fsobj != NULL && parent != NULL) //FIX for modules without parent but with fsobj (used as sub-layer)
     this->__uid = this->__fsobj->registerNode(this);
   //if (this->__fsobj != NULL and parent == NULL)
   //{
