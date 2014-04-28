@@ -58,7 +58,6 @@ pdata* VFile::read(void)
   pdata*	data;
   uint64_t	size;
 
-
   if (this->__fd < 0)
     throw vfsError("VFile::read() on closed file " +  this->__fsobj->name + ":" + this->__node->absolute() + "\n");
 
@@ -330,7 +329,7 @@ std::string  VFile::readline(uint32_t size) throw (std::string)
   return res;
 }
 
-int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end) throw (std::string)
+int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end) throw(std::string)
 {
   unsigned char		*buffer;
   int32_t		bread;
@@ -339,6 +338,7 @@ int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcar
   uint64_t		totalread;
   int64_t		pos;
 
+ try  {
  if (this->__fd < 0)
     throw vfsError("VFile::find() on closed file " +  this->__fsobj->name + ":" + this->__node->absolute() + "\n");
 
@@ -367,6 +367,12 @@ int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcar
 	    totalread = this->seek(this->tell());
 	}
     }
+  }
+  catch (vfsError const& e)
+  {
+    free(buffer);
+    throw std::string(e.error);
+  }
   free(buffer);
   if (idx == -1)
     pos = -1;
@@ -385,8 +391,9 @@ int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildca
   uint64_t		rpos;
   int64_t		pos;
 
+  try {
   if (this->__fd < 0)
-    throw vfsError("VFile::rfind() on closed file " +  this->__fsobj->name + ":" + this->__node->absolute() + "\n");
+    throw std::string("VFile::rfind() on closed file " +  this->__fsobj->name + ":" + this->__node->absolute() + "\n");
 
   this->__stop = false;
   if (end > this->__node->size())
@@ -398,31 +405,37 @@ int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildca
   idx = -1;
   buffer = (unsigned char*)malloc(sizeof(char) * BUFFSIZE);
   if (end < start + BUFFSIZE)
-    {
-      rpos = this->seek(start);
-      bread = this->read(buffer, end-start);
-      idx = this->__fs->rfind(buffer, bread, needle, nlen, wildcard);
-    }
+  {
+    rpos = this->seek(start);
+    bread = this->read(buffer, end-start);
+    idx = this->__fs->rfind(buffer, bread, needle, nlen, wildcard);
+  }
   else
+  {
+    rpos = end-BUFFSIZE;
+    this->seek(rpos);
+    while (((bread = this->read(buffer, BUFFSIZE)) > 0) && (rpos > start) && (idx == -1) && !this->__stop)
     {
-      rpos = end-BUFFSIZE;
-      this->seek(rpos);
-      while (((bread = this->read(buffer, BUFFSIZE)) > 0) && (rpos > start) && (idx == -1) && !this->__stop)
-      	{
-      	  if (rpos < start + bread)
-      	    hlen = (int32_t)(rpos - start);
-      	  else
-      	    hlen = bread;
-      	  idx = this->__fs->rfind(buffer, hlen, needle, nlen, wildcard);
-      	  if (idx == -1)
-	    {
-	      if (hlen == BUFFSIZE)
-		rpos = this->seek(rpos - hlen + nlen);
-	      else
-		rpos = this->seek(rpos - hlen);
-	    }
-      	}
+      if (rpos < start + bread)
+       hlen = (int32_t)(rpos - start);
+      else
+        hlen = bread;
+      idx = this->__fs->rfind(buffer, hlen, needle, nlen, wildcard);
+      if (idx == -1)
+      {
+        if (hlen == BUFFSIZE)
+          rpos = this->seek(rpos - hlen + nlen);
+        else
+          rpos = this->seek(rpos - hlen);
+      }
     }
+  }
+  }
+  catch (vfsError const& e)
+  {
+    free(buffer);
+    throw std::string(e.error);
+  }
   free(buffer);
   if (idx == -1)
     pos = -1;

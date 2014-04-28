@@ -25,7 +25,7 @@
 mfso::mfso(std::string name): fso(name)
 {
   this->__fdmanager = new FdManager();
-  this->__fmCache = new FileMappingCache(20);
+  this->__fmCache = new FileMappingCache(200); //XXX test
   this->__verbose = false;
 }
 
