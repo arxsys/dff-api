@@ -53,7 +53,7 @@ class WorkQueue():
 				       print n
 				self.workerQueue.task_done() 
 
-		def __init__(self, max = multiprocessing.cpu_count() * 2 + 1):
+		def __init__(self, max = multiprocessing.cpu_count() + 2):
 			self.waitQueue = Queue()
 			self.workerQueue = Queue(max)
 			self.max = max
