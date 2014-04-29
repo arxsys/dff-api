@@ -68,21 +68,21 @@ public:
   EXPORT uint64_t		tell();
   EXPORT int32_t		close();
   EXPORT virtual void		Event(event* e) { __stop = true; (void)e;}
-  EXPORT std::string		readline(uint32_t size=0) throw (std::string);
-  EXPORT int64_t		find(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT int64_t		rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT int32_t		count(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', int32_t maxcount=INT32_MAX, uint64_t start=0, uint64_t end=0) throw (std::string);
-  EXPORT std::vector<uint64_t>*	indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT std::vector<uint64_t>*	search(char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT int64_t		find(std::string needle, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT int64_t		rfind(std::string needle, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT int32_t		count(std::string needle, unsigned char wildcard='\0', int32_t maxcount=INT32_MAX, uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT std::vector<uint64_t>*	indexes(std::string needle, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
+  EXPORT std::string		readline(uint32_t size=0);
+  EXPORT int64_t		find(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT int64_t		rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT int32_t		count(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', int32_t maxcount=INT32_MAX, uint64_t start=0, uint64_t end=0);
+  EXPORT std::vector<uint64_t>*	indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT std::vector<uint64_t>*	search(char* needle, uint32_t nlen, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT int64_t		find(std::string needle, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX); 
+  EXPORT int64_t		rfind(std::string needle, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT int32_t		count(std::string needle, unsigned char wildcard='\0', int32_t maxcount=INT32_MAX, uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT std::vector<uint64_t>*	indexes(std::string needle, unsigned char wildcard='\0', uint64_t start=0, uint64_t end=UINT64_MAX);
 
-  EXPORT int64_t		find(Search* sctx, uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT int64_t		rfind(Search* sctx, uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT int32_t		count(Search* sctx, int32_t=INT32_MAX, uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
-  EXPORT std::vector<uint64_t>*	indexes(Search* sctx, uint64_t start=0, uint64_t end=UINT64_MAX) throw (std::string);
+  EXPORT int64_t		find(Search* sctx, uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT int64_t		rfind(Search* sctx, uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT int32_t		count(Search* sctx, int32_t=INT32_MAX, uint64_t start=0, uint64_t end=UINT64_MAX);
+  EXPORT std::vector<uint64_t>*	indexes(Search* sctx, uint64_t start=0, uint64_t end=UINT64_MAX);
 };
 
 #endif

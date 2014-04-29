@@ -282,7 +282,7 @@ uint64_t VFile::tell()
   return (this->__fsobj->vtell(this->__fd));
 }
 
-std::string  VFile::readline(uint32_t size) throw (std::string)
+std::string  VFile::readline(uint32_t size)
 {
   std::string		res;
   unsigned char*	buffer;
@@ -329,7 +329,7 @@ std::string  VFile::readline(uint32_t size) throw (std::string)
   return res;
 }
 
-int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end) throw(std::string)
+int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
   unsigned char		*buffer;
   int32_t		bread;
@@ -382,7 +382,7 @@ int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcar
 }
 
 
-int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end) throw (std::string)
+int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
   unsigned char		*buffer;
   int32_t		bread;
@@ -445,7 +445,7 @@ int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildca
 }
 
 
-int32_t		VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end) throw (std::string)
+int32_t		VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end)
 {
   unsigned char		*buffer;
   int32_t		bread;
@@ -494,7 +494,7 @@ int32_t		VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildca
 }
 
 
-std::vector<uint64_t>*	VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end) throw (std::string)
+std::vector<uint64_t>*	VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
   unsigned char*		buffer;
   std::vector<uint64_t>*	indexes;
@@ -543,7 +543,7 @@ std::vector<uint64_t>*	VFile::indexes(unsigned char* needle, uint32_t nlen, unsi
 }
 
 
-int64_t			VFile::find(std::string needle, unsigned char wildcard, uint64_t start, uint64_t end) throw (std::string)
+int64_t			VFile::find(std::string needle, unsigned char wildcard, uint64_t start, uint64_t end)
 {
   int64_t		ret;
 
@@ -561,7 +561,7 @@ int64_t			VFile::find(std::string needle, unsigned char wildcard, uint64_t start
     }
 }
 
-int64_t			VFile::rfind(std::string needle, unsigned char wildcard, uint64_t start, uint64_t end) throw (std::string)
+int64_t			VFile::rfind(std::string needle, unsigned char wildcard, uint64_t start, uint64_t end)
 {
   int64_t		ret;
 
@@ -579,7 +579,7 @@ int64_t			VFile::rfind(std::string needle, unsigned char wildcard, uint64_t star
     }
 }
 
-int32_t			VFile::count(std::string needle, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end) throw (std::string)
+int32_t			VFile::count(std::string needle, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end)
 {
   int32_t		ret;
 
@@ -597,7 +597,7 @@ int32_t			VFile::count(std::string needle, unsigned char wildcard, int32_t maxco
     }
 }
 
-std::vector<uint64_t>*	VFile::indexes(std::string needle, unsigned char wildcard, uint64_t start, uint64_t end) throw (std::string)
+std::vector<uint64_t>*	VFile::indexes(std::string needle, unsigned char wildcard, uint64_t start, uint64_t end)
 {
   std::vector<uint64_t>*	ret;
 
@@ -618,7 +618,7 @@ std::vector<uint64_t>*	VFile::indexes(std::string needle, unsigned char wildcard
 
 
 /* The following method is only for backward compatibility */
-std::vector<uint64_t>*	VFile::search(char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end) throw (std::string)
+std::vector<uint64_t>*	VFile::search(char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
   std::vector<uint64_t>*	ret;
 
@@ -642,7 +642,7 @@ std::vector<uint64_t>*	VFile::search(char* needle, uint32_t nlen, unsigned char 
 Use the ones from now as they'll become default.
 */
 
-int64_t		VFile::find(Search* sctx, uint64_t start, uint64_t end) throw (std::string)
+int64_t		VFile::find(Search* sctx, uint64_t start, uint64_t end)
 {
   unsigned char		*buffer;
   int32_t		bread;
@@ -699,7 +699,7 @@ int64_t		VFile::find(Search* sctx, uint64_t start, uint64_t end) throw (std::str
 }
 
 
-int64_t		VFile::rfind(Search* sctx, uint64_t start, uint64_t end) throw (std::string)
+int64_t		VFile::rfind(Search* sctx, uint64_t start, uint64_t end)
 {
   unsigned char		*buffer;
   int32_t		bread;
@@ -773,7 +773,7 @@ int64_t		VFile::rfind(Search* sctx, uint64_t start, uint64_t end) throw (std::st
 }
 
 
-int32_t		VFile::count(Search* sctx, int32_t maxcount, uint64_t start, uint64_t end) throw (std::string)
+int32_t		VFile::count(Search* sctx, int32_t maxcount, uint64_t start, uint64_t end)
 {
   unsigned char		*buffer;
   int32_t		bread;
@@ -828,7 +828,7 @@ int32_t		VFile::count(Search* sctx, int32_t maxcount, uint64_t start, uint64_t e
 }
 
 
-std::vector<uint64_t>*	VFile::indexes(Search* sctx, uint64_t start, uint64_t end) throw (std::string)
+std::vector<uint64_t>*	VFile::indexes(Search* sctx, uint64_t start, uint64_t end)
 {
   unsigned char*		buffer;
   std::vector<uint64_t>*	indexes;
