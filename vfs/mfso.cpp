@@ -37,7 +37,8 @@ mfso::~mfso()
 
 FileMapping*		mfso::mapFile(Node* node)
 {
-  FileMapping*		fm = this->__fmCache->find(node, node->fileMappingState()); 
+  uint64_t              state = node->fileMappingState(); //node method lock in python director
+  FileMapping*		fm = this->__fmCache->find(node, state); 
   return fm;
 }
 

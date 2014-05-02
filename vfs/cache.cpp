@@ -178,7 +178,7 @@ FileMapping*	FileMappingCache::find(Node* node, uint64_t state)
     if (this->__cacheSlot[i]->used == true)
     {
       fm = (FileMapping*)this->__cacheSlot[i]->content;
-      if ((node == fm->node()) && (this->__cacheSlot[i]->state == node->fileMappingState()))
+      if ((node == fm->node()) && (this->__cacheSlot[i]->state == state))
       {
         this->__cacheSlot[i]->cacheHits++;
         fm->addref();
@@ -188,9 +188,9 @@ FileMapping*	FileMappingCache::find(Node* node, uint64_t state)
     }
   }
   mutex_unlock(&this->__mutex);
-  fm = new FileMapping(node);//recursive lock
+  fm = new FileMapping(node);//recursive lock //node method director lock python interpreter
   node->fileMapping(fm);
-  this->insert(fm, node->fileMappingState());
+  this->insert(fm, state);
 
   return (fm);
 }
