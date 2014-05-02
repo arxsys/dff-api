@@ -74,6 +74,7 @@ public:
   EXPORT void				setParent(class fso* parent);
   EXPORT class fso*			parent();
   EXPORT void				addChild(class fso* child);
+  EXPORT virtual void                   unmap(Node* node);
 };
 
 #endif

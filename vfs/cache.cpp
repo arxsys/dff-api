@@ -150,8 +150,8 @@ Cache<Attributes>& AttributeCache::instance(void)
   return attributeCache;
 }
 
-/* Dynamic Attributes Cache
-*
+/**
+*  Dynamic Attributes Cache
 */
 
 Cache<Attributes>& DynamicAttributesCache::instance(void)
@@ -160,37 +160,39 @@ Cache<Attributes>& DynamicAttributesCache::instance(void)
   return dynamicAttributesCache;
 }
 
-/*
+/**
  * FileMapping Cache
 */
-
 FileMappingCache::FileMappingCache(uint32_t cacheSize) : Cache(cacheSize)
 {
 }
 
 FileMapping*	FileMappingCache::find(Node* node, uint64_t state)
 {
+  mutex_lock(&this->__mutex);
   uint32_t	i;
   FileMapping*  fm;
 
-  mutex_lock(&this->__mutex);
   for (i = 0; i < this->__cacheSize; i++)
   {
-     if (this->__cacheSlot[i]->used == true)
-     {
-       fm = (FileMapping*)this->__cacheSlot[i]->content;
-       if (node == fm->node() && this->__cacheSlot[i]->state == state)
-       {
-	  this->__cacheSlot[i]->cacheHits++;
-          fm->addref();
-	  mutex_unlock(&this->__mutex);
-	  return (fm);
-       }
-     }
+    if (this->__cacheSlot[i]->used == true)
+    {
+      fm = (FileMapping*)this->__cacheSlot[i]->content;
+      if ((node == fm->node()) && (this->__cacheSlot[i]->state == node->fileMappingState()))
+      {
+        this->__cacheSlot[i]->cacheHits++;
+        fm->addref();
+	mutex_unlock(&this->__mutex);
+	return (fm);
+      }
+    }
   }
   mutex_unlock(&this->__mutex);
+  fm = new FileMapping(node);//recursive lock
+  node->fileMapping(fm);
+  this->insert(fm, node->fileMappingState());
 
-  return (NULL);
+  return (fm);
 }
 
 bool		FileMappingCache::insert(FileMapping* fm, uint64_t state)
@@ -200,15 +202,15 @@ bool		FileMappingCache::insert(FileMapping* fm, uint64_t state)
   mutex_lock(&this->__mutex);
   for (i = 0; i < this->__cacheSize; i++)
   {
-     if (this->__cacheSlot[i]->used == false)
-     {
-	this->__cacheSlot[i]->content = (void*)fm;
-        this->__cacheSlot[i]->state = state;
-        this->__cacheSlot[i]->used = true;
-	this->__cacheSlot[i]->cacheHits = 1;
-	fm->addref();
-	mutex_unlock(&this->__mutex);
-	return (true);
+    if (this->__cacheSlot[i]->used == false)
+    {
+      this->__cacheSlot[i]->content = (void*)fm;
+      this->__cacheSlot[i]->state = state;
+      this->__cacheSlot[i]->used = true;
+      this->__cacheSlot[i]->cacheHits = 1;
+      fm->addref();
+      mutex_unlock(&this->__mutex);
+      return (true);
      }
   }
 
@@ -231,4 +233,29 @@ bool		FileMappingCache::insert(FileMapping* fm, uint64_t state)
   mutex_unlock(&this->__mutex);
 
   return (false);
+}
+
+void    FileMappingCache::remove(Node* node)
+{
+  mutex_lock(&this->__mutex);
+  uint32_t	i;
+  FileMapping*  fm;
+
+  for (i = 0; i < this->__cacheSize; i++)
+  {
+    if (this->__cacheSlot[i]->used == true)
+    {
+      fm = (FileMapping*)this->__cacheSlot[i]->content;
+      if (node == fm->node())
+      {
+        fm->delref();
+	this->__cacheSlot[i]->content = NULL;
+	this->__cacheSlot[i]->state = 0;
+	this->__cacheSlot[i]->cacheHits = 0;
+	this->__cacheSlot[i]->used = false;
+      }
+    }
+  }
+  mutex_unlock(&this->__mutex);
+  return;
 }

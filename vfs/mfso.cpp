@@ -25,27 +25,25 @@
 mfso::mfso(std::string name): fso(name)
 {
   this->__fdmanager = new FdManager();
-  this->__fmCache = new FileMappingCache(200); //XXX test
+  this->__fmCache = new FileMappingCache(200); 
   this->__verbose = false;
 }
 
 mfso::~mfso()
 {
+  delete this->__fdmanager;
+  delete this->__fmCache;
 }
 
 FileMapping*		mfso::mapFile(Node* node)
 {
-  FileMapping*		fm;
-  uint64_t              state = node->fileMappingState();
-  fm = this->__fmCache->find(node, state);
-  if (fm == NULL)
-  {
-    fm = new FileMapping(node);
-    node->fileMapping(fm);
-    this->__fmCache->insert(fm, state);
-  }
-
+  FileMapping*		fm = this->__fmCache->find(node, node->fileMappingState()); 
   return fm;
+}
+
+void				mfso::unmap(Node* node)
+{
+  this->__fmCache->remove(node);
 }
 
 int32_t 	mfso::vopen(Node *node)
@@ -141,7 +139,7 @@ int32_t		mfso::readFromMapping(FileMapping* fm, fdinfo* fi, void* buff, uint32_t
                 vfilePool.unused(container);
               else
                 vfilePool.insert(vfile);
-	      //vfile->close();
+              //vfile->close();
 	      fi->offset += currentread;
 	      totalread += currentread;
 	  }
@@ -268,12 +266,12 @@ uint64_t	mfso::vseek(int32_t fd, uint64_t offset, int32_t whence)
   }
   catch (std::string const& error)
   {
-    std::cout << "mfso::vseek : can't get fd : " << error << std::endl;
+    std::cout << "  mfso::vseek : can't get fd : " << error << std::endl;
     return ((uint64_t)-1);
   }
   catch (vfsError const& error)
   {
-    std::cout << "mfso::vseek : can't get fd : " << error.error << std::endl;
+    std::cout << "  mfso::vseek : can't get fd : " << error.error << std::endl;
     return ((uint64_t)-1);
   }
   try 
@@ -282,23 +280,27 @@ uint64_t	mfso::vseek(int32_t fd, uint64_t offset, int32_t whence)
   }
   catch (std::string const& error)
   {
-    std::cout << "mfso::vseek : can't mapFile(fi->node) : " << error << std::endl;
+    std::cout << "  mfso::vseek : can't mapFile(fi->node) : " << error << std::endl;
     return ((uint64_t)-1);
   }
   catch (vfsError const& error)
   {
-    std::cout << "mfso::vseek : can't mapFile(fi->node) : " << error.error << std::endl;
+    std::cout << "  mfso::vseek : can't mapFile(fi->node) : " << error.error << std::endl;
     return ((uint64_t)-1);
   }
 
   if (fm == NULL)
+  {
+    std::cout <<   "mfso::vseek fm is NULL" << std::endl;
     return((uint64_t)-1);
+  }
 
   if (whence == 0)
   {
     if (offset > fm->maxOffset())
     {
       fm->delref();
+      std::cout << "mfso::vseek error offset=" << offset << " > fm->maxOffset " << fm->maxOffset() << std::endl;
       return ((uint64_t)-1);
     }
     else
@@ -309,6 +311,7 @@ uint64_t	mfso::vseek(int32_t fd, uint64_t offset, int32_t whence)
     if ((fi->offset + offset) > fm->maxOffset())
     {
       fm->delref();
+      std::cout << "mfso::vseek error fi->offset " << fi->offset << " + offset " << offset << " > " << fm->maxOffset() << " maxOffset " << std::endl;
       return ((uint64_t)-1);
     }
     else

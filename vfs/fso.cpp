@@ -121,3 +121,7 @@ uint64_t	fso::registerNode(Node* n)
   nid |= this->__nodes.size() - 1;
   return nid;
 }
+
+void		fso::unmap(Node* node)
+{
+}

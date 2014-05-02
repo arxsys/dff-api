@@ -201,6 +201,7 @@ public:
   EXPORT                        FileMappingCache(uint32_t CacheSize);
   EXPORT FileMapping*           find(Node* node, uint64_t state);
   EXPORT bool		        insert(FileMapping* fm, uint64_t state);
+  EXPORT void                   remove(Node* node);
 };
 
 #endif

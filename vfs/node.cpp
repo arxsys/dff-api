@@ -54,6 +54,7 @@ Node::~Node()
 {
   if (!this->__children.empty())
     this->__children.clear();
+  this->fsobj()->unmap(this); //can be used by another thread after a cache find in long read 
 }
 
 void            Node::fileMapping(FileMapping *)
