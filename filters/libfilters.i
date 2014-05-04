@@ -29,15 +29,11 @@
 %include "std_vector.i"
 %include "windows.i"
 
-%exception Filter::process
-{
-  SWIG_PYTHON_THREAD_BEGIN_BLOCK;
-  $action
-  SWIG_PYTHON_THREAD_END_BLOCK;
-}
+%import "../exceptions/libexceptions.i"
 
 
 %{
+#include "exceptions.hpp"
 #include "variant.hpp"
 #include "vtime.hpp"
 #include "node.hpp"

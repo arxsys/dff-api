@@ -52,8 +52,17 @@ Attributes	DataTypeManager::type(Node* node)
     {
       for (handler = this->handlers.begin(); handler != this->handlers.end(); handler++)
 	{
-	  std::string res = (*handler)->type(node);
-	  
+          std::string res = "error";
+          try
+          {
+	    res = (*handler)->type(node);
+          }
+          catch (...)
+          {
+            //std::cout << "Error : Can't get data type on node"  << std::endl;
+            res = "error";
+          }	 
+ 
 	  uint32_t id = uniq[res];
 	  if (id)
 	    nodeTypeId[node].push_back(id);

@@ -19,7 +19,7 @@
 #include <iostream>
 
 
-Filter::Filter(std::string fname) throw (std::string)
+Filter::Filter(std::string fname) 
 {
   this->__stop = false;
   this->__fname = fname;
@@ -66,7 +66,7 @@ void			Filter::__reset()
 }
 
 
-void		Filter::__initCtx() throw (std::string)
+void		Filter::__initCtx() 
 {
   this->__matchednodes.clear();
   if (this->__ctx == NULL)
@@ -99,7 +99,7 @@ std::string	Filter::__formatErrorMsg()
 // Currently, fname is automatically associated but in future, method will
 // ask if it can register the provided name. If name already registered,
 // the method will throw an exception to warn the user.
-void			Filter::setFilterName(std::string fname) throw (std::string)
+void			Filter::setFilterName(std::string fname) 
 {
   this->__fname = fname;
 }
@@ -114,7 +114,7 @@ std::string		Filter::query()
   return this->__query;
 }
 
-void			Filter::compile(std::string query) throw (std::string)
+void			Filter::compile(std::string query) 
 {
   std::string	err;
   int		status;
@@ -136,7 +136,7 @@ void			Filter::compile(std::string query) throw (std::string)
   this->connection(this->__ctx->root);
 }
 
-void			Filter::processFolder(Node* nodeptr) throw (std::string)
+void			Filter::processFolder(Node* nodeptr) 
 {
   uint64_t		nodescount;
   std::vector<Node*>	children;
@@ -170,7 +170,7 @@ void			Filter::processFolder(Node* nodeptr) throw (std::string)
   this->__notifyEndOfProcessing(i);
 }
 
-void			Filter::process(Node* nodeptr, bool recursive) throw (std::string)
+void			Filter::process(Node* nodeptr, bool recursive)
 {
   uint64_t		nodescount;
   uint64_t		processed;
@@ -210,7 +210,7 @@ void			Filter::process(Node* nodeptr, bool recursive) throw (std::string)
   this->__notifyEndOfProcessing(processed);
 }
 
-void				Filter::process(std::list<Node*> nodes) throw (std::string)
+void				Filter::process(std::list<Node*> nodes) 
 {
   uint64_t			processed;
   std::list<Node*>::iterator	it;
@@ -238,7 +238,7 @@ void				Filter::process(std::list<Node*> nodes) throw (std::string)
 }
 
 
-void				Filter::process(std::vector<Node*> nodes) throw (std::string)
+void				Filter::process(std::vector<Node*> nodes) 
 {
   uint64_t			processed;
   std::vector<Node*>::iterator	it;
@@ -266,7 +266,7 @@ void				Filter::process(std::vector<Node*> nodes) throw (std::string)
 }
 
 
-void			Filter::process(uint64_t nodeid, bool recursive) throw (std::string)
+void			Filter::process(uint64_t nodeid, bool recursive) 
 {
   Node*			node;
 
@@ -274,7 +274,7 @@ void			Filter::process(uint64_t nodeid, bool recursive) throw (std::string)
     this->process(node, recursive);
 }
 
-void			Filter::process(fso* fsobj) throw (std::string)
+void			Filter::process(fso* fsobj) 
 {
   if (fsobj != NULL)
     this->process(fsobj->nodes());

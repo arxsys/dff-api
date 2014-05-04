@@ -301,7 +301,7 @@ uint64_t	mfso::vseek(int32_t fd, uint64_t offset, int32_t whence)
     if (offset > fm->maxOffset())
     {
       fm->delref();
-      std::cout << "mfso::vseek error offset=" << offset << " > fm->maxOffset " << fm->maxOffset() << std::endl;
+      //std::cout << "mfso::vseek error offset=" << offset << " > fm->maxOffset " << fm->maxOffset() << std::endl;
       return ((uint64_t)-1);
     }
     else
@@ -312,7 +312,7 @@ uint64_t	mfso::vseek(int32_t fd, uint64_t offset, int32_t whence)
     if ((fi->offset + offset) > fm->maxOffset())
     {
       fm->delref();
-      std::cout << "mfso::vseek error fi->offset " << fi->offset << " + offset " << offset << " > " << fm->maxOffset() << " maxOffset " << std::endl;
+      //std::cout << "mfso::vseek error fi->offset " << fi->offset << " + offset " << offset << " > " << fm->maxOffset() << " maxOffset " << std::endl;
       return ((uint64_t)-1);
     }
     else

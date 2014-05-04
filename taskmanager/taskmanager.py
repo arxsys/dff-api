@@ -214,7 +214,7 @@ class TaskManager():
       compatModule = node.compatibleModules()
       for mod in self.ppModules:
          moduleObj = self.loader.modules[mod]
-         if (node.isCompatibleModule(mod)) or ("generic" in moduleObj.flags):
+         if (mod in compatModule) or ("generic" in moduleObj.flags):
 	   (args, exec_flags) = self.ppModules[mod]
  	   nodeName = moduleObj.conf.argumentsByType(typeId.Node)[0].name()
            finalargs = {}
@@ -233,12 +233,13 @@ class TaskManager():
 	   if not self.processusManager.exist(moduleObj, arg):
              ppsched.enqueueProcessus((self.add, (mod, arg, exec_flags, True)))
      except:
+        print 'Post process error compat module : ', str(compatModule)
 	err_type, err_value, err_traceback = sys.exc_info()
         for l in  traceback.format_exception_only(err_type, err_value):
 	  print l
         for l in  traceback.format_tb(err_traceback):
 	   print l
-  
+
     def postProcessAnalyse(self, root): 
        for mod in self.ppAnalyses:
           (args, exec_flags) =  self.ppAnalyses[mod] 

@@ -29,19 +29,19 @@
 class Filter : public EventHandler
 {
 public:
-  EXPORT Filter(std::string fname) throw (std::string);
+  EXPORT Filter(std::string fname); 
   EXPORT ~Filter();
   EXPORT std::string		query();
   EXPORT std::string		filterName();
   EXPORT virtual void		Event(event* e);
-  EXPORT void			setFilterName(std::string fname) throw (std::string);
-  EXPORT void			compile(std::string query) throw (std::string);
-  EXPORT void			processFolder(Node* nodeptr) throw (std::string);
-  EXPORT void			process(Node* nodeptr, bool recursive=true) throw (std::string);
-  EXPORT void			process(std::list<Node*> nodes) throw (std::string);
-  EXPORT void			process(std::vector<Node*> nodes) throw (std::string);
-  EXPORT void			process(uint64_t nodeid, bool recursive=true) throw (std::string);
-  EXPORT void			process(fso* fsobj) throw (std::string);
+  EXPORT void			setFilterName(std::string fname); 
+  EXPORT void			compile(std::string query);
+  EXPORT void			processFolder(Node* nodeptr); 
+  EXPORT void			process(Node* nodeptr, bool recursive=true);
+  EXPORT void			process(std::list<Node*> nodes); 
+  EXPORT void			process(std::vector<Node*> nodes); 
+  EXPORT void			process(uint64_t nodeid, bool recursive=true);
+  EXPORT void			process(fso* fsobj);
   EXPORT std::vector<Node*>	matchedNodes();
   enum EventTypes
     {
@@ -60,7 +60,7 @@ private:
   void			__notifyProgress(uint64_t processed);
   void			__notifyEndOfProcessing(uint64_t processed);
   std::string		__formatErrorMsg();
-  void			__initCtx() throw (std::string);
+  void			__initCtx(); 
   bool			__eval(Node* node);
   event*		__ev;
   std::vector<Node*>	__matchednodes;
