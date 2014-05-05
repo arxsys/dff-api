@@ -37,43 +37,6 @@ class Node;
 
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
 
-class ModuleType
-{
- std::string            __moduleName;
-}
-
-class ModuleTypes() //moduleType factory
-{
-//  ModuleTypes(std::vector<modulename, moduletype>
-}
-
-class Type
-{
-//__id au lieu d utilise pointeur ? pour la serialization
-  std::string                   __name;
-  std::vector<ModuleType* >     __compatibleModules;
-  Handler*                      __handler;
-}
-
-class Types() //type factory
-{
- std::map<std::string name, type > __types; 
- Type* type(std::string type)
- {
-   if not type in map:
-     map[] =new type
-     return new type
-   return map[type]
- }
-};
-
-dff::map<Node*, std::vector<type> typeNames* >        nodeTypes;
-
-nodeTypes[node]->__typeName;
-nodeTypes[node]->__compatibleModules()
-
-
-
 class DataTypeHandler
 {
 public:
@@ -99,7 +62,7 @@ private:
 public:
   EXPORT static DataTypeManager* 		Get();
   EXPORT bool					registerHandler(DataTypeHandler*);
-  //EXPORT const std::map<std::string, uint32_t>&	foundTypes();
+  EXPORT const std::map<std::string, uint32_t>&	foundTypes();
   EXPORT Attributes				type(Node*);
 };
 
