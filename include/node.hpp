@@ -108,8 +108,7 @@ protected:
   
   EXPORT void				attributesNamesAndTypesFromVariant(Variant_p rcvar, std::map<std::string, uint8_t> *namestypes, std::string current);
   EXPORT bool				constantValuesMatch(Constant* constant, Attributes vars);
-  EXPORT void				__compatibleModulesByType(const std::map<std::string, Constant*>& cmime, Attributes& dtypes, std::list<std::string>& result);
-  EXPORT void				__compatibleModulesByExtension(const std::map<std::string, Constant*>& constants, std::string& ext, std::list<std::string>& result);
+  void		                        __compatibleModulesByExtension(const std::map<std::string, Constant*>& cextensions, std::string& ext, std::list<std::string>& result);
 public:
   EXPORT 					Node(std::string name, uint64_t size=0, Node* parent=NULL, fso* fsobj=NULL);
   EXPORT 					Node();
@@ -170,7 +169,6 @@ public:
   EXPORT virtual std::map<std::string, uint8_t>	attributesNamesAndTypes(void);
   EXPORT virtual std::string			icon(void);
   EXPORT virtual std::list<std::string>		compatibleModules(void);
-  EXPORT virtual bool				isCompatibleModule(std::string);
   EXPORT virtual Attributes			dynamicAttributes(void);
   EXPORT virtual Attributes			dynamicAttributes(std::string name);
   EXPORT virtual std::list<std::string>		dynamicAttributesNames(void);

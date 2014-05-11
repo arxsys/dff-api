@@ -320,11 +320,9 @@ std::string     Node::icon(void)
 
 Attributes	Node::dataType(void) 
 {
-  Attributes	types;
-
   class DataTypeManager*	typeDB = DataTypeManager::Get();
-  types = typeDB->type(this);
-  return types;
+  Attributes types = typeDB->type(this);
+  return (types);
 }
 
 Attributes	Node::_attributes(void)
@@ -729,120 +727,6 @@ std::map<std::string, uint8_t>	Node::attributesNamesAndTypes()
   return result;
 }
 
-std::list<std::string>		Node::compatibleModules(void)
-{
-  std::list<std::string>        	result;
-  Attributes				dtypes;
-  ConfigManager*			cm;
-  std::map<std::string, Constant*>	constants;
-  std::string				ext;
-
-  if ((cm = ConfigManager::Get()) != NULL)
-    {
-      constants = cm->constantsByName("mime-type");
-      if (!constants.empty())       
-      	{
-      	  dtypes = this->dataType();
-      	  if (!dtypes.empty())
-      	    this->__compatibleModulesByType(constants, dtypes, result);
-      	}
-      ext = this->extension();
-      if (!ext.empty())
-      	{
-      	  constants = cm->constantsByName("extension-type");
-      	  if (!constants.empty())
-      	    this->__compatibleModulesByExtension(constants, ext, result);
-      	}
-    }
-  return result;
-}
-
-bool	                        Node::isCompatibleModule(std::string modname)
-{
-  
-  ConfigManager*		cm;
-  Config*			conf;
-  Constant*			constant;
-  std::list< Variant_p >	values;
-  std::list< Variant_p >::iterator	it;
-  bool				compat;
-  
-  compat = false;
-  if (((cm = ConfigManager::Get()) != NULL) && ((conf = cm->configByName(modname)) != NULL))
-    {
-      Attributes	dtypes;
-      std::string	ext;
-
-      dtypes = this->dataType();
-      ext = this->extension();
-      if ((constant = conf->constantByName("mime-type")) != NULL)
-	{
-	  values = constant->values();
-	  for (Attributes::iterator mit = dtypes.begin(); mit != dtypes.end(); mit++)
-	    {
-	      if (mit->second->type() == typeId::String)
-		{
-		  std::string	dtype = mit->second->value<std::string>();
-		  it = values.begin();
-		  while (it != values.end() && !compat)
-		    {
-		      if ((*it)->type() == typeId::String && dtype.find((*it)->value<std::string>()) != std::string::npos)
-			compat = true;
-		      it++;
-		    }
-		}
-	    }
-	}
-      if (!ext.empty() && !compat && ((constant = conf->constantByName("extension-type")) != NULL))
-	{
-	  values = constant->values();
-	  it = values.begin();
-	  while (it != values.end() && !compat)
-	    {
-	      if ((*it)->type() == typeId::String && (*it)->value<std::string>().find(ext) != std::string::npos)
-		compat = true;
-	      it++;
-	    }
-	}
-    }
-  return compat;
-}
-
-void		Node::__compatibleModulesByType(const std::map<std::string, Constant*>& cmime, Attributes& dtypes, std::list<std::string>& result)
-{
-  std::map<std::string, Constant*>::const_iterator	cit;
-  std::list<Variant_p >					lvalues;
-  std::list<Variant_p >::iterator			lit;
-  Attributes::iterator					dit;
-  bool							match;
-
-  for (cit = cmime.begin(); cit != cmime.end(); cit++)
-    {
-      match = false;
-      if ((cit->second != NULL) && (cit->second->type() == typeId::String))
-  	{
-  	  lvalues = cit->second->values();
-	  lit = lvalues.begin();
-  	  while (lit != lvalues.end() && !match)
-  	    {
-	      dit = dtypes.begin();
-  	      while (dit != dtypes.end() && !match)
-  		{
-  		  std::string	cval = (*lit)->value<std::string>();
-  		  if ((dit->second != NULL) && (dit->second->type() == typeId::String)
-  		      && (dit->second->value<std::string>().find(cval) != std::string::npos))
-  		    {
-  		      match = true;
-  		      result.push_back(cit->first);
-  		    }
-  		  dit++;
-  		}
-  	      lit++;
-  	    }
-  	}
-    }
-}
-
 void		Node::__compatibleModulesByExtension(const std::map<std::string, Constant*>& cextensions, std::string& ext, std::list<std::string>& result)
 {
   std::map<std::string, Constant*>::const_iterator	cit;
@@ -850,15 +734,36 @@ void		Node::__compatibleModulesByExtension(const std::map<std::string, Constant*
   std::list< Variant_p >::iterator			lit;
 
   for (cit = cextensions.begin(); cit != cextensions.end(); cit++)
+  {
+    if ((cit->second != NULL) && (cit->second->type() == typeId::String))
     {
-      if ((cit->second != NULL) && (cit->second->type() == typeId::String))
-	{
-	  lvalues = cit->second->values();
-	  for (lit = lvalues.begin(); lit != lvalues.end(); lit++)
-	    if (ext == (*lit)->value<std::string>())
-	      result.push_back(cit->first);
-	}
+      lvalues = cit->second->values();
+      for (lit = lvalues.begin(); lit != lvalues.end(); lit++)
+        if (ext == (*lit)->value<std::string>())
+      result.push_back(cit->first);
     }
+  }
+}
+
+std::list<std::string>		Node::compatibleModules(void)
+{
+
+  class DataTypeManager*	typeDB = DataTypeManager::Get();
+  std::list<std::string> types = typeDB->compatibleModules(this);
+
+  ConfigManager*			cm;
+  if ((cm = ConfigManager::Get()) != NULL)
+  {
+    std::map<std::string, Constant*>	constants;
+    std::string ext = this->extension();
+    if (!ext.empty())
+    {
+      constants = cm->constantsByName("extension-type");
+     if (!constants.empty())
+      this->__compatibleModulesByExtension(constants, ext, types);
+    }
+  } 
+  return (types);
 }
 
 bool    	Node::setTag(std::string name)

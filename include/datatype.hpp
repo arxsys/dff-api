@@ -28,51 +28,14 @@
 #include <map>
 #include <list>
 #include <stdexcept>
-
-#include "threading.hpp"
+#include <string>
 #include "rc.hpp"
 #include "variant.hpp"
+#include "threading.hpp"
 
 class Node;
-
+class Constant;
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
-
-class ModuleType
-{
- std::string            __moduleName;
-}
-
-class ModuleTypes() //moduleType factory
-{
-//  ModuleTypes(std::vector<modulename, moduletype>
-}
-
-class Type
-{
-//__id au lieu d utilise pointeur ? pour la serialization
-  std::string                   __name;
-  std::vector<ModuleType* >     __compatibleModules;
-  Handler*                      __handler;
-}
-
-class Types() //type factory
-{
- std::map<std::string name, type > __types; 
- Type* type(std::string type)
- {
-   if not type in map:
-     map[] =new type
-     return new type
-   return map[type]
- }
-};
-
-dff::map<Node*, std::vector<type> typeNames* >        nodeTypes;
-
-nodeTypes[node]->__typeName;
-nodeTypes[node]->__compatibleModules()
-
-
 
 class DataTypeHandler
 {
@@ -83,24 +46,60 @@ public:
   std::string			name;
 }; 
 
+class Type
+{
+public:
+                                  Type(DataTypeHandler* handler, const std::string name);
+                                  ~Type();
+  const std::string               handlerName(void) const;
+  const std::string               name(void) const;
+  const std::list<std::string>    compatibleModules(void) const; 
+private:
+  DataTypeHandler*                __handler;
+  const std::string               __name;
+  std::list<std::string>          __compatibleModules;
+  void		                  __compatibleModulesByType(const std::map<std::string, Constant*>& cmime, const std::string dtypes, std::list<std::string>& result);
+};
+
+class Types
+{
+public:
+                Types();
+                ~Types();
+  const Type*   find(std::string typeName) const;
+  const Type*   insert(DataTypeHandler*, std::string typeName);
+private:
+  std::map<const std::string, const Type* >    __types;
+};
+
+class NodesTypes
+{
+public:
+  NodesTypes();
+  const std::vector<const Type* >               find(Node* node) const; 
+  void                                          insert(Node* node, const Type* type);
+private:
+  std::map<Node*, std::vector<const Type* > >   __nodesTypes; //XXX dff:map //pour locker !
+};
+
 class DataTypeManager 
 {
 private:
   EXPORT					DataTypeManager();
-  EXPORT					~DataTypeManager();
-  DataTypeManager&				operator=(DataTypeManager&);
   						DataTypeManager(const DataTypeManager&);
-  std::list<DataTypeHandler*>			handlers;
-  uint32_t					idCounter;
-  dff::map<Node*, dff::vector< uint32_t > >	nodeTypeId;
-  dff::map<std::string, uint32_t >		uniq; 
-  dff::map<uint32_t, std::string>		typeIdString;
-  dff::map<uint32_t, DataTypeHandler*>		typeIdHandler; 
+  EXPORT					~DataTypeManager();
+  DataTypeManager&				operator=(DataTypeManager& copy);
+                                                mutex_def(__mutex);
+  EXPORT const std::vector<const Type*>         __type(Node* node);
+  std::list<DataTypeHandler*>			__handlers;
+  NodesTypes                                    __nodesTypes; //map of node , vector<type>
+  Types                                         __types;  //map of <string, Type*> 
+  void		                                __compatibleModulesByExtension(const std::map<std::string, Constant*>& cextensions, std::string& ext, std::list<std::string>& result);
 public:
   EXPORT static DataTypeManager* 		Get();
-  EXPORT bool					registerHandler(DataTypeHandler*);
-  //EXPORT const std::map<std::string, uint32_t>&	foundTypes();
-  EXPORT Attributes				type(Node*);
+  EXPORT bool					registerHandler(DataTypeHandler* dataTypeHandler);
+  EXPORT Attributes				type(Node* node);
+  EXPORT std::list<std::string>                 compatibleModules(Node* node);
 };
 
 #endif

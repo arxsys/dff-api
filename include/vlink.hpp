@@ -72,7 +72,6 @@ public :
 
   EXPORT std::string			icon(void);
   EXPORT std::list<std::string>		compatibleModules(void);
-  EXPORT bool				isCompatibleModule(std::string);
   EXPORT bool				setTag(std::string name);  
   EXPORT bool				setTag(uint32_t id);
   EXPORT bool				removeTag(std::string name);

@@ -192,11 +192,6 @@ std::list<std::string>	VLink::compatibleModules(void)
   return this->__linkedNode->compatibleModules();
 }
 
-bool		VLink::isCompatibleModule(std::string moduleName)
-{
-  return this->__linkedNode->isCompatibleModule(moduleName);
-}
-
 bool 	VLink::setTag(std::string name)
 {
   return this->__linkedNode->setTag(name);

@@ -210,9 +210,9 @@ class TaskManager():
 	     self.postProcessWalk(children[i])
 
     def postProcess(self, node, recursive = False):
-     try:
-      compatModule = node.compatibleModules()
-      for mod in self.ppModules:
+      try:
+       compatModule = node.compatibleModules()
+       for mod in self.ppModules:
          moduleObj = self.loader.modules[mod]
          if (mod in compatModule) or ("generic" in moduleObj.flags):
 	   (args, exec_flags) = self.ppModules[mod]
@@ -224,22 +224,22 @@ class TaskManager():
            if exec_flags == None:
              exec_flags = ["console", "thread"]
 	   else:
-              if not ("gui" in exec_flags or "console" in exec_flags):
-	        exec_flags.append("console")
-              if not "thread" in exec_flags:
-	        exec_flags.append("thread")
+             if not ("gui" in exec_flags or "console" in exec_flags):
+	       exec_flags.append("console")
+             if not "thread" in exec_flags:
+	       exec_flags.append("thread")
            finalargs[nodeName] = node
            arg = moduleObj.conf.generate(finalargs)
 	   if not self.processusManager.exist(moduleObj, arg):
              ppsched.enqueueProcessus((self.add, (mod, arg, exec_flags, True)))
-     except:
+      except:
         print 'Post process error compat module : ', str(compatModule)
 	err_type, err_value, err_traceback = sys.exc_info()
         for l in  traceback.format_exception_only(err_type, err_value):
 	  print l
         for l in  traceback.format_tb(err_traceback):
-	   print l
-
+	  print l
+ 
     def postProcessAnalyse(self, root): 
        for mod in self.ppAnalyses:
           (args, exec_flags) =  self.ppAnalyses[mod] 
