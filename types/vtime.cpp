@@ -16,70 +16,74 @@
 
 #include "vtime.hpp"
 
-vtime::vtime()
+vtime::vtime() : year(0), month(0), day(0), hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
 {
-  year = month = day = hour = minute = second = usecond = 0; 
 }
 
-vtime::vtime(int y, int mo, int d, int h, int mi, int s, int us)
+vtime::vtime(int y, int mo, int d, int h, int mi, int s, int us) : year(y), month(mo), day(d), hour(h), minute(mi), second(s), usecond(us), wday(0), yday(0), dst(0)
 {
-  year = y; month = mo; day = d; hour = h; minute = mi; second = s; 
-  usecond = us; 
 }
 
-
-vtime::vtime(uint16_t dos_time, uint16_t dos_date)
+vtime::vtime(uint16_t dos_time, uint16_t dos_date) : hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
 {
   this->day = (dos_date & 31);
   this->month = ((dos_date >> 5) & 15);
   this->year = ((dos_date >> 9) + 1980);
 
   if (dos_time != 0)
-    {
-      this->second = (dos_time & 31) * 2;
-      this->minute = ((dos_time >> 5) & 63);
-      this->hour = (dos_time >> 11);
-    }
-  else
-    {
-      this->second = 0;
-      this->minute = 0;
-      this->hour = 0;
-    }
-  this->usecond = 0;
+  {
+    this->second = (dos_time & 31) * 2;
+    this->minute = ((dos_time >> 5) & 63);
+    this->hour = (dos_time >> 11);
+  }
 }
 
-vtime::vtime(uint64_t value, int type = 0) 
+vtime::vtime(uint64_t value, int type = 0) : year(0), month(0), day(0), hour(0), minute(0), second(0), dst(0), wday(0), yday(0), usecond(0)
 {
   if (value > 0)
+  {
+    if (type == TIME_MS_64)
     {
-   
-      if (type == TIME_MS_64)
-	{
-	  value -= NANOSECS_1601_TO_1970;
-	  value /= 10000000;
-	}
-	  struct tm   date;
-      #ifdef WIN32
-	   if (_gmtime64_s(&date, (__time64_t*)&value) == 0)
-      #else
-           if (gmtime_r((time_t *)&value, &date) != NULL)
-      #endif
-	  {
-            this->year = date.tm_year + 1900;
-            this->month = date.tm_mon + 1;
-       	    this->day = date.tm_mday;
-	    this->hour = date.tm_hour;
-	    this->minute = date.tm_min;
-	    this->second = date.tm_sec;
-	    this->dst = date.tm_isdst;
-	    this->wday = date.tm_wday;
-	    this->yday = date.tm_yday;
-	    this->usecond = 0;
-	    return;
-	  }
+      value -= NANOSECS_1601_TO_1970;
+      value /= 10000000;
     }
-    year = month = day = hour = minute = second = usecond = 0; 
+    struct tm   date;
+    #ifdef WIN32
+    if (_gmtime64_s(&date, (__time64_t*)&value) == 0)
+    #else
+    if (gmtime_r((time_t *)&value, &date) != NULL)
+    #endif
+    {
+      this->year = date.tm_year + 1900;
+      this->month = date.tm_mon + 1;
+      this->day = date.tm_mday;
+      this->hour = date.tm_hour;
+      this->minute = date.tm_min;
+      this->second = date.tm_sec;
+      this->dst = date.tm_isdst;
+      this->wday = date.tm_wday;
+      this->yday = date.tm_yday;
+    }
+  }
+}
+
+vtime::vtime(std::string ts) : year(0), month(0), day(0), hour(0), minute(0), second(0), dst(0), wday(0), yday(0), usecond(0)
+{
+  size_t			midx;
+  std::string			date;
+  std::string			time;
+
+  if ((midx = ts.find("T")) != std::string::npos)
+  {
+    date = ts.substr(0, midx);
+    this->__setFromDate(date);
+    time = ts.substr(midx+1);
+    this->__setFromTime(time);
+  }
+  else if (ts.find(":") != std::string::npos && ts.find("-") == std::string::npos)
+    this->__setFromTime(ts);
+  else if (ts.find("-") != std::string::npos && ts.find(":") == std::string::npos)
+    this->__setFromDate(ts);
 }
 
 void	vtime::__setFromDate(std::string date)
@@ -128,26 +132,6 @@ void	vtime::__setFromTime(std::string time)
     }
   else
     std::istringstream(time.substr(0)) >> this->hour;
-}
-
-vtime::vtime(std::string ts)
-{
-  size_t			midx;
-  std::string			date;
-  std::string			time;
-
-  year = month = day = hour = minute = second = usecond = 0;
-  if ((midx = ts.find("T")) != std::string::npos)
-    {
-      date = ts.substr(0, midx);
-      this->__setFromDate(date);
-      time = ts.substr(midx+1);
-      this->__setFromTime(time);
-    }
-  else if (ts.find(":") != std::string::npos && ts.find("-") == std::string::npos)
-    this->__setFromTime(ts);
-  else if (ts.find("-") != std::string::npos && ts.find(":") == std::string::npos)
-    this->__setFromDate(ts);
 }
 
 bool	vtime::operator==(vtime* v)
@@ -199,7 +183,7 @@ vtime::~vtime()
 {
 }
 
-vtimeMS128::vtimeMS128(char *_time)
+vtimeMS128::vtimeMS128(char *_time) : vtime()
 {
   if (_time == NULL)
     throw std::string("vtimeMS128, time is NULL");
@@ -214,7 +198,4 @@ vtimeMS128::vtimeMS128(char *_time)
   this->minute = *t++;
   this->second = *t++;
   this->usecond = *t++;
-  this->yday = 0;
-  this->dst = 0;
 }
-

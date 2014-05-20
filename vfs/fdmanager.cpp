@@ -53,7 +53,6 @@ fdinfo*		FdManager::get(int32_t fd)
        throw(vfsError("fdmanager::get -> fd not allocated"));
      }
    }
-   mutex_unlock(&this->__mutex);
 }
 
 int32_t	FdManager::push(fdinfo* fi)
@@ -83,7 +82,7 @@ int32_t	FdManager::push(fdinfo* fi)
       this->allocated++;
       this->fds[i] = fi;
       mutex_unlock(&this->__mutex);
-      return i;
+      return (i);
     }
     else
     {
@@ -91,7 +90,6 @@ int32_t	FdManager::push(fdinfo* fi)
       throw(vfsError("fdmanager::push -> new fd allocation failed"));
     }
   }
-  mutex_unlock(&this->__mutex);
 }
 
 void		FdManager::remove(int32_t fd)

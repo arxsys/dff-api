@@ -30,18 +30,18 @@
 #include "export.hpp"
 #include "rc.hpp"
 
-#define Tag_p				RCPtr< Tag >
+#define Tag_p   RCPtr< Tag >
 
 class Node;
 
 class Color
 {
 public:
-	EXPORT                                        Color();
-	EXPORT                                        Color(uint8_t r, uint8_t g, uint8_t b);
-	uint8_t                               r;
-	uint8_t                               g;
-	uint8_t                               b;
+  EXPORT        Color();
+  EXPORT        Color(uint8_t r, uint8_t g, uint8_t b);
+  uint8_t       r;
+  uint8_t       g;
+  uint8_t       b;
 };
 
 class Tag : public RCObj

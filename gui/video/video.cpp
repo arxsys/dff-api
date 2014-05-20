@@ -92,9 +92,15 @@ VideoDecoder::VideoDecoder(Node* node)
   this->_videoStream = -1;
   this->_frameBuffer = NULL;
 
+  if (node == NULL)
+  {
+    this->_clear();
+    throw std::string("VideoDecoder Node is NULL");
+  }
+
   try 
   {
-    if ((node != NULL) && (node->size() > 0))
+    if (node->size() > 0)
     {
       this->_file = node->open();
       this->_buffer = (unsigned char *)av_malloc(4096*640);
@@ -143,13 +149,13 @@ void	VideoDecoder::_clear(void)
 {
   //error in ffmpeg av_close_input_file fail to free IOContext buff causing memory leak
   //maybe didn't find the AVFMT_FLAG_CUSTOM_IO
-  if (this->_IOContext->buffer)
-  {
-    av_free(this->_IOContext->buffer);
-    this->_IOContext->buffer = NULL;
-  }
   if (this->_IOContext)
-  { 
+  {
+    if (this->_IOContext->buffer)
+    {
+      av_free(this->_IOContext->buffer);
+      this->_IOContext->buffer = NULL;
+    } 
     av_free(this->_IOContext);
     this->_IOContext = NULL;
   }

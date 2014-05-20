@@ -57,7 +57,6 @@ private:
   VFilePool&		        operator=(VFilePool&);
 			        VFilePool(const VFilePool&);
   EXPORT		        ~VFilePool();
-  uint64_t		        __poolHits;
   uint32_t		        __poolSize;
   CacheContainer**	        __poolSlot;
   void                          __allocate(uint32_t poolSize);

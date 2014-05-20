@@ -22,32 +22,22 @@
 #include "confmanager.hpp"
 #include "node.hpp"
 
-Node::Node()
+Node::Node() : __parent(NULL), __childcount(0), __size(0), __fsobj(NULL), __common_attributes(0), __id(0), __uid(0), __tags(0), __at(0)
 {
 }
 
-Node::Node(std::string name, uint64_t size, Node* parent, fso* fsobj)
+Node::Node(std::string name, uint64_t size, Node* parent, fso* fsobj) : __parent(parent), __childcount(0), __name(name), __size(size), __fsobj(fsobj), __common_attributes(0), __id(0), __uid(0), __tags(0), __at(0) 
 {
-  this->__common_attributes = 0;
-  this->__childcount = 0;
-  this->__at = 0;
-  this->__fsobj = fsobj;
-  this->__size = size;
-  this->__parent = parent;
   if (this->__fsobj != NULL && parent != NULL) //FIX for modules without parent but with fsobj (used as sub-layer)
     this->__uid = this->__fsobj->registerNode(this);
   //if (this->__fsobj != NULL and parent == NULL)
   //{
   //this->__uid = VFS::Get().registerOrphanedNode(this);
   //}
-  else
-    this->__uid = 0;
   if (this->__parent != NULL)
   {
     this->__parent->addChild(this);
   }
-  this->__name = name;
-  this->__tags = 0;
 }
 
 Node::~Node()

@@ -42,11 +42,10 @@ typedef struct _pdata
   uint64_t	len;
 }		pdata;
 
-
 class VFile: public EventHandler
 {
 private:
-  FastSearch	*__fs;
+  FastSearch*   __fs;
   class fso*	__fsobj;
   int32_t	__fd;
   class Node*  	__node;
