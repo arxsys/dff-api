@@ -38,7 +38,7 @@ vtime::vtime(uint16_t dos_time, uint16_t dos_date) : hour(0), minute(0), second(
   }
 }
 
-vtime::vtime(uint64_t value, int type = 0) : year(0), month(0), day(0), hour(0), minute(0), second(0), dst(0), wday(0), yday(0), usecond(0)
+vtime::vtime(uint64_t value, int type = 0) : year(0), month(0), day(0), hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
 {
   if (value > 0)
   {
@@ -67,7 +67,7 @@ vtime::vtime(uint64_t value, int type = 0) : year(0), month(0), day(0), hour(0),
   }
 }
 
-vtime::vtime(std::string ts) : year(0), month(0), day(0), hour(0), minute(0), second(0), dst(0), wday(0), yday(0), usecond(0)
+vtime::vtime(std::string ts) : year(0), month(0), day(0), hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
 {
   size_t			midx;
   std::string			date;
@@ -198,4 +198,35 @@ vtimeMS128::vtimeMS128(char *_time) : vtime()
   this->minute = *t++;
   this->second = *t++;
   this->usecond = *t++;
+}
+
+
+HfsVtime::HfsVtime(uint32_t dtime) : vtime()
+{
+  struct tm	date;
+  uint64_t	_dtime;
+
+  if (dtime > HFSP_1904_TO_1970)
+    {
+      _dtime = (uint64_t)dtime;
+      _dtime -= HFSP_1904_TO_1970;      
+#ifdef WIN32
+      if (_gmtime64_s(&date, (__time64_t*)&_dtime) == 0)
+#else
+	if (gmtime_r((time_t *)&_dtime, &date) != NULL)
+#endif
+	  {
+            this->year = date.tm_year + 1900;
+            this->month = date.tm_mon + 1;
+       	    this->day = date.tm_mday;
+	    this->hour = date.tm_hour;
+	    this->minute = date.tm_min;
+	    this->second = date.tm_sec;
+	    this->dst = date.tm_isdst;
+	    this->wday = date.tm_wday;
+	    this->yday = date.tm_yday;
+	    this->usecond = 0;
+	    return;
+	  }
+    }
 }

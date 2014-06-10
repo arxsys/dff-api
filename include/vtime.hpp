@@ -49,6 +49,8 @@
 #define NANOSECS_1601_TO_1970   (uint64_t)(116444736000000000ULL)
 #endif
 
+#define HFSP_1904_TO_1970 (uint64_t)(2082844800ULL)
+
 #define TIME_UNIX    0
 #define TIME_MS_64   1
 
@@ -87,6 +89,12 @@ class vtimeMS128 : public vtime
 public:
   EXPORT  vtimeMS128(char *);
 }; 
+
+class HfsVtime : public vtime
+{
+public:
+  EXPORT HfsVtime(uint32_t);
+};
 
 #endif
 

@@ -49,11 +49,11 @@ public:
 class Type
 {
 public:
-                                  Type(DataTypeHandler* handler, const std::string name);
-                                  ~Type();
-  const std::string               handlerName(void) const;
-  const std::string               name(void) const;
-  const std::list<std::string>    compatibleModules(void) const; 
+  EXPORT                           Type(DataTypeHandler* handler, const std::string name);
+  EXPORT                           ~Type();
+  EXPORT const std::string               handlerName(void) const;
+  EXPORT const std::string               name(void) const;
+  EXPORT const std::list<std::string>    compatibleModules(void) const; 
 private:
   DataTypeHandler*                __handler;
   const std::string               __name;
@@ -64,10 +64,10 @@ private:
 class Types
 {
 public:
-                Types();
-                ~Types();
-  const Type*   find(std::string typeName) const;
-  const Type*   insert(DataTypeHandler*, std::string typeName);
+  EXPORT        Types();
+  EXPORT        ~Types();
+  EXPORT const Type*   find(std::string typeName) const;
+  EXPORT const Type*   insert(DataTypeHandler*, std::string typeName);
 private:
   std::map<const std::string, const Type* >    __types;
 };
@@ -75,9 +75,9 @@ private:
 class NodesTypes
 {
 public:
-  NodesTypes();
-  const std::vector<const Type* >               find(Node* node) const; 
-  void                                          insert(Node* node, const Type* type);
+  EXPORT NodesTypes();
+  EXPORT const std::vector<const Type* >               find(Node* node) const; 
+  EXPORT void                                          insert(Node* node, const Type* type);
 private:
   std::map<Node*, std::vector<const Type* > >   __nodesTypes; //XXX dff:map //pour locker !
 };
