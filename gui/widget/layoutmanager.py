@@ -359,19 +359,6 @@ class layoutManager(QWidget):
         self.inputDirectory = self.tr("Directory")
 
 
-    def changeEvent(self, event):
-        """ Search for a language change event
-
-        This event have to call retranslateUi to change interface language on
-        the fly.
-        """
-        if event.type() == QEvent.LanguageChange:
-            self.retranslateUi(self)
-            self.translation()
-        else:
-            QWidget.changeEvent(self, event)
-
-
 class fieldValidator(QRegExpValidator):
     def __init__(self, parent, typeid):
         QRegExpValidator.__init__(self, parent)
