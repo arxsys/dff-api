@@ -271,13 +271,6 @@ class layoutManager(QWidget):
 	  predefs.push_front(config[0]) 
         if not self.overwriteKeys(key) and type(key).__name__=='str':
             vbox = QVBoxLayout()
-            if typeid == typeId.Path:
-                combo = QComboBox()
-	        self.connect(combo, SIGNAL("editTextChanged(QString)"), self.argumentChanged)
-		self.connect(combo, SIGNAL("currentIndexChanged(QString)"), self.argumentChanged)
-                combo.addItem(self.inputFile)
-                combo.addItem(self.inputDirectory)
-                vbox.addWidget(combo)
             layout = QHBoxLayout()
             if len(predefs) > 0 or len(selectednodes) > 0:
                 pathcontainer = ComboNode()
@@ -296,13 +289,21 @@ class layoutManager(QWidget):
                     for node in selectednodes:
                         pathcontainer.addItem(QString.fromUtf8(node.absolute()))
                         pathcontainer.addNode(node)
+            if typeid == typeId.Path:
+                combo = QComboBox()
+	        self.connect(combo, SIGNAL("editTextChanged(QString)"), self.argumentChanged)
+		self.connect(combo, SIGNAL("currentIndexChanged(QString)"), self.argumentChanged)
+                combo.addItem(self.inputFile)
+                combo.addItem(self.inputDirectory)
+                vbox.addWidget(combo)
+                pathcontainer = PathLineEdit()
+                pathcontainer.setReadOnly(not editable)
+                self.connect(pathcontainer, SIGNAL("editingFinished()"), self.argumentChanged)
+                browse = addLocalPathButton(self, key, pathcontainer, inputchoice=combo)
             else:
                 pathcontainer = NodeLineEdit()
                 pathcontainer.setReadOnly(not editable)
-		self.connect(pathcontainer, SIGNAL("editingFinished()"), self.argumentChanged)
-            if typeid == typeId.Path:
-                browse = addLocalPathButton(self, key, pathcontainer, inputchoice=combo)
-            else:
+                self.connect(pathcontainer, SIGNAL("editingFinished()"), self.argumentChanged)
                 browse = addLocalPathButton(self, key, pathcontainer, nodetype=True)
             layout.addWidget(pathcontainer, 2)
             layout.addWidget(browse, 0)
@@ -525,7 +526,7 @@ class addLocalPathButton(QPushButton):
                     return -1
             else:
                 sFileName = QFileDialog.getExistingDirectory(self.parent, title, addLocalPathButton.lastPath, QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
-		self.setLastPath(sFileName) 
+		self.setLastPath(sFileName)
                 if isinstance(self.container, QListWidget):
                     if sFileName:
                         item = QListWidgetItem(sFileName, self.container)
@@ -589,6 +590,16 @@ class NodeLineEdit(QLineEdit):
 
     def node(self):
         return self._node
+
+
+class PathLineEdit(QLineEdit):
+    def __init__(self):
+        QLineEdit.__init__(self)
+        self._node = None
+
+    def node(self):
+        return self.text()
+
 
 class ComboNode(QComboBox):
     def __init__(self):
