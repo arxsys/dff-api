@@ -62,7 +62,7 @@ public:
   EXPORT virtual uint64_t		vtell(int32_t fd);
   EXPORT virtual void			setVerbose(bool verbose);
   EXPORT virtual bool			verbose();
-  EXPORT void                           unmap(Node* node);
+  EXPORT bool                           unmap(Node* node);
 };
 
 #endif

@@ -871,7 +871,6 @@ namespace std
   %template(RCPtrTagVect)       vector<Tag_p >;
 };
 
-
 /* %traits_swigtype(Variant); */
 /* %fragment(SWIG_Traits_frag(Variant)); */
 %traits_swigtype(vtime);
@@ -897,46 +896,6 @@ namespace std
         else:
            raise StopIteration()
     %}
-};
-
-%extend VFS
-{
-#ifdef SWIGWORDSIZE64
-  PyObject* getNodeFromPointer(unsigned long pnode)
-  {
-    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
-    PyObject* obj;
-    VLink *dobj = dynamic_cast<VLink*>(((Node*)pnode));
-    if (dobj)
-    {
-      obj = SWIG_NewPointerObj(dobj, SWIGTYPE_p_VLink, 0);
-    }
-    else
-    {
-      obj = SWIG_NewPointerObj((void*)pnode, SWIGTYPE_p_Node, 0);
-    }
-    SWIG_PYTHON_THREAD_END_BLOCK;
-    return obj;
-  }
-#else
-  PyObject* getNodeFromPointer(unsigned int pnode)
-  {
-    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
-    PyObject* obj;
-    VLink *dobj = dynamic_cast<VLink*>(((Node*)pnode));
-    if (dobj)
-    {
-      obj = SWIG_NewPointerObj(dobj, SWIGTYPE_p_VLink, 0);
-    }
-    else
-    {
-      obj = SWIG_NewPointerObj((void*)pnode, SWIGTYPE_p_Node, 0);
-    }
-
-    SWIG_PYTHON_THREAD_END_BLOCK;
-    return obj;
-  }
-#endif
 };
 
 %extend Node

@@ -69,24 +69,19 @@ class NodeWidget(QWidget):
         self.menuManager(selectionManager)
         self.connect(self.model, SIGNAL("dataChanged"), self.dataChanged)
 
-
-
     def updateStatus(self):
         visible = True
         node = self.model.currentNode() if self.model.currentNode() is not None else self.model.currentRoot()
         if node is not None:
-            self.__linklabel.setLink(node)
-            self.emit(SIGNAL("currentNode"), node)
+          self.__linklabel.setLink(node)
+          self.emit(SIGNAL("currentNode"), node)
         else:
-            visible = False
+          visible = False
         self.__statuswidget.setVisible(visible)
         QApplication.instance().mainWindow.status.setCurrentWidget(self.__statuswidget)
-        
-
 
     def statusWidget(self):
         return self.__statuswidget
-
 
     def menuManager(self, selectionManager):
         self.menumanager = MenuManager(selectionManager, self.model)
@@ -98,16 +93,13 @@ class NodeWidget(QWidget):
         self.listview.configure()
         self.refreshVisible()
 
-
     def dataChanged(self, x, y):
         self.viewstack.currentWidget().dataChanged(x, y)
-
 
     def createMainLayout(self):
         self.vlayout = QVBoxLayout(self)
         self.vlayout.setSpacing(0)
         self.vlayout.setMargin(0)
-        
 
     def createViewLayout(self):
         container = QWidget()
@@ -117,24 +109,20 @@ class NodeWidget(QWidget):
         container.setLayout(self.hlayout)
         self.vlayout.addWidget(container)
 
-
     def createStack(self):
         self.viewstack = QStackedWidget()
         self.viewstack.addWidget(self.tableview)
         self.viewstack.addWidget(self.listview)
         self.hlayout.addWidget(self.viewstack, 99)
 
-
     def createScrollbar(self):
         self.scrollbar = ScrollBar(self)
         self.hlayout.addWidget(self.scrollbar, 1)
         self.scrollbar.lower()
 
-
     def refreshVisible(self):
         view = self.viewstack.currentWidget()
         view.refreshVisible()
-
 
     def createConnections(self):
         self.connect(self, SIGNAL("changeView"), self.changeView)
@@ -146,7 +134,6 @@ class NodeWidget(QWidget):
         self.connect(self.listview, SIGNAL("nodeListClicked"), self.nodelistclicked)
         self.connect(self.listview, SIGNAL("nodeListDoubleClicked"), self.nodelistDoubleclicked)
         self.connect(self.model, SIGNAL("nodeAppended"), self.refreshVisible)
-
 
     def enterDirectory(self, sourcenode):
         if sourcenode != None:
@@ -162,7 +149,6 @@ class NodeWidget(QWidget):
                 self.openAsNewTab(sourcenode)                
         self.refreshVisible()
 
-
     def nodelistclicked(self, button):
         if button == Qt.RightButton:
             self.menumanager.createMenu()
@@ -170,10 +156,8 @@ class NodeWidget(QWidget):
             node = self.model.currentNode()
             self.emit(SIGNAL("nodePressed"), node)
 
-
     def nodelistDoubleclicked(self, node):
         self.menumanager.openDefault(node)
-
 
     def changeView(self, index):
         self.viewid = index
@@ -186,7 +170,6 @@ class NodeWidget(QWidget):
             self.model.refresh(self.model.currentRow())
             self.scrollbar.setMaximum(self.scrollbar.value() + 2)
         self.refreshVisible()
-
 
     def openAsNewTab(self, rootnode):
         QApplication.instance().mainWindow.addNodeBrowser(rootpath=rootnode)
@@ -207,7 +190,6 @@ class ScrollBar(QScrollBar):
         self.connect(self.model, SIGNAL("hideScroll"), self.hideScrollbar)
         self.connect(self.model, SIGNAL("current"), self.updateCurrent)
         self.nodeview.hlayout.addWidget(self, 1)
- 
 
     def hideScrollbar(self):
         self.setMinimum(0)

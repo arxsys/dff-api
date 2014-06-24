@@ -21,6 +21,8 @@ from PyQt4.QtGui import *
 
 from dff.api.vfs.libvfs import VFS
 
+from dff.ui.gui.utils.menu import TreeMenu
+
 class NodeTreeView(QTreeView):
   """
   This view is used to display the node tree view (in the left part of the Gui).
@@ -86,13 +88,17 @@ class NodeTreeView(QTreeView):
     try:
       index = self.indexAt(e.pos())
       if index.isValid():
+        if e.button() == Qt.RightButton:
+          node = self.model().getNodeFromIndex(index)
+          if node.absolute().find('/Bookmarks/') == 0:
+            menu = TreeMenu(self, node)
+            menu.popup(QCursor.pos())
         self.model().emit(SIGNAL("layoutAboutToBeChanged"))
         self.model().setCurrentIndex(self.currentIndex(), index)
         self.setCurrentIndex(index)
         self.model().emit(SIGNAL("layoutChanged"))
       if self.coord:
         self.resizeColumnToContents(0)
-      
     except:
       pass
     QTreeView.mousePressEvent(self, e)
@@ -170,7 +176,9 @@ class CheckDelegate(QStyledItemDelegate):
     e = event
     if index.isValid():
       var = model.data(index, Qt.UserRole + 1)
-      node = self.view.VFS.getNodeFromPointer(var.toULongLong()[0])
+      node = self.view.VFS.getNodeById(var.toULongLong()[0])
+      if node == None:
+        pass
       rec = index.data(Qt.UserRole + 3).toBool()
       pos = event.pos()
       newposx = event.pos().x() - 16

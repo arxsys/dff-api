@@ -43,29 +43,42 @@ class fso;
 class vfsError;
 class VfsNode;
 
-class VFS: public EventHandler
+class NodeManager
+{
+public:
+                                NodeManager(void);
+  uint64_t                      uid(Node* node);
+  bool                          remove(uint64_t uid);
+  bool                          remove(Node* node);
+  Node*                         node(uint64_t uid) const;
+  uint64_t                      orphansCount(void) const;
+private:
+  std::map<uint64_t, Node* >   __orphans;
+  uint64_t                     __nextId;
+};
+
+class VFS : public EventHandler
 {  
 private:
   EXPORT 	                VFS();
   EXPORT                        ~VFS();
   VFS&                          operator=(VFS&);
                                 VFS(const VFS&);
+  void                          __deleteNode(Node* node);
   std::vector<fso*>	        __fsobjs;
-  std::vector<Node*>	        __orphanednodes;
+  NodeManager                   __nodeManager;
 public:
   class Node*                   cwd;
   Node*		                root;
-  std::set<class Node*>         Tree;
   EXPORT static VFS&            Get();
+  EXPORT uint64_t               registerNode(Node* n);
   EXPORT uint16_t	        registerFsobj(fso* fsobj) throw (vfsError);
-  EXPORT uint64_t	        registerOrphanedNode(Node* n) throw (vfsError);
+  EXPORT bool                   unregister(Node* node); 
   EXPORT virtual void	        Event(event *e);
-  EXPORT std::set<Node*>*       GetTree(void);
   EXPORT void 	                cd(Node *);
   EXPORT Node* 	                GetCWD(void);
   EXPORT Node*	                GetNode(std::string path);
   EXPORT Node*	                GetNode(std::string path, Node* where);
-  EXPORT void		        AddNode(Node *parent, Node* head);
   EXPORT std::vector<fso*>	fsobjs();
   EXPORT uint64_t	        totalNodes();
   EXPORT Node*		        getNodeById(uint64_t id);

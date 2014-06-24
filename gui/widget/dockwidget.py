@@ -12,6 +12,8 @@
 # Author(s):
 #  Jeremy MOUNIER <jmo@digital-forensic.org>
 #  Solal Jacob <sja@digital-forensic.org> 
+#
+
 from PyQt4.QtCore import Qt, SIGNAL, QEvent, QPoint, QSize, QRect, QTimer
 from PyQt4.QtGui import QAbstractButton,  QComboBox, QStyle, QPainter, QPushButton, QDockWidget, QApplication, QStylePainter, QIcon, QHBoxLayout, QStyleOptionToolButton, QWidget, QStyleOptionDockWidgetV2, QLayout, QCheckBox
  

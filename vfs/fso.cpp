@@ -30,44 +30,42 @@ fso::~fso()
 
 uint64_t	fso::nodeCount()
 {
-  return this->__nodes.size();
+  return (this->__nodes.size());
 }
 
 std::vector<fso*>	fso::children()
 {
-  return this->__children;
+  return (this->__children);
 }
 
 bool	fso::hasChildren()
 {
-  return this->__children.size() > 0;
+  return (this->__children.size() > 0);
 }
 
 uint32_t	fso::childCount()
 {
-  return this->__children.size();
+  return (this->__children.size());
 }
 
 void		fso::setParent(fso* parent)
 {
   if (parent != NULL)
-    {
-      this->__parent = parent;
-    }
+    this->__parent = parent;
 }
 
 fso*	fso::parent()
 {
-  return this->__parent;
+  return (this->__parent);
 }
 
 void		fso::addChild(fso* child)
 {
   if (child != NULL)
-    {
-      child->setParent(this);
-      this->__children.push_back(child);
-    }
+  {
+    child->setParent(this);
+    this->__children.push_back(child);
+  }
 }
 
 void	fso::registerTree(Node* parent, Node* head)
@@ -85,43 +83,39 @@ void	fso::registerTree(Node* parent, Node* head)
 
 std::vector<Node*>	fso::nodes()
 {
-  return this->__nodes;
+  std::map<uint64_t, Node*>::const_iterator      node = this->__nodes.begin();
+  std::vector<Node* >           nodes;
+
+  for (; node != this->__nodes.end(); ++node)
+    nodes.push_back(node->second);
+
+  return (nodes);
 }
 
 uint16_t	fso::uid()
 {
-  return this->__uid;
+  return (this->__uid);
 }
 
 Node*		fso::getNodeById(uint64_t id)
 {
-  uint64_t	nid;
-  uint16_t	fsoid;
-
-  fsoid = id >> 48;
-  if (fsoid == this->__uid)
-    {
-      nid = id & 0x0000ffffffffffffLL;
-      if (nid < this->__nodes.size())
-	return this->__nodes[nid];
-      else
-	return NULL;
-    }
-  else
-    return NULL;
+  std::map<uint64_t, Node* >::const_iterator node = this->__nodes.find(id);
+  if (node != this->__nodes.end())
+    return (node->second);
+  std::cout << "fso::getNodeById return NULL for " << id << std::endl;
+  return (NULL);
 }
 
-uint64_t	fso::registerNode(Node* n)
+uint64_t	fso::registerNode(uint64_t uid, Node* node)
 {
-  uint64_t	nid;
-
-  nid = this->__uid;
-  nid = nid << 48;
-  this->__nodes.push_back(n);
-  nid |= this->__nodes.size() - 1;
-  return nid;
+  this->__nodes[uid] = node;
+  return (uid);
 }
 
-void		fso::unmap(Node* node)
+bool		fso::unmap(Node* node)
 {
+   uint64_t uid = node->uid();
+   if (uid != 0 && this->__nodes.erase(node->uid()) != 0)
+    return (false);
+  return (true);
 }

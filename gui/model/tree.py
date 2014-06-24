@@ -32,7 +32,7 @@ class TreeModel(QStandardItemModel, EventHandler):
     self.VFS = VFS.Get()
     # init translation
     self.translation()
-    self.indexmap = {}
+    self.itemmap = {}
     self.createRootItems()
     self.currentIndex = self.root_item
     self.ch = True
@@ -44,18 +44,14 @@ class TreeModel(QStandardItemModel, EventHandler):
     # keep track of index - node pointers
     self.connect(self, SIGNAL("refreshModel"), self.refreshModel)
 
-
   def updateSelected(self, count):
     self.emit(SIGNAL("layoutChanged()"))
-
     
   def enableDisplayCount(self):
     self.displayCount = True
 
-
   def disableDisplayCount(self):
     self.displayCount = False
-
 
   def createRootItems(self):
     # Add Root children items (bookmarks, logical etc.)
@@ -65,10 +61,10 @@ class TreeModel(QStandardItemModel, EventHandler):
     item_list = []
     for i in tmp:
       node_item = QStandardItem(i.name())
-      node_item.setData(QVariant(long(i.this)), Qt.UserRole + 1)
+      node_item.setData(QVariant(i.uid()), Qt.UserRole + 1)
       node_item.setData(QVariant(False), Qt.UserRole + 2)
       item_list.append(node_item)
-      self.indexmap[long(i.this)] = node_item
+      self.itemmap[i.uid()] = node_item
     if len(item_list):
       self.root_item.appendRows(item_list)
 
@@ -119,7 +115,7 @@ class TreeModel(QStandardItemModel, EventHandler):
     if not data.isValid():
       return data
     # getting the node or returning an invalid QVariant() if the node is not valid
-    node = self.VFS.getNodeFromPointer(data.toULongLong()[0])
+    node = self.VFS.getNodeById(data.toULongLong()[0])
     if node == None:
       return QVariant()
     # if role == UserRole + 1, it means that the node itself must be returned (the pointer
@@ -137,7 +133,7 @@ class TreeModel(QStandardItemModel, EventHandler):
       pixmap = QPixmap(node.icon())
       if node.hasChildren():
         try:
-          pfsobj = node.children()[0].fsobj().this
+          pfsobj = node.children()[0].fsobj().this #XXX fsobj have uid now
         except AttributeError:
   	  pfsobj = None
         try:
@@ -164,7 +160,7 @@ class TreeModel(QStandardItemModel, EventHandler):
     if self.ch == True:
       if role == Qt.CheckStateRole:
         if index.column() == 0:
-          if long(node.this) in self.selection.get():
+          if node.uid() in self.selection.get():
             return Qt.Checked
           else:
             return Qt.Unchecked
@@ -233,7 +229,7 @@ class TreeModel(QStandardItemModel, EventHandler):
   def getParentNodeList(self, node):
     parents = []
     parent = node
-    while long(parent.this) != long(self.root_node.this):
+    while parent.uid() != self.root_node.uid():
       if parent != None:
         parents.append(parent)
         parent = parent.parent()
@@ -255,22 +251,36 @@ class TreeModel(QStandardItemModel, EventHandler):
     node = value.value()
     if node == None:
       return
-    self.emit(SIGNAL("refreshModel"), node)
-    
+    if e.type == 0xde1:
+      pass # call by main widget 
+    else:
+      self.emit(SIGNAL("refreshModel"), node)
+   
+  def removeNode(self, node):
+    children = node.children()
+    for child in children:
+      self.removeNode(child)
+    try:
+      item = self.itemmap[node.uid()] 
+      index = self.indexFromItem(item)
+      self.removeRow(index.row(), index.parent())
+      self.itemmap.pop(node.uid())
+    except Exception as e :
+      pass 
+ 
   def getItemFromNode(self, node):
-    for nodeptr, item in self.indexmap.iteritems():
-      if long(node.this) == nodeptr:
+    for nodeptr, item in self.itemmap.iteritems():
+      if node.uid() == nodeptr:
         return item
     return None
 
-
   def refreshModel(self, node):
     # special case when adding a folder at root level
-    if long(node.parent().this) == long(self.root_node.this) and node.hasChildren() and node.absolute() != "/":
+    if node.parent().uid() == self.root_node.uid() and node.hasChildren() and node.absolute() != "/":
       can_append = True
       for i in xrange(0, self.root_item.rowCount()):
         idx = self.root_item.child(i).data(Qt.UserRole + 1).toULongLong()[0]
-        if idx == long(node.this):
+        if idx == node.uid():
           can_append = False
       if can_append:
         item = self.createItem(node)
@@ -279,7 +289,7 @@ class TreeModel(QStandardItemModel, EventHandler):
       parents = self.getParentNodeList(node)
       for parent in parents:
         try:
-          item = self.indexmap[long(parent.this)]
+          item = self.itemmap[parent.uid()]
           if item.rowCount() !=0:
             dircount = self.dirCount(parent)
             if item.rowCount() != dircount:
@@ -295,7 +305,6 @@ class TreeModel(QStandardItemModel, EventHandler):
     	    self.emit(SIGNAL("layoutChanged()"))
         except KeyError:
           continue
-
 
   def getChildrenDirectories(self, parent):
     children = parent.children()
@@ -313,7 +322,7 @@ class TreeModel(QStandardItemModel, EventHandler):
       for childitem in range(0, item.rowCount()):
         node = self.getNodeFromItem(item.child(childitem))
         if node != None:
-          if long(node.this) == long(child.this):
+          if node.uid() == child.uid():
             founded = True
       if not founded:
         new_nodes.append(child)
@@ -325,18 +334,16 @@ class TreeModel(QStandardItemModel, EventHandler):
       node = self.getNodeFromIndex(index)
       return node
     except:
-      print "Exeption:GetNodeFromItem"
       return None
 
   def getNodeFromIndex(self, index):
     try:
       ptr = self.data(index, Qt.UserRole + 1).toULongLong()[0]
-      node = self.VFS.getNodeFromPointer(ptr)
+      node = self.VFS.getNodeById(ptr)
       if node == None:
         return None
       return node
     except:
-      print "Exeption:GetNodeFromIndex"
       return None
 
   def dirCount(self, node):
@@ -349,8 +356,8 @@ class TreeModel(QStandardItemModel, EventHandler):
 
   def createItem(self, node):
     new_item = QStandardItem(node.name())
-    new_item.setData(long(node.this), Qt.UserRole + 1)
-    self.indexmap[long(node.this)] = new_item
+    new_item.setData(node.uid(), Qt.UserRole + 1)
+    self.itemmap[node.uid()] = new_item
     return new_item
 
   def insertRows(self, item_parent, node_list):
@@ -364,4 +371,3 @@ class TreeModel(QStandardItemModel, EventHandler):
     Used for translating the framework.
     """
     self.nameTr = self.tr('Name')
-

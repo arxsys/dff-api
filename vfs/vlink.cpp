@@ -17,17 +17,19 @@
 #include "variant.hpp"
 #include "tags.hpp"
 #include "vlink.hpp"
+#include "vfs.hpp"
 
-uint32_t VLink::id()
+VLink::VLink(Node* linkedNode, Node* parent, std::string newname) : Node()
 {
-  return this->__linkedNode->id();
-}
+  if (!parent)
+    throw std::string("Can't create VLink to a NULL parent");
+ 
+  this->__linkedNode = linkedNode; //first because registerNode use linkednode to get fsobj 
+  this->__fsobj = NULL;
+  this->__uid = VFS::Get().registerNode(this);
 
-VLink::VLink(Node* linkedNode, Node* parent, std::string newname)
-{
   this->__childcount = 0;
   this->__at = 0;
-  this->__linkedNode = linkedNode;
   this->__parent = parent;
   
   if (newname == "")
@@ -86,6 +88,7 @@ bool		VLink::isLink()
   return this->__linkedNode->isLink();
 }
 
+//XXX must return NULL because it's not handled by this fsobj 
 class fso*	VLink::fsobj()
 {
   return this->__linkedNode->fsobj();

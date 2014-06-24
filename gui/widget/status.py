@@ -32,7 +32,6 @@ class StatusLabel(QLabel):
         self.setSizePolicy(sizePolicy)
         self.setTextFormat(Qt.RichText)
 
-
     def updateLabel(self):
         fmt = self.__model.format()
         styles = self.__model.styles()
@@ -66,7 +65,6 @@ class StatusWidget(QWidget):
         self.__labels = []
         self.__model = None
 
-
     def setStatusModel(self, model):
         self.__model = model
         for idx in xrange(0, model.count()):
@@ -81,11 +79,9 @@ class StatusWidget(QWidget):
 
 
 class StatusBarWidget(QWidget):
-    
     SplitterHandleStyle = """QSplitter::handle:horizontal {background: 
     qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc);
     border: 1px solid #777; width: 14px; margin-right: 4px; margin-left: 4px;}"""
-
     def __init__(self, parent = None):
         super(QWidget, self).__init__(parent)
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
@@ -100,10 +96,8 @@ class StatusBarWidget(QWidget):
         self.__splitter.setHandleWidth(12)
         self.__hlayout.addWidget(self.__splitter)
 
-
     def addStatusWidget(self, widget, stretch):
         self.__splitter.setStyleSheet(StatusBarWidget.SplitterHandleStyle)
         self.__splitter.addWidget(widget)
         idx = self.__splitter.indexOf(widget)
         self.__splitter.setStretchFactor(idx, stretch)
-

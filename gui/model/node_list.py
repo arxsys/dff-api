@@ -54,7 +54,6 @@ class NodeListModel(QAbstractItemModel):
     self.connect(self.thumbnailer, SIGNAL("ThumbnailUpdate"), self.thumbnailUpdate)
     self.headerorder = {0:0}
 
-
   def thumbnailUpdate(self, node, pixmap):
      currentRow = self.currentRow()
      visibleRow = self.visibleRows()
@@ -62,25 +61,44 @@ class NodeListModel(QAbstractItemModel):
      currentList = nodeList[currentRow:currentRow + visibleRow]
      index = 0
      for cnode in currentList:
-         if str(long(node.this)) == str(long(cnode.this)):
+         if node.uid() == cnode.uid():
 	   modelIndex = self.index(index, 0)
            self.emit(SIGNAL("dataChanged"), modelIndex, modelIndex)
          index += 1
 
-     
-  def vfsNotification(self, node):
-    if long(node.parent().this) == long(self.__root.this):
-      self.changeList(self.__root, self.__recursive, self.__list[self.__row_selected])
-                      
+  def __removeNode(self, node):
+    children = node.children()
+    for child in children:
+      self.__removeNode(child)
+    for n in self.__list:
+      if n.uid() == node.uid():
+        self.__list.remove(n)
+        self.__row_selected = 0 
+    for n in self.__rows:
+      if n.uid() == node.uid():
+        self.__rows.remove(n)      
 
+  def removeNode(self, node): 
+    try:
+     if self.__root == None or (self.__root.path().find(node.parent().path()) != -1):
+      self.__row_selected = 0 
+      self.changeList(node.parent(), self.__recursive, None)
+    except Exception as e :
+      pass
+    self.__removeNode(node)
+
+  def vfsNotification(self, node, eventType = None):
+    if eventType == 0xde1:
+      pass #called by noedelistwidget
+    else:
+      if node.parent().uid() == self.__root.uid():
+        self.changeList(self.__root, self.__recursive, self.__list[self.__row_selected])
 
   def updateSelected(self, count):
     self.emit(SIGNAL("layoutChanged()"))
 
-
   def connectSignals(self):
     self.connect(self, SIGNAL("appendList"), self.appendList)
-
 
   def setData(self, index, value, role):
     """
@@ -95,15 +113,16 @@ class NodeListModel(QAbstractItemModel):
     column = index.column()
     if role == Qt.CheckStateRole:
       if column == HNAME:
-        node = self.VFS.getNodeFromPointer(index.internalId())
+        node = self.VFS.getNodeById(index.internalId())
+        if node == None:
+          pass
         if value == Qt.Unchecked:
-          if (long(node.this), 1) in self.checkedNodes:
-            self.checkedNodes.remove((long(node.this), 1))
+          if (node.uid(), 1) in self.checkedNodes:
+            self.checkedNodes.remove((node.uid(), 1))
         else:
-          self.checkedNodes.add((long(node.this) , 1))
+          self.checkedNodes.add((node.uid() , 1))
     QAbstractItemModel.setData(self, index, value, role)
     return True
-
 
   def changeList(self, root, recursive=False, selected=None):
     """ 
@@ -125,7 +144,7 @@ class NodeListModel(QAbstractItemModel):
       idx = 0
       if not recursive and selected != None:
         for i in xrange(0, len(self.__list)):
-          if long(selected.this) == long(self.__list[i].this):
+          if selected.uid() == self.__list[i].uid():
             idx = i
             break
       self.emit(SIGNAL("maximum"), len(self.__list))
@@ -136,14 +155,11 @@ class NodeListModel(QAbstractItemModel):
         self.select(idx)
       self.emit(SIGNAL("changeList"))
 
-
   def currentRoot(self):
     return self.__root
 
-
   def recursive(self):
     return self.__recursive
-
 
   def updateList(self, nodes, recursive=False, selected=None):
     """ 
@@ -155,7 +171,7 @@ class NodeListModel(QAbstractItemModel):
       self.__list = nodes
       if not recursive and selected != None:
         for i in xrange(0, len(self.__list)):
-          if long(selected.this) == long(self.__list[i].this):
+          if selected.uid() == self.__list[i].uid():
             self.__current_row = i
             self.row_selected = i
             break
@@ -163,13 +179,11 @@ class NodeListModel(QAbstractItemModel):
       self.select(0)
       self.emit(SIGNAL("changeList"))
 
-
   def __fillRecursiveList(self, nodes):
     for node in nodes:
       self.__list.append(node)
       if node.hasChildren():
         self.__fillRecursiveList(node.children())
-
 
   def appendList(self, node):
     """
@@ -301,7 +315,6 @@ class NodeListModel(QAbstractItemModel):
             rootPixmap = QPixmap(":root")
             painter.drawPixmap(0, 0, rootPixmap)
             painter.end()
-
       return QVariant(QIcon(pixmap))
 	
     if role == Qt.BackgroundRole:
@@ -316,7 +329,7 @@ class NodeListModel(QAbstractItemModel):
         return  QVariant(QColor(Qt.red))
 
     if (role == Qt.CheckStateRole) and (attributes[index.column()] == "name"):
-      if long(node.this) in self.selection.get():
+      if node.uid() in self.selection.get():
         return Qt.Checked
       else:
         return Qt.Unchecked
@@ -353,7 +366,6 @@ class NodeListModel(QAbstractItemModel):
     else:
       return None
 
-
   def getNode(self, row):
     try:
       node = self.__list[row]
@@ -363,7 +375,6 @@ class NodeListModel(QAbstractItemModel):
         return None
     except IndexError:
       return None
-
 
   def index(self, row, column, parent = QModelIndex()):
     if not self.hasIndex(row, column, parent):
@@ -440,7 +451,6 @@ class NodeListModel(QAbstractItemModel):
       self.emit(SIGNAL("hideScroll"))
     self.refresh(self.__current_row)
 
-
   def visibleRows(self):
     return self.__visible_rows
 
@@ -476,10 +486,7 @@ class NodeListModel(QAbstractItemModel):
   def currentNode(self):
     try:
       node = self.__list[self.__row_selected]
-      if node != None:
-        return node
-      else:
-        return None
+      return node 
     except:
       return None
 
@@ -624,14 +631,13 @@ class NodeListModel(QAbstractItemModel):
   def allListChecked(self):
     checked = self.selection.get()
     for node in self.__list:
-      if not long(node.this) in checked:
+      if not node.uid() in checked:
         return False
     return True
 
   def selectAll(self):
     for node in self.__list:
       self.selection.add(node)
-
 
   def unselectAll(self):
     for node in self.__list:

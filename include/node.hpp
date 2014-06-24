@@ -110,15 +110,12 @@ protected:
   EXPORT bool				constantValuesMatch(Constant* constant, Attributes vars);
   void		                        __compatibleModulesByExtension(const std::map<std::string, Constant*>& cextensions, std::string& ext, std::list<std::string>& result);
 public:
-  EXPORT 					Node(std::string name, uint64_t size=0, Node* parent=NULL, fso* fsobj=NULL);
+  EXPORT 					Node(std::string name, uint64_t size = 0, Node* parent = NULL, fso* fsobj = NULL, bool registerNode = true);
   EXPORT 					Node();
   EXPORT virtual 				~Node();
-  
+
   uint32_t					__at;
-  
-  EXPORT void					setId(uint32_t	id);
-  EXPORT virtual	uint32_t		id(void);
-  
+
   EXPORT void					setFile(void);
   EXPORT void					setDir(void);
   EXPORT void					setLink(void);
@@ -149,6 +146,7 @@ public:
 
   EXPORT std::vector<class Node*>		children(void);
   EXPORT bool					addChild(class Node* child);
+  EXPORT bool                                   removeChild(class Node* child);
   EXPORT bool					hasChildren(void);
   EXPORT uint32_t				childCount(void);
   EXPORT uint64_t				totalChildrenCount(uint32_t depth=(uint32_t)-1);

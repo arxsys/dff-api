@@ -25,10 +25,8 @@ from dff.api.vfs.libvfs import VFS, Node, VLink
 from dff.api.types.libtypes import Variant, typeId
 from dff.api.filters.libfilters import Filter
 
-from dff.api.gui.model.node_list import NodeListModel
-from dff.api.gui.view.node_list import NodeListView
 from dff.api.gui.widget.search.thread import SearchThread
-from dff.api.gui.widget.search.dico_manager import DicoManager, DicoDialog
+from dff.api.gui.widget.search.dico_manager import DicoDialog
 from dff.api.gui.widget.search.predefilters import DEFAULT_FILTERS
 
 from dff.ui.gui.widget.SelectMimeTypes import MimeTypesTree
@@ -400,11 +398,9 @@ class Filter(Ui_filterAdd, QDialog):
       self.defaultquery = query
       self.fname = fname
 
-
   def updateQuery(self):
     query = self.buildRequest()
     self.__query.setText(query)
-
 
   def reject(self):
     QDialog.reject(self)
@@ -499,11 +495,9 @@ class FilterRequests(QTableWidget):
     self.connect(rm, SIGNAL("removeRequest"), self.removeRequest)
     self.setCellWidget(currow, 4, rm)
     self.updateQuery()
-
   
   def updateQuery(self):
     self.emit(SIGNAL("queryUpdated"))
-
 
   def changeFilterType(self, fieldwidget, index):
     # ["name", "data", "size", "time", "mime", "file", "deleted", "attributes"]
@@ -539,7 +533,6 @@ class FilterRequests(QTableWidget):
       self.connect(widget, SIGNAL("queryUpdated"), self.updateQuery)
       self.setCellWidget(row, 2, widget)
       self.updateQuery()
-
 
   def removeRequest(self, rmbutton):
     if (rmbutton in self.removeMapper):
@@ -617,13 +610,11 @@ class StringRequest(Ui_filterMatchMode, Request):
   def updateQuery(self, data):
     self.emit(SIGNAL("queryUpdated"))
 
-
   def setContent(self):
     self.content = QLineEdit(self)
     self.hlayout.addWidget(self.content)
     self.connect(self.content, SIGNAL("textChanged(const QString &)"), self.updateQuery)
     self.connect(self.content, SIGNAL("textEdited(const QString &)"), self.updateQuery)
-
 
   def setMatchMode(self):
     self.hlayout.addWidget(self.matchModeCombo)
@@ -660,10 +651,8 @@ class SizeRequest(Request):
     self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
     self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
 
-
   def updateQuery(self, data):
     self.emit(SIGNAL("queryUpdated"))
-
 
   def setContent(self):
     self.content = QLineEdit(self)
@@ -672,7 +661,6 @@ class SizeRequest(Request):
     self.hlayout.addWidget(self.content)
     self.connect(self.content, SIGNAL("textChanged(const QString &)"), self.updateQuery)
     self.connect(self.content, SIGNAL("textEdited(const QString &)"), self.updateQuery)
-
 
   def setSizeType(self):
     self.stype = QComboBox(self)
@@ -683,7 +671,6 @@ class SizeRequest(Request):
     self.connect(self.stype, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
     self.connect(self.stype, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
 
-
   def request(self):
     operator = str(self.operatorCombo.currentText())
     factor = SIZE_T[self.stype.currentIndex()]
@@ -691,6 +678,7 @@ class SizeRequest(Request):
     size = size * factor
     res = "(size " + operator + " " + str(size) + ")"
     return res
+
 
 class DateRequest(Request):
   def __init__(self, parent):
@@ -721,6 +709,7 @@ class DateRequest(Request):
     res += str(date_time.toString("yyyy-MM-ddThh:mm:ss")) + ")"
     return res
 
+
 class MimeRequest(Ui_filterMime, Request):
   def __init__(self, parent):
     Request.__init__(self, parent)
@@ -736,7 +725,6 @@ class MimeRequest(Ui_filterMime, Request):
 
   def updateQuery(self, data):
     self.emit(SIGNAL("queryUpdated"))
-    
 
   def setSelectButton(self):
     self.hlayout.addWidget(self.selectButton)
@@ -754,6 +742,7 @@ class MimeRequest(Ui_filterMime, Request):
     res = "(mime in[" + str(unicode(self.content.text()).encode('utf-8')) + "])"
     return res
 
+
 class MimeDialog(Ui_filterMimeDialog, QDialog):
   def __init__(self, parent):
     QDialog.__init__(self, parent)
@@ -768,6 +757,7 @@ class MimeDialog(Ui_filterMimeDialog, QDialog):
       if count < len(mimes) - 1:
         result += ","
     return result
+
 
 class DicoRequest(Ui_filterDico, Request):
   def __init__(self, parent):
@@ -789,10 +779,8 @@ class DicoRequest(Ui_filterDico, Request):
     self.connect(self.dicoMatch, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
     self.connect(self.dicoMatch, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
 
-
   def updateQuery(self, data):
     self.emit(SIGNAL("queryUpdated"))
-
 
   def selectDico(self):
     dialog = DicoDialog(self)
@@ -817,7 +805,8 @@ class DicoRequest(Ui_filterDico, Request):
           res += ","
       res += "])"
     return res
-      
+     
+ 
 class OnlyRequest(Ui_filterOnly, Request):
   def __init__(self, parent, field):
     Request.__init__(self, parent)
@@ -830,10 +819,8 @@ class OnlyRequest(Ui_filterOnly, Request):
     self.connect(self.onlyCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
     self.connect(self.onlyCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
 
-
   def updateQuery(self, data):
     self.emit(SIGNAL("queryUpdated"))
-
 
   def request(self):
     index = self.onlyCombo.currentIndex()
@@ -848,6 +835,7 @@ class OnlyRequest(Ui_filterOnly, Request):
     else:
       res += "false)"
     return res
+
 
 class AttributeRequest(Ui_filterAttributes, Request):
   def __init__(self, parent, iss=True):
@@ -871,16 +859,15 @@ class AttributeRequest(Ui_filterAttributes, Request):
     self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( int )"), self.updateQuery)
     self.connect(self.operatorCombo, SIGNAL("currentIndexChanged ( const QString &)"), self.updateQuery)
 
-
   def updateQuery(self, data):
     self.emit(SIGNAL("queryUpdated"))
-
 
   def request(self):
     res = "(@" + str(unicode(self.key.text()).encode('utf-8')) + "@ "
     res += str(self.operatorCombo.currentText()) + " "
     res += str(unicode(self.value.text()).encode('utf-8')) + " )"
     return res
+
 
 class FieldCombo(Ui_filterFields, Request):
   def __init__(self, parent):

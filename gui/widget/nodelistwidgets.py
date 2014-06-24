@@ -16,8 +16,6 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-import re
-
 from dff.api.vfs.vfs import vfs, Node
 from dff.api.vfs.libvfs import VFS, VecNode, TagsManager
 from dff.api.types.libtypes import typeId, Variant, RCVariant
@@ -84,24 +82,28 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.connect(self, SIGNAL("refreshList"), self.refreshList)
     self.bookManager = BookmarkManager(self.model())
 
-
   def __del__(self):
     self.VFS.deconnection(self)
     self.treemodel.VFS.deconnection(self.treemodel)
 
-
   def update(self):
     self.updateStatus()
     QWidget.update(self)
-
 
   def Event(self, e):
     """
     Add e.value, which is a Variant containing a Node, in the tree (only if it has children
     or is a directory).
     """
-    self.emit(SIGNAL("refreshList"), e)
-
+    if e.type == 0xde1:
+      node = e.value.value()
+      self.treemodel.removeNode(node)
+      self.browserview.model.removeNode(node)
+      self.filterview.model.removeNode(node)
+      self.searchview.model.removeNode(node)
+      self.bookManager.removeCategory(node)
+    else:
+      self.emit(SIGNAL("refreshList"), e)
 
   def refreshList(self, e):
     if e.value != None and self.mode == ADVANCED:
@@ -109,13 +111,12 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
         if node == None:
           return
         try:
-          self.currentView().model.vfsNotification(node)
+          self.currentView().model.vfsNotification(node, e.type)
         except:
           pass
 
   def createSelection(self):
     self.selection = SelectionManager()
-
 
   def createNavigationHeader(self):
     self.header = QSplitter(Qt.Horizontal)
@@ -258,7 +259,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.emit(SIGNAL("nodePressed"), node)
     self.updateStatus()
 
-
   def enterFilter(self, node):
     if self.filterwidget.lock.isChecked():
       self.browserview.enterDirectory(node)
@@ -266,7 +266,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     else:
       self.browserview.enterDirectory(node)
       self.filterwidget.resetFilter()
-
 
   def setCurrentContext(self, rootpath=None, recursive=False, selected=None):
     if rootpath == None:
@@ -277,13 +276,11 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.treeview.expandToNode(rootpath)
     self.currentView().model.changeList(rootpath, recursive, selected)
 
-
   def updateStatus(self):
     if self.filter.isChecked():
       self.filterview.updateStatus()
     else:
       self.currentView().updateStatus()
-
 
   def activateSearchPan(self, state):
     if self.mode == ADVANCED:
@@ -346,11 +343,9 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
        for child in childs:
 	  self.recurseNodes(child, res)
 
-
   def viewChanged(self, index):
     curentview = self.viewpan.currentWidget()
     curentview.emit(SIGNAL("changeView"), index)
-
 
   def selectAttributes(self):
     model = self.currentView().model
@@ -362,7 +357,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       model.setSelectedAttributes(selected)
       if self.filter.isChecked():
         self.filterview.model.setSelectedAttributes(selected)
-
 
   def bookmark(self):
     self.bookManager.launch()
@@ -378,7 +372,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     views.append(self.browser)
     views.append(self.search)
 
-
   def models(self):
     model_list = []
     model_list.append(self.browser.model)
@@ -387,7 +380,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
 
   def model(self):
     return self.viewpan.currentWidget().model
-
 
 ########################################
 #  NAVIGATION
@@ -450,7 +442,6 @@ class FilterWidget(Ui_filterWidget, QWidget):
       self.verticalLayout.removeWidget(self.filtertagwidget)
       self.filterCombo.setEnabled(True)
       self.filtertagwidget.hide()
-      
 
   def launchFilter(self, query=None):
     if not query:
@@ -699,7 +690,6 @@ class ToolEditBar(QLineEdit):
           res.append(child)
     else:
       res = node.children()
-
     return res
                     
   def focusOut(self):
@@ -709,7 +699,6 @@ class Completer(QMenu):
   def __init__(self, linedit):
     QMenu.__init__(self, linedit)
     self.linedit = linedit
-    
     self.connect(self, SIGNAL("triggered(QAction*)"), self.resetLineEdit)
     self.connect(self, SIGNAL("hovered(QAction*)"), self.resetLineEdit)
 

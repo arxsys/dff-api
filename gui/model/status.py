@@ -12,16 +12,13 @@
 # Author(s):
 #  Frederic Baguelin <fba@digital-forensic.org>
 # 
+import sys, time
 
 from dff.api.vfs.libvfs import ABSOLUTE_ATTR_NAME, VFS
 from dff.api.filters.libfilters import Filter
 
-import sys
-import time
-
 from PyQt4.QtCore import QObject, SIGNAL
 from PyQt4.QtGui import QApplication
-
 
 class AbstractStatusModel(QObject):
   def __init__(self):
@@ -29,16 +26,13 @@ class AbstractStatusModel(QObject):
     self._order = []
     self._status = {}
 
-
   def count(self):
     return len(self._order)
-
 
   def resetStatus(self):
     for status in self._status.itervalues():
       status.reset()
     self.notify()
-
 
   def process(self, node):
     if node is not None:
@@ -46,43 +40,36 @@ class AbstractStatusModel(QObject):
         status.process(node)
     self.notify()
 
-
   def notify(self):
     for status in self._status.itervalues():
       status.notify()
-  
 
   def status(self, idx):
     if idx < len(self._order) and self._status.has_key(self._order[idx]):
       return self._status[self._order[idx]]
-
 
   def removeStatus(self, idx):
     if idx < len(self._order) and self._status.has_key(self._order[idx]):
       del self._status[self._order[idx]]
       del self._order[idx]
 
-
   def format(self, idx):
     if idx < len(self._order) and self._status.has_key(self._order[idx]):
         return self._status[self._order[idx]].format()
     else:
       return {}
-    
 
   def styles(self, idx):
     if idx < len(self._order) and self._status.has_key(self._order[idx]):
         return self._status[self._order[idx]].styles()
     else:
       return {}
-    
 
   def data(self, idx):
     if idx < len(self._order) and self._status.has_key(self._order[idx]):
         return self._status[self._order[idx]].data()
     else:
       return {}
-  
 
 class ViewStatusModel(AbstractStatusModel):
   def __init__(self, model, selection):
@@ -97,13 +84,11 @@ class ViewStatusModel(AbstractStatusModel):
     self.connect(model, SIGNAL("appendList"), self.process)
     self.connect(model, SIGNAL("clearList"), self.clearList)
 
-
   def clearList(self):
     for status in self._status.itervalues():
       status.setRecursive(False)
       status.reset()
     self.notify()
-
 
   def processList(self):
     self.resetStatus()
@@ -116,7 +101,6 @@ class ViewStatusModel(AbstractStatusModel):
           status.process(_list[i])
     self.notify()
 
-
 class NodeStatusModel(AbstractStatusModel):
   def __init__(self, emiter):
     AbstractStatusModel.__init__(self)
@@ -127,7 +111,6 @@ class NodeStatusModel(AbstractStatusModel):
     #                "First Cluster": AttributeStatusModel("First Cluster", "Fat File System.first cluster")}
     self.connect(emiter, SIGNAL("currentNode"), self.process)
 
-
 class AbstractStatusItemModel(QObject):
   def __init__(self, key="", fmt="", styles=""):
     QObject.__init__(self)
@@ -136,30 +119,23 @@ class AbstractStatusItemModel(QObject):
     self._styles = styles
     self._recursive = False
 
-
   def notify(self):
     self.emit(SIGNAL("updateStatus"))
-  
 
   def process(self, node):
     raise NotImplementedError
 
-
   def setRecursive(self, recursive):
     self._recursive = recursive
-
 
   def reset(self):
     raise NotImplementedError
 
-
   def format(self):
     return self._format
 
-
   def styles(self):
     return self._styles
-
 
   def data(self):
     return {}
@@ -173,21 +149,17 @@ class DefaultCounter(AbstractStatusItemModel):
     self._regular = 0
     self._deleted = 0
 
-
   def reset(self):
     self._regular = 0
     self._deleted = 0
-
 
   def data(self):
     return {"key": self._key, "total": self._regular+self._deleted, 
             "regular": self._regular, "deleted": self._deleted}
 
-
 class NodesCounterModel(DefaultCounter):
   def __init__(self):
     DefaultCounter.__init__(self, "Node")
-
 
   def process(self, node):
     if node.isDeleted():
@@ -195,11 +167,9 @@ class NodesCounterModel(DefaultCounter):
     else:
       self._regular += 1
 
-
 class FilesCounterModel(DefaultCounter):
   def __init__(self):
     DefaultCounter.__init__(self, "Files")
-
 
   def process(self, node):
     if node.isFile():
@@ -208,11 +178,9 @@ class FilesCounterModel(DefaultCounter):
       else:
         self._regular += 1  
 
-
 class FoldersCounterModel(DefaultCounter):
   def __init__(self):
     DefaultCounter.__init__(self, "Folders")
-
 
   def process(self, node):
     if node.isDir():
@@ -220,7 +188,6 @@ class FoldersCounterModel(DefaultCounter):
         self._deleted += 1
       else:
         self._regular += 1  
-
 
 class SelectedCounterModel(AbstractStatusItemModel):
   def __init__(self, selection):
@@ -230,7 +197,6 @@ class SelectedCounterModel(AbstractStatusItemModel):
     self.__selection = selection
     self.__count = 0
     self.connect(selection, SIGNAL("selectionChanged"), self.updateSelected)
-
 
   def updateSelected(self, count):
     if self._recursive:
@@ -243,20 +209,16 @@ class SelectedCounterModel(AbstractStatusItemModel):
     if self.__count < 0:
       self.__count = 0
     self.notify()
-
   
   def process(self, node):
     if self.__selection.isChecked(node):
       self.__count += 1
-
   
   def reset(self):
     self.__count = 0
 
-
   def data(self):
     return {"key": self._key, "current": self.__count, "total": len(self.__selection._selection)}
-
 
 class AttributeCounterModel(AbstractStatusItemModel):
   def __init__(self, key, attribute, value=None):
@@ -264,7 +226,6 @@ class AttributeCounterModel(AbstractStatusItemModel):
     self._attribute = attribute
     self._value = value
     self._count = 0
-
 
   def process(self, node):
     attr = node.attributesByName(self._attribute, ABSOLUTE_ATTR_NAME)
@@ -276,10 +237,8 @@ class AttributeCounterModel(AbstractStatusItemModel):
       else:
         self._count += 1
 
-
   def reset(self):
     self._count = 0
-
 
   def data(self):
     return {"key": self._key, "value": self._count}
@@ -290,7 +249,6 @@ class RangeStatusModel(AbstractStatusItemModel):
     self.__attribute = attribute
     self.__minimum = sys.maxsize
     self.__maximum = -sys.maxsize
-
 
   def process(self, node):
     attr = node.attributesByName(attribute, ABSOLUTE_ATTR_NAME)
@@ -310,11 +268,9 @@ class RangeStatusModel(AbstractStatusItemModel):
         elif val > maximum:
           maximum = val
 
-
   def reset(self):
     self.__minimum = sys.maxsize
     self.__maximum = -sys.maxsize
-    
 
   def data(self):
     return (self.__minimum, self.__maximum)
@@ -328,17 +284,14 @@ class AttributeStatusModel(AbstractStatusItemModel):
     self.__attribute = attribute
     self.__value = ""
 
-
   def process(self, node):
     attr = node.attributesByName(self.__attribute, ABSOLUTE_ATTR_NAME)
     if len(attr):
       attr = attr[0].value()
       self.__value = str(attr)
 
-
   def reset(self):
     self.__value = ""
-
 
   def data(self):
     if self.__value != "":

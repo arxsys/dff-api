@@ -31,7 +31,7 @@ class SelectionManager(QObject):
             self.recurseNodes(node, True)
             QApplication.restoreOverrideCursor()
         else:
-            self._selection.add(long(node.this))
+            self._selection.add(node.uid())
         self.emit(SIGNAL("selectionChanged"), len(self._selection) - cur)
 
     def rm(self, node):
@@ -42,7 +42,7 @@ class SelectionManager(QObject):
             QApplication.restoreOverrideCursor()
         else:
             try:
-                self._selection.remove(long(node.this))
+                self._selection.remove(node.uid())
             except KeyError:
                 pass
         self.emit(SIGNAL("selectionChanged"), len(self._selection) - cur)
@@ -53,12 +53,12 @@ class SelectionManager(QObject):
     def childrenChecked(self, node):
         children = node.children()
         for child in children:
-            if not long(child.this) in self._selection:
+            if not child.uid() in self._selection:
                 return False
         return True
 
     def isChecked(self, node):
-        if long(node.this) in self._selection:
+        if node.uid() in self._selection:
             return True
         return False
 
@@ -67,7 +67,9 @@ class SelectionManager(QObject):
         nodes = []
         
         for nodeid in self._selection:
-            node = self.VFS.getNodeFromPointer(nodeid)
+            node = self.VFS.getNodeById(nodeid)
+            if node == None:
+              pass
             if isinstance(node, VLink):
                 node = node.linkNode()
             nodes.append(node)
@@ -76,10 +78,10 @@ class SelectionManager(QObject):
 
     def recurseNodes(self, node, add):
         if add:
-            self._selection.add(long(node.this))
+            self._selection.add(node.uid())
         else:
             try:
-                self._selection.remove(long(node.this))
+                self._selection.remove(node.uid())
             except KeyError:
                 pass
         if node.hasChildren():

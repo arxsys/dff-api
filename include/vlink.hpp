@@ -31,7 +31,6 @@ private :
   Node* 			__linkedNode;
 public :
 
-  EXPORT uint32_t			id();
   EXPORT void				fileMapping(FileMapping *);
   EXPORT uint64_t			size();
 
@@ -50,7 +49,7 @@ public :
 
   EXPORT VLink(Node *linkedNode, Node* parent, std::string newname = "");
   EXPORT ~VLink();
-  EXPORT  Node*				linkParent();
+  EXPORT Node*				linkParent();
   EXPORT std::vector<class Node*>	linkChildren();
   EXPORT bool				linkHasChildren();
   EXPORT uint32_t			linkChildCount();

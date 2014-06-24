@@ -37,11 +37,12 @@
 #include "node.hpp"
 
 //typedef std::map<std::string, Variant_p > RunTimeArguments; 
+class Node;
 
 class fso
 {
 private:
-  std::vector<Node *>			__nodes;
+  std::map<uint64_t, Node* >            __nodes;
   uint16_t				__uid;
   std::vector<class fso*>		__children;
   fso*					__parent;
@@ -63,18 +64,18 @@ public:
   EXPORT virtual void			setVerbose(bool verbose){ (void)verbose;}
   EXPORT virtual bool			verbose() { return false; }
   EXPORT void				registerTree(Node* parent, Node* head);
-  EXPORT uint64_t			registerNode(Node* n);
-  EXPORT std::vector<Node*>		nodes();
+  EXPORT uint64_t			registerNode(uint64_t id, Node* node);
+  EXPORT std::vector<Node*>     	nodes();
   EXPORT uint64_t			nodeCount();
   EXPORT uint16_t			uid();
-  EXPORT Node*				getNodeById(uint64_t id);
+  EXPORT Node*  			getNodeById(uint64_t id);
   EXPORT bool				hasChildren();
   EXPORT std::vector<class fso*>	children();
   EXPORT uint32_t			childCount();
   EXPORT void				setParent(class fso* parent);
   EXPORT class fso*			parent();
   EXPORT void				addChild(class fso* child);
-  EXPORT virtual void                   unmap(Node* node);
+  EXPORT virtual bool                   unmap(Node* node);
 };
 
 #endif

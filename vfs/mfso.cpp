@@ -42,9 +42,10 @@ FileMapping*		mfso::mapFile(Node* node)
   return fm;
 }
 
-void				mfso::unmap(Node* node)
+bool                    mfso::unmap(Node* node)
 {
   this->__fmCache->remove(node);
+  return (fso::unmap(node));
 }
 
 int32_t 	mfso::vopen(Node *node)
@@ -170,7 +171,6 @@ int32_t		mfso::readFromMapping(FileMapping* fm, fdinfo* fi, void* buff, uint32_t
   return (totalread);
 }
 
-
 int32_t 	mfso::vread(int32_t fd, void *buff, uint32_t size)
 {
   uint64_t	realsize;
@@ -215,7 +215,7 @@ int32_t 	mfso::vread(int32_t fd, void *buff, uint32_t size)
   }
   catch(...)
   {
-      //throw(vfsError("problem while reading file"));
+    //throw(vfsError("problem while reading file"));
   }
   if (fm)
     fm->delref();

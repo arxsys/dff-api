@@ -35,11 +35,11 @@ class CorruptedPictureHandler(AttributesHandler):
      self.nodes = [] 
 
   def setAttributes(self, node):
-     self.nodes.append((long(node.this)))
+     self.nodes.append((node.uid()))
      node.registerAttributes(self)
 
   def isCorrupted(self, node):
-     if long(node.this) in self.nodes:
+     if node.uid() in self.nodes:
 	return True
      return False
 
@@ -149,13 +149,13 @@ class ScaleConfig(object):
      return 1
 
   def __eq__(self, other):
-     if long(self.node.this) == long(other.node.this) and self.size == other.size and self.percent == other.percent and self.frames == other.frames: 
+     if self.node.uid() == other.node.uid() and self.size == other.size and self.percent == other.percent and self.frames == other.frames: 
        return True
      else:
        return False
 
   def __str__(self):
-    return str(str(long(self.node.this)) + str(self.size) + str(self.percent) + str(self.frames))
+    return str(str(self.node.uid()) + str(self.size) + str(self.percent) + str(self.frames))
 
 class ScaleEvent(QEvent):
  Type = QEvent.Type(QEvent.registerEventType())
