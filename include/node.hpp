@@ -93,7 +93,6 @@ protected:
   uint64_t				__size;
   class fso*				__fsobj;
   uint64_t				__common_attributes;
-  uint32_t				__id;
   uint64_t				__uid;
   uint64_t				__tags;
   EXPORT virtual Attributes		_attributes();
