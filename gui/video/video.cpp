@@ -166,7 +166,7 @@ void	VideoDecoder::_clear(void)
   }
   if (this->_formatContext)
   {
-    av_close_input_file(this->_formatContext);
+    avformat_close_input(&this->_formatContext);
     this->_formatContext = NULL;
   }
   if (this->_codec) //return by avcodec_find_decoder not allocated ?
