@@ -46,12 +46,12 @@ class VfsNode;
 class NodeManager
 {
 public:
-                                NodeManager(void);
-  uint64_t                      uid(Node* node);
-  bool                          remove(uint64_t uid);
-  bool                          remove(Node* node);
-  Node*                         node(uint64_t uid) const;
-  uint64_t                      orphansCount(void) const;
+  EXPORT                        NodeManager(void);
+  EXPORT uint64_t               uid(Node* node);
+  EXPORT bool                   remove(uint64_t uid);
+  EXPORT bool                   remove(Node* node);
+  EXPORT Node*                  node(uint64_t uid) const;
+  EXPORT uint64_t               orphansCount(void) const;
 private:
   std::map<uint64_t, Node* >   __orphans;
   uint64_t                     __nextId;
