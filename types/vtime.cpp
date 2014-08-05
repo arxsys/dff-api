@@ -226,7 +226,32 @@ HfsVtime::HfsVtime(uint32_t dtime) : vtime()
 	    this->wday = date.tm_wday;
 	    this->yday = date.tm_yday;
 	    this->usecond = 0;
-	    return;
 	  }
+    }
+}
+
+
+UnixVtime::UnixVtime(uint32_t dtime) : vtime()
+{
+  struct tm	date;
+  uint64_t	_dtime;
+
+  _dtime = (uint64_t)dtime;
+#ifdef WIN32
+  if (_gmtime64_s(&date, (__time64_t*)&_dtime) == 0)
+#else
+  if (gmtime_r((time_t *)&_dtime, &date) != NULL)
+#endif
+    {
+      this->year = date.tm_year + 1900;
+      this->month = date.tm_mon + 1;
+      this->day = date.tm_mday;
+      this->hour = date.tm_hour;
+      this->minute = date.tm_min;
+      this->second = date.tm_sec;
+      this->dst = date.tm_isdst;
+      this->wday = date.tm_wday;
+      this->yday = date.tm_yday;
+      this->usecond = 0;
     }
 }

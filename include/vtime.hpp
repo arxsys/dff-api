@@ -96,5 +96,13 @@ public:
   EXPORT HfsVtime(uint32_t);
 };
 
+
+class UnixVtime : public vtime
+{
+public:
+  EXPORT UnixVtime(uint32_t);
+};
+
+
 #endif
 
