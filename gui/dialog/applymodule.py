@@ -100,8 +100,21 @@ class ApplyModule(QDialog, Ui_applyModule):
         if arg.requirementType() in (Argument.Optional, Argument.Empty):
             checkBox =  checkBoxWidget(self, winfo, warguments, self.labActivate.text())
             vlayout.addWidget(checkBox, 0)
-
-        infolayout.addRow(self.labType.text(), QLabel(str(typeId.Get().typeToName(arg.type()))))
+        if arg.type() in [typeId.Int16, typeId.UInt16, typeId.Int32, typeId.UInt32, typeId.Int64, typeId.UInt64]:
+            typeinfo = self.tr("Number")
+        elif arg.type() in [typeId.String, typeId.CArray]:
+            typeinfo = self.tr("String")
+        elif arg.type() in [typeId.Bool]:
+            typeinfo = self.tr("Boolean")
+        elif arg.type() in [typeId.Path]:
+            typeinfo = self.tr("File or folder stored on the local system")
+        elif arg.type() in [typeId.Node]:
+            typeinfo = self.tr("Node from the virtual filesystem")
+        else:
+            typeinfo = None
+        if typeinfo is not None:
+            self.labType.setText(self.tr("Input type:"))
+            infolayout.addRow(self.labType.text(), QLabel(typeinfo))
         tedit = QTextEdit(str(arg.description()))
         tedit.setReadOnly(True)
         infolayout.addRow(tedit)
