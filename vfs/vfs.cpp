@@ -235,7 +235,7 @@ Node*	VFS::getNodeById(uint64_t id)
  *  This class manager node by giving them an unique id 
  *  that permet to track node and get them back from that uid
  */
-NodeManager::NodeManager() : __nextId(1)
+NodeManager::NodeManager() : __nextId(0)
 {
 }
 

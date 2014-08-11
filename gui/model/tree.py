@@ -15,6 +15,7 @@
 # 
 import re
 from Queue import *
+import locale
 
 from PyQt4.QtCore import SIGNAL, QAbstractItemModel, QModelIndex, QVariant, Qt, QDateTime, QSize, QThread, QMutex, QSemaphore, QString, Qt
 from PyQt4.QtGui import QColor, QIcon, QImage, QImageReader, QPixmap, QPixmapCache, QStandardItemModel, QStandardItem, QStyledItemDelegate, QBrush, QPen, QPalette, QPainter
@@ -31,6 +32,7 @@ class TreeModel(QStandardItemModel, EventHandler):
     self.__parent = __parent
     self.VFS = VFS.Get()
     # init translation
+    self.__root_uids = []
     self.translation()
     self.itemmap = {}
     self.createRootItems()
@@ -62,6 +64,7 @@ class TreeModel(QStandardItemModel, EventHandler):
     for i in tmp:
       node_item = QStandardItem(i.name())
       node_item.setData(QVariant(i.uid()), Qt.UserRole + 1)
+      self.__root_uids.append(i.uid())
       node_item.setData(QVariant(False), Qt.UserRole + 2)
       item_list.append(node_item)
       self.itemmap[i.uid()] = node_item
@@ -115,8 +118,11 @@ class TreeModel(QStandardItemModel, EventHandler):
     if not data.isValid():
       return data
     # getting the node or returning an invalid QVariant() if the node is not valid
-    node = self.VFS.getNodeById(data.toULongLong()[0])
-    if node == None:
+    uid, valid = data.toULongLong()
+    if not valid:
+      return QVariant()
+    node = self.VFS.getNodeById(uid)
+    if node is None:
       return QVariant()
     # if role == UserRole + 1, it means that the node itself must be returned (the pointer
     # on the node, encapsulated in a QVariant()
@@ -275,22 +281,18 @@ class TreeModel(QStandardItemModel, EventHandler):
     return None
 
   def refreshModel(self, node):
-    # special case when adding a folder at root level
-    if node.parent().uid() == self.root_node.uid() and node.hasChildren() and node.absolute() != "/":
-      can_append = True
-      for i in xrange(0, self.root_item.rowCount()):
-        idx = self.root_item.child(i).data(Qt.UserRole + 1).toULongLong()[0]
-        if idx == node.uid():
-          can_append = False
-      if can_append:
-        item = self.createItem(node)
-        self.root_item.appendRow(item)
+    # special case when adding new folder at root level
+    uid = node.uid()
+    if uid != self.root_node.uid() and uid not in self.__root_uids and node.parent().uid() == self.root_node.uid() and node.hasChildren():
+      item = self.createItem(node)
+      self.__root_uids.append(uid)
+      self.root_item.appendRow(item)
     else:
       parents = self.getParentNodeList(node)
       for parent in parents:
         try:
           item = self.itemmap[parent.uid()]
-          if item.rowCount() !=0:
+          if item.rowCount() != 0:
             dircount = self.dirCount(parent)
             if item.rowCount() != dircount:
               new_nodes = self.getItemsToInsert(item, parent)
@@ -299,7 +301,8 @@ class TreeModel(QStandardItemModel, EventHandler):
                 self.insertRows(item, new_nodes)
                 self.emit(SIGNAL("layoutChanged()"))
           else:
-            children = parent.children()
+            children = sorted(parent.children(), cmp=locale.strcoll,
+                              key=lambda Node: Node.name())
     	    self.emit(SIGNAL("layoutAboutToBeChanged()"))
             self.insertRows(item, children)
     	    self.emit(SIGNAL("layoutChanged()"))

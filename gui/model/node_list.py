@@ -286,7 +286,7 @@ class NodeListModel(QAbstractItemModel):
       if self.__thumb:
 	if self.thumbnailer.isThumbnailable(node):
 	  pixmap = self.thumbnailer.generate(node)
-          if not pixmap:
+          if pixmap is None:
 	    pixmap = QPixmap(":file_temporary.png")
       if not pixmap:
         pixmap = self.getIconPixmap(node)
@@ -445,7 +445,7 @@ class NodeListModel(QAbstractItemModel):
     return len(self.__list)
 
   def setVisibleRows(self, rows):
-    self.__visible_rows = rows
+    self.__visible_rows = rows + 1
     self.emit(SIGNAL("maximum"), len(self.__list))
     if self.__visible_rows > self.size():
       self.emit(SIGNAL("hideScroll"))

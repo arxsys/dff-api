@@ -100,8 +100,21 @@ class ApplyModule(QDialog, Ui_applyModule):
         if arg.requirementType() in (Argument.Optional, Argument.Empty):
             checkBox =  checkBoxWidget(self, winfo, warguments, self.labActivate.text())
             vlayout.addWidget(checkBox, 0)
-
-        infolayout.addRow(self.labType.text(), QLabel(str(typeId.Get().typeToName(arg.type()))))
+        if arg.type() in [typeId.Int16, typeId.UInt16, typeId.Int32, typeId.UInt32, typeId.Int64, typeId.UInt64]:
+            typeinfo = self.tr("Number")
+        elif arg.type() in [typeId.String, typeId.CArray]:
+            typeinfo = self.tr("String")
+        elif arg.type() in [typeId.Bool]:
+            typeinfo = self.tr("Boolean")
+        elif arg.type() in [typeId.Path]:
+            typeinfo = self.tr("File or folder stored on the local system")
+        elif arg.type() in [typeId.Node]:
+            typeinfo = self.tr("Node from the virtual filesystem")
+        else:
+            typeinfo = None
+        if typeinfo is not None:
+            self.labType.setText(self.tr("Input type:"))
+            infolayout.addRow(self.labType.text(), QLabel(typeinfo))
         tedit = QTextEdit(str(arg.description()))
         tedit.setReadOnly(True)
         infolayout.addRow(tedit)
@@ -126,13 +139,17 @@ class ApplyModule(QDialog, Ui_applyModule):
         else:
             editable = False
         if inputype == Argument.Single:
-            if arg.type() in (typeId.Node, typeId.Path):
-                warguments.addPath(arg.name(), arg.type(), predefs, self.__nodesSelected, editable)
+            if arg.type() == typeId.Node:
+                warguments.addSingleNode(arg.name(), predefs, self.__nodesSelected, editable)
+            elif arg.type() == typeId.Path:
+                warguments.addSinglePath(arg.name(), predefs, editable)
             else:
                 warguments.addSingleArgument(arg.name(), predefs, arg.type(), editable)
         elif inputype == Argument.List:
-            if arg.type() in (typeId.Node, typeId.Path):
-                warguments.addPathList(arg.name(), arg.type(), predefs, self.__nodesSelected)
+            if arg.type() == typeId.Node:
+                warguments.addNodeList(arg.name(), predefs, self.__nodesSelected)
+            elif arg.type() == typeId.Path:
+                warguments.addPathList(arg.name(), predefs)
             else:
                 warguments.addListArgument(arg.name(), arg.type(), predefs, editable)
         else:
@@ -147,14 +164,7 @@ class ApplyModule(QDialog, Ui_applyModule):
             for argname, lmanager in self.valueArgs.iteritems():
                 if lmanager.isEnabled():
                     arg = self.conf.argumentByName(argname)
-                    if arg.type() == typeId.Node and arg.inputType() == Argument.List:
-                        plist = lmanager.get(argname)
-                        params = []
-                        for param in plist:
-                            params.append(self.vfs.getnode(param))
-                    elif arg.type() == typeId.Node and arg.inputType() == Argument.Single:
-                        params = lmanager.get(argname)
-                    elif arg.inputType() == Argument.Empty:
+                    if arg.inputType() == Argument.Empty:
                         params = True
                     else:
                         params = lmanager.get(argname)
