@@ -20,6 +20,12 @@
 #include "rootnode.hpp"
 #include "vlink.hpp"
 
+//#include "dobject.hpp"
+//#include "dvalue.hpp"
+//#include "drealvalue.hpp"
+//#include "dnullobject.hpp"
+//#include "destruct.hpp"
+
 /**
  *  Return singleton instance of VFS
  */
@@ -230,6 +236,80 @@ Node*	VFS::getNodeById(uint64_t id)
   return (NULL);
 }
 
+/** 
+ *  Load tree of node as DObject
+ */
+
+//void    VFS::setId(Destruct::RealValue<Destruct::DObject*> dobject)
+//{
+  //std::cout << "loading " << std::endl;
+  //Destruct::DObject* dnode = dobject;
+  //Destruct::DObject* children = dnode->getValue("children").get<Destruct::DObject*>();
+  //DUInt64 count = children->call("size").get<DUInt64>(); 
+  //for (DUInt64 index = 0; index < count; index++)
+    //this->setId(children->call("get", Destruct::RealValue<DUInt64>(index))); 
+  //this->__tmpTree[dnode->getValue("uid").get<DUInt64>()] = dnode;
+  ////if node have tags 
+  ////GetNode(node) //node.setBookmark
+  ////if dataType 
+  ////  DataTypeManager.setDataType(node, dataType)
+  //// DataTypeManager.setCompatiblesModules(node, compatibleModules)
+
+////if in bookmark : 
+////create bookmark 
+//}
+
+
+
+//void    VFS::load(Destruct::DValue tree)
+//{
+  //this->setId(tree);
+
+  ////tree->children
+  ////if nodeName == BookMark
+ //// add bookmark / create VLink
+//}
+
+//Destruct::DObject*    VFS::toDNode(Node* node) const
+//{
+  ////if node is Vlink create new VLkink
+  //// VLink->setValueParent(vlink->parent->id()
+  //// 
+
+  //static Destruct::Destruct&   destruct = Destruct::Destruct::instance();
+  //Destruct::DObject*    dnode = destruct.generate("DNode");
+  //Destruct::DObject* dchildren = destruct.generate("DVectorObject"); 
+ 
+  //dnode->setValue("name", Destruct::RealValue<Destruct::DUnicodeString>(node->name()));
+  //dnode->setValue("uid", Destruct::RealValue<DUInt64>(node->uid()));
+  //dnode->setValue("tags", Destruct::RealValue<DUInt64>(node->tagId()));
+//// compatible Modules //string 
+////dnode->setValue("CompatibleModules", Destruct::RealValue<DUInt64>(node->tagId()));
+//// dataTypes //string 
+////dnode->setValue("DataTypes", Destruct::RealValue<DUInt64>(node->tagId()));
+
+  //std::vector<Node *> children = node->children();
+  //std::vector<Node *>::const_iterator child = children.begin();
+  //for (; child != children.end(); child++) 
+    //dchildren->call("push", Destruct::RealValue<Destruct::DObject*>(this->toDNode(*child)));
+
+  //dnode->setValue("children", Destruct::RealValue<Destruct::DObject*>(dchildren));
+
+
+  //return (dnode);
+//}
+
+///**
+ //*   Save node tree as DObject
+ //*/
+//Destruct::DValue      VFS::save(void) const
+//{
+  //Destruct::DObject* droot = this->toDNode(this->root); 
+
+  //return (Destruct::RealValue<Destruct::DObject*>(droot));
+//}
+
+
 /**
  *  Node Manager
  *  This class manager node by giving them an unique id 
@@ -260,7 +340,7 @@ uint64_t NodeManager::uid(Node* node)
    // }
   }
   uid |= __nextId;
-  this->__orphans[uid] = node;
+  this->__orphans[uid] = node; //XXX save too
   this->__nextId++;
   return (uid);
 }
@@ -301,3 +381,21 @@ bool  NodeManager::remove(Node* node)
 {
   return (this->remove(node->uid())); 
 }
+
+//void    NodeManager::setId(Destruct::RealValue<Destruct::DObject*> dobject)
+//{
+  //Destruct::DObject* dnode = dobject;
+  //Destruct::DObject* children = dnode->getValue("children").get<Destruct::DObject*>();
+  //DUInt64 count = children->call("size").get<DUInt64>(); 
+  //for (DUInt64 index = 0; index < count; index++)
+    //this->setId(children->call("get", Destruct::RealValue<DUInt64>(index))); 
+//}
+
+///**
+ //*  Load previous id database
+ //*/
+//void    NodeManager::load(Destruct::DValue const& base)
+//{
+  //Destruct::DObject* root = base.get<Destruct::DObject*>();
+  //this->setId(root);
+//}

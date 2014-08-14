@@ -178,6 +178,7 @@ public:
   EXPORT virtual bool				isTagged(uint32_t id);	
   EXPORT virtual std::vector<Tag_p >		tags(void);
   EXPORT virtual std::vector<uint32_t>		tagsId(void);
+  EXPORT virtual uint64_t                       tagId(void) const;
 };
 
 #endif

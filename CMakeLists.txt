@@ -17,7 +17,9 @@
 install_file(__init__.py)
 
 # compiled
-
+include_directories(destruct)
+add_subdirectory (destruct)
+add_subdirectory (session)
 add_subdirectory (exceptions)
 add_subdirectory (events)
 add_subdirectory (loader)
@@ -28,6 +30,7 @@ add_subdirectory (search)
 add_subdirectory (filters)
 add_subdirectory (tree)
 
+
 if (WIN32)
   add_subdirectory (magic)
 endif (WIN32)
@@ -35,7 +38,7 @@ endif (WIN32)
 # python only
 add_subdirectory (taskmanager)
 add_subdirectory (manager)
-add_subdirectory (datatype)
+#add_subdirectory (datatype)
 add_subdirectory (gui)
 add_subdirectory (devices)
 add_subdirectory (apswvfs)

@@ -24,7 +24,7 @@ else:
 
 from dff.api.exceptions.libexceptions import vfsError 
 from dff.api.types.libtypes import Variant
-from dff.api.datatype.libdatatype import DataTypeHandler, DataTypeManager
+from dff.api.vfs.libvfs import DataTypeHandler, DataTypeManager
 
 class MagicHandler(DataTypeHandler):
   def __init__(self, name):

@@ -702,6 +702,7 @@ Open the node and return a pointer to a VFile instance
 %feature("director") Node;
 %feature("director") VLink;
 %feature("director") AttributesHandler;
+%feature("director") DataTypeHandler;
 
 %newobject VFile::search;
 %newobject VFile::indexes;
@@ -744,6 +745,7 @@ Open the node and return a pointer to a VFile instance
 /* } */
 
 %import "../exceptions/libexceptions.i"
+%import "../include/dswrapper.i"
 
 //XXX fix iterator !
 %typemap(out) (Node*)
@@ -830,6 +832,9 @@ Open the node and return a pointer to a VFile instance
 #include "path.hpp"
 #include "iostat.hpp"
 #include "rootnode.hpp"
+#include "datatype.hpp"
+#include "../destruct/python/py_dvalue.hpp"
+#include "../destruct/python/py_dobject.hpp"
 %}
 
 %import "../types/libtypes.i"
@@ -852,6 +857,7 @@ Open the node and return a pointer to a VFile instance
 %include "../include/vfile.hpp"
 %include "../include/iostat.hpp"
 %include "../include/rootnode.hpp"
+%include "../include/datatype.hpp"
 
 %extend_smart_pointer(Tag_p);
 %template(RCPtrTag) Tag_p;
@@ -869,6 +875,8 @@ namespace std
   %template(MapNameTypes)	map<string, uint8_t>;
   %template(FsoVect)		vector<fso*>;
   %template(RCPtrTagVect)       vector<Tag_p >;
+  %template(ListDataType)       list<DataTypeHandler*>;
+// #%template(MapDataType)        map<std::string, uint32_t>;
 };
 
 /* %traits_swigtype(Variant); */

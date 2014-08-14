@@ -1,0 +1,3 @@
+[submodule "destruct"]
+	path = destruct
+	url = git@git.arxsys.office:destruct

@@ -38,6 +38,15 @@
 #include "export.hpp"
 #include "exceptions.hpp"
 
+//#include "../destruct/drealvalue.hpp" //fix CMake include directories
+
+//namespace Destruct
+//{
+  //class DValue;
+  //class DObject;
+  ////class RealValue;
+//};
+
 class Node;
 class fso;
 class vfsError;
@@ -52,7 +61,11 @@ public:
   bool                          remove(Node* node);
   Node*                         node(uint64_t uid) const;
   uint64_t                      orphansCount(void) const;
+  
+  //void                          load(Destruct::DValue const& base);
+  //void                          setId(Destruct::RealValue<Destruct::DObject*> dnode);
 private:
+  //std::map<uint64_t, RealValue<Destruct::DObject*> > __saveBase;
   std::map<uint64_t, Node* >   __orphans;
   uint64_t                     __nextId;
 };
@@ -67,6 +80,8 @@ private:
   void                          __deleteNode(Node* node);
   std::vector<fso*>	        __fsobjs;
   NodeManager                   __nodeManager;
+
+  //std::map<uint64_t, Destruct::DObject* > __tmpTree; //SessioNTree ? 
 public:
   class Node*                   cwd;
   Node*		                root;
@@ -82,6 +97,11 @@ public:
   EXPORT std::vector<fso*>	fsobjs();
   EXPORT uint64_t	        totalNodes();
   EXPORT Node*		        getNodeById(uint64_t id);
+
+  //EXPORT void                   setId(Destruct::RealValue<Destruct::DObject*> dnode);
+  //EXPORT Destruct::DObject*     toDNode(Node* node) const;
+  //EXPORT void                   load(Destruct::DValue dobject); //const ref ..
+  //EXPORT Destruct::DValue       save(void) const;
 };
 
 #endif

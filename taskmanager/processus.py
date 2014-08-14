@@ -54,7 +54,6 @@ class ProcessusManager(object):
        return ProcessusManager.__instance[item]
      else:
        return None
-  
 
   class __ProcessusManager(object):
     def __init__(self):

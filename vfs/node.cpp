@@ -22,7 +22,6 @@
 #include "confmanager.hpp"
 #include "node.hpp"
 
-
 /**
  *  This constructor should only be used by root Node as it doesn't generate UID
  */
@@ -857,6 +856,10 @@ std::vector<uint32_t>	Node::tagsId()
   return (tags);
 }
 
+uint64_t                Node::tagId(void) const
+{
+  return (this->__tags);
+}
 
 /*
  *  Attributes Handler

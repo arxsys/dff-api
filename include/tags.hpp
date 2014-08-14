@@ -30,6 +30,8 @@
 #include "export.hpp"
 #include "rc.hpp"
 
+#include "drealvalue.hpp"
+
 #define Tag_p   RCPtr< Tag >
 
 class Node;
@@ -55,9 +57,9 @@ public:
   EXPORT                                Tag();
   EXPORT				Tag(uint32_t id, std::string, Color color);
   EXPORT				Tag(uint32_t id, std::string, uint8_t r, uint8_t g, uint8_t b);
-  EXPORT uint32_t			id(void);
-  EXPORT std::string			name(void);
-  EXPORT Color  			color(void);
+  EXPORT uint32_t			id(void) const;
+  EXPORT std::string			name(void) const ;
+  EXPORT Color  			color(void) const;
   EXPORT void				setColor(Color color);
   EXPORT void				setColor(uint8_t r, uint8_t g, uint8_t b);
   EXPORT void				setName(std::string name);
@@ -74,6 +76,7 @@ private:
   std::vector<Tag_p >			__tagsList;
   uint32_t                              __defaults;
 
+  void                                  __declare(void);
 public:
   EXPORT static	TagsManager&		get(void);
   EXPORT Tag_p				tag(uint32_t id);
@@ -84,6 +87,11 @@ public:
   EXPORT uint32_t			add(std::string name, uint8_t r, uint8_t g, uint8_t b);
   EXPORT bool				remove(uint32_t id);
   EXPORT bool				remove(std::string name);
+  /* 
+   *  Save & load tags
+   */
+  EXPORT Destruct::DValue               save(void) const;
+  EXPORT void                           load(Destruct::DValue); 
 };
 
 #endif

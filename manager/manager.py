@@ -16,7 +16,6 @@
 
 from dff.api.types import libtypes
 from dff.api.search import libsearch
-from dff.api.datatype import libdatatype
 from dff.api.exceptions import libexceptions
 from dff.api.events import libevents
 from dff.api.vfs import vfs, libvfs
@@ -24,7 +23,7 @@ from dff.api.loader import loader
 from dff.api.taskmanager.taskmanager import TaskManager
 from dff.api.taskmanager.scheduler import sched 
 from dff.api.taskmanager.processus import Processus
-from dff.api.datatype.magichandler import * 
+from dff.api.vfs.magichandler import * 
 from dff.api.tree import libtree
 
 class ApiManager():

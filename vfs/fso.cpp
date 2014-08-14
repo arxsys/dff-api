@@ -16,6 +16,10 @@
 
 #include "fso.hpp"
 
+#include "drealvalue.hpp"
+#include "dvalue.hpp"
+#include "dnullobject.hpp"
+
 fso::fso(std::string name)
 {
   this->name = name;
@@ -118,4 +122,14 @@ bool		fso::unmap(Node* node)
    if (uid != 0 && this->__nodes.erase(node->uid()) != 0)
     return (false);
   return (true);
+}
+
+bool            fso::load(Destruct::DValue value)
+{
+  return (false);      
+}
+
+Destruct::DValue fso::save(void) const
+{
+  return (Destruct::RealValue<Destruct::DObject*>(Destruct::DNone));
 }

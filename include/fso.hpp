@@ -36,7 +36,11 @@
 #include "vfs.hpp"
 #include "node.hpp"
 
-//typedef std::map<std::string, Variant_p > RunTimeArguments; 
+namespace Destruct
+{
+  class DValue;
+};
+
 class Node;
 
 class fso
@@ -76,6 +80,9 @@ public:
   EXPORT class fso*			parent();
   EXPORT void				addChild(class fso* child);
   EXPORT virtual bool                   unmap(Node* node);
+
+  EXPORT virtual bool                   load(Destruct::DValue);
+  EXPORT virtual Destruct::DValue       save(void) const;
 };
 
 #endif

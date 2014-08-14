@@ -18,6 +18,13 @@
 #include "node.hpp"
 #include "tags.hpp"
 
+#include "dtype.hpp"
+#include "dsimpleobject.hpp"
+#include "destruct.hpp"
+#include "dattribute.hpp"
+#include "drealvalue.hpp"
+#include "dnullobject.hpp" 
+
 Color::Color() : r(0), g(0), b(0)
 {
 }
@@ -42,17 +49,17 @@ Tag::~Tag()
 {
 }
 
-std::string Tag::name(void)
+std::string Tag::name(void) const
 {
   return (this->__name);
 }
 
-Color    Tag::color(void)
+Color    Tag::color(void) const
 {
   return (this->__color);
 }
 
-uint32_t Tag::id(void)
+uint32_t Tag::id(void) const
 {
   return (this->__id);
 }
@@ -83,6 +90,24 @@ TagsManager::TagsManager()
   DEFAULT_TAG("malware",    255,   0,   0)
   DEFAULT_TAG("viewed",     255, 255,   0)
   this->__defaults = this->__tagsList.size();
+  this->__declare();
+}
+
+void    TagsManager::__declare(void)
+{
+  Destruct::Destruct& destruct = Destruct::Destruct::instance();
+
+  Destruct::DStruct*  color = new Destruct::DStruct(0, "Color", Destruct::DSimpleObject::newObject);
+  color->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt8Type, "r"));
+  color->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt8Type, "g"));
+  color->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt8Type, "b"));
+  destruct.registerDStruct(color);
+
+  Destruct::DStruct*  tag = new Destruct::DStruct(0, "Tag", Destruct::DSimpleObject::newObject);
+  //tag->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt32Type, "id"));
+  tag->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
+  tag->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "color"));
+  destruct.registerDStruct(tag);
 }
 
 TagsManager&	TagsManager::get()
@@ -171,7 +196,7 @@ bool		TagsManager::remove(uint32_t id)
       {
         this->__tagsList[id - 1] = NULL;
         //delete t; 
-        //t = NULL;// hum ca delete vraiment ou vue que c a null ca delte pas et du coup ca reste en rammmmm et ca segfault pas ds le removescript XXX
+        //t = NULL;// 
         return (true);
       }
       else
@@ -235,4 +260,50 @@ Tag_p			TagsManager::tag(std::string name)
       return (*it); 
 
   throw envError("Tag not found");
+}
+
+Destruct::DValue        TagsManager::save(void) const
+{
+  Destruct::Destruct& destruct = Destruct::Destruct::instance();
+  Destruct::DStruct* tagStruct = destruct.find("Tag");
+  Destruct::DStruct* colorStruct = destruct.find("Color");
+  Destruct::DObject* vector = destruct.generate("DVectorObject");
+
+  std::vector<Tag_p >::const_iterator tag = this->__tagsList.begin();
+  for (; tag != this->__tagsList.end(); tag++)
+  {
+    //avoid loading fixed tags ??
+    Destruct::DObject* dtag = tagStruct->newObject();
+    Destruct::DObject* dcolor = colorStruct->newObject();
+
+    //dtag->setValue("id", Destruct::RealValue<DUInt32>((*tag)->id()));
+    dtag->setValue("name", Destruct::RealValue<Destruct::DUnicodeString>((*tag)->name()));
+    
+    Color color = (*tag)->color();
+    dcolor->setValue("r", Destruct::RealValue<DUInt8>(color.r));
+    dcolor->setValue("g", Destruct::RealValue<DUInt8>(color.g));
+    dcolor->setValue("b", Destruct::RealValue<DUInt8>(color.b));
+    dtag->setValue("color", Destruct::RealValue<Destruct::DObject*>(dcolor));
+
+    vector->call("push", Destruct::RealValue<Destruct::DObject*>(dtag));
+  }
+
+  return (Destruct::RealValue<Destruct::DObject*>(vector));
+}
+
+void                    TagsManager::load(Destruct::DValue value)
+{
+  Destruct::DObject* vector = value.get<Destruct::DObject*>(); 
+  DUInt64 count = vector->call("size").get<DUInt64>();
+  
+  for (DUInt64 index = 0; index < count; index++)
+  {
+    Destruct::DObject* tag = vector->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DObject*>();
+    std::string name = tag->getValue("name").get<Destruct::DUnicodeString>(); 
+    Destruct::DObject* color = tag->getValue("color").get<Destruct::DObject*>();
+    uint8_t r = color->getValue("r").get<DUInt8>(); 
+    uint8_t g = color->getValue("g").get<DUInt8>(); 
+    uint8_t b = color->getValue("b").get<DUInt8>(); 
+    this->add(name, r, g, b); 
+  }
 }
