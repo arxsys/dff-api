@@ -55,6 +55,7 @@ class VfsNode;
 class NodeManager
 {
 public:
+<<<<<<< HEAD
                                 NodeManager(void);
   uint64_t                      uid(Node* node);
   bool                          remove(uint64_t uid);
@@ -64,6 +65,14 @@ public:
   
   //void                          load(Destruct::DValue const& base);
   //void                          setId(Destruct::RealValue<Destruct::DObject*> dnode);
+=======
+  EXPORT                        NodeManager(void);
+  EXPORT uint64_t               uid(Node* node);
+  EXPORT bool                   remove(uint64_t uid);
+  EXPORT bool                   remove(Node* node);
+  EXPORT Node*                  node(uint64_t uid) const;
+  EXPORT uint64_t               orphansCount(void) const;
+>>>>>>> 798c96e6bd5b806f1e1757e7635cff2d1ecdd806
 private:
   //std::map<uint64_t, RealValue<Destruct::DObject*> > __saveBase;
   std::map<uint64_t, Node* >   __orphans;
