@@ -223,6 +223,36 @@ class Processus(Script):
     self.launchCount = 0  
     self.lock.release()
 
+  def loadModule(self, dobject):
+    self.state = "Running" #loading ?
+    self.lock.acquire()
+    self.launchCount += 1
+    self.timestart = time.time()
+    self.timeend = 0
+    self.lock.release()
+    try :
+      self.args = None # -> dobject etc ... donc si load & save il n'y aura pu les arguments .... XXX XXX passer aussi en param ?
+                       #une seul function launch(sefl, args, savedData = None) #if data load else arg ?   
+      self.load(dobject)
+      ModuleProcessusManager().update(self)
+      try :
+        if "gui" in self.exec_flags:
+          if "gui" in self.mod.flags:
+             for func in sched.event_func["add_qwidget"]:
+	        func(self)
+	if "console" in self.exec_flags:
+	  if "console" in self.mod.flags:
+		self.c_display()  
+      except AttributeError:
+	pass	
+    except :
+	 error = sys.exc_info()
+         self.error(error)
+    self.setState()
+    self.event.set()
+    if not "thread" in self.exec_flags:
+	self.result()
+
   def launch(self, args):
     self.state = "Running"
     self.lock.acquire()

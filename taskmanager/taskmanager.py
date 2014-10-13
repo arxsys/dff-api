@@ -288,9 +288,32 @@ class TaskManager():
       else:
 	 sched.enqueue(((proc.launch, args),) )
       return proc
-  __instance = None
 
-    
+    def load(self, cmd, dobject, exec_flags, enqueued = False): #XXX test 
+      mod = self.loader.modules[cmd] 
+      proc = None
+      if "single" in mod.flags:
+         #print 'CAN T LOAD SINGLETON FOR NOW MUST NOW BE ALREADY LOAD ETC ... XXX ME' #XXX
+         #raise 'error'
+         proc = self.processusManager.singleCreate(mod, None, exec_flags)
+      else:
+	proc = self.processusManager.create(mod, None, exec_flags)
+      if not "thread" in exec_flags:
+        try :
+          if "gui" in proc.mod.flags and not "console" in proc.mod.flags:
+            print "This script is gui only"
+	    self.processusManager.remove(proc)
+	    proc.event.set()
+	    return proc
+        except AttributeError:
+	    pass
+      if enqueued:
+	 proc.loadModule(dobject)
+      else:
+	 sched.enqueue(((proc.loadModule, dobject),) )
+      return proc
+
+  __instance = None
   def __init__(self):
     if TaskManager.__instance is None:
        TaskManager.__instance = TaskManager.__TaskManager()

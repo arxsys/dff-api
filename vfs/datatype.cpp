@@ -140,6 +140,7 @@ Destruct::RealValue<Destruct::DObject*>      DataType::save(void) const //return
     dvectorString->call("push", Destruct::RealValue<Destruct::DUnicodeString>(*compatibleModule));
 
   dataType->setValue("compatibleModules", Destruct::RealValue<Destruct::DObject*>(dvectorString));
+  dvectorString->destroy();
 
   return (dataType);
 }
@@ -177,10 +178,10 @@ const DataType*                 DataTypes::insert(DataTypeHandler* handler, std:
 
 bool                            DataTypes::load(Destruct::RealValue<Destruct::DObject*>  dobject)
 {
-  Destruct::DObject* vector = static_cast<Destruct::DObject*>(dobject);
-  DUInt64 size = vector->call("size").get<DUInt64>();
+  Destruct::DObject* vector = dobject;
   DataTypeManager* dataTypeManager = DataTypeManager::Get();
 
+  DUInt64 size = vector->call("size").get<DUInt64>();
   for (DUInt64 i = 0; i < size; i++) 
   {
     Destruct::DObject* dataType = vector->call("get", Destruct::RealValue<DUInt64>(i)).get<Destruct::DObject*>();
@@ -197,11 +198,16 @@ bool                            DataTypes::load(Destruct::RealValue<Destruct::DO
     DataTypeHandler* handler = dataTypeManager->handler(handlerName);
     if (handler == NULL)
     {
-       std::cout << "ERROR CAN'T FIND HANDLER : " << handlerName << std::endl; //throw exception ? XXX
+       dataType->destroy();
+       dataType->destroy();
+       compatibleModulesVector->destroy();
        return (false);
     }
-                                                                                        //XXX XXX XXX compatible modules seem to not be copied must check it ! 
+    //XXX XXX XXX compatible modules seem to not be copied must check it ! ?
     this->__dataTypes[dataTypeName] = new DataType(dataTypeManager->handler(handlerName), dataTypeName, compatibleModules);
+    compatibleModulesVector->destroy();
+    dataType->destroy();
+    dataType->destroy();
   }
  
   return (true);
@@ -213,8 +219,11 @@ Destruct::RealValue<Destruct::DObject*>      DataTypes::save(void) const //retur
   Destruct::DObject*  dvector = Destruct::Destruct::instance().generate("DVectorObject");
 
   for (; type != this->__dataTypes.end() ; type++)
-    dvector->call("push", type->second->save()); 
-
+  {
+    Destruct::DObject* dt = type->second->save(); 
+    dvector->call("push", Destruct::RealValue<Destruct::DObject*>(dt)); 
+    dt->destroy();
+  }
   return (dvector);
 }
 
@@ -244,18 +253,16 @@ void    NodesTypes::insert(Node* node, const DataType* type)
 bool                                         NodesTypes::load(Destruct::RealValue<Destruct::DObject*>  dobject)
 {
   //XXX code me 
-  //OU LA LLA P) 
- 
   return (false);
 }                       
 
 Destruct::RealValue<Destruct::DObject*>      NodesTypes::save(void) const //return Destruct::RealValue //ref count ?
 {
   Destruct::Destruct& destruct = Destruct::Destruct::instance();
-  Destruct::DObject* dvectorObject = destruct.generate("DVectorObject");
   Destruct::DStruct* dnodeStruct = destruct.find("DNode");
   Destruct::DStruct* dnodeTypesStruct = destruct.find("NodeTypes");
   Destruct::DStruct* dvectorStringStruct = destruct.find("DVectorString");
+  Destruct::DObject* dvectorObject = destruct.generate("DVectorObject");
 
   std::map<Node*, std::vector<const DataType*> >::const_iterator nodeDataTypes = this->__nodesDataTypes.begin();
   for (; nodeDataTypes != this->__nodesDataTypes.end(); nodeDataTypes++) 
@@ -264,15 +271,17 @@ Destruct::RealValue<Destruct::DObject*>      NodesTypes::save(void) const //retu
     Destruct::DObject* dnode = dnodeStruct->newObject(); 
     
     dnode->setValue("absolute", Destruct::RealValue<Destruct::DUnicodeString>(nodeDataTypes->first->absolute()));
-    dnodeTypes->setValue("node", Destruct::RealValue<Destruct::DObject*>(dnode));
+    dnodeTypes->setValue("node", Destruct::RealValue<Destruct::DObject*>(dnode)); //? intret ? y a rien de set
+    dnode->destroy();
     
     Destruct::DObject* dvectorString = dvectorStringStruct->newObject(); 
     std::vector<const DataType*>::const_iterator dataType = nodeDataTypes->second.begin();
     for (; dataType != nodeDataTypes->second.end(); dataType++)
       dvectorString->call("push", Destruct::RealValue<Destruct::DUnicodeString>((*dataType)->name()));
     dnodeTypes->setValue("dataTypes", Destruct::RealValue<Destruct::DObject*>(dvectorString));
-
+    dvectorString->destroy();
     dvectorObject->call("push", Destruct::RealValue<Destruct::DObject*>(dnodeTypes));
+    dnodeTypes->destroy();
   }
   
   return (dvectorObject); 
@@ -285,7 +294,9 @@ Destruct::RealValue<Destruct::DObject*> DataTypeManager::nodeDataType(Node* node
 {
   std::vector<const DataType*>  dataTypes = this->__nodesDataTypes.find(node); 
   if (dataTypes.size() == 0)
+  {
     return Destruct::RealValue<Destruct::DObject*>(Destruct::DNone);
+  }
 
   Destruct::Destruct& destruct = Destruct::Destruct::instance();
   Destruct::DStruct* dvectorStringStruct = destruct.find("DVectorString");
@@ -452,9 +463,9 @@ void                    DataTypeManager::loadNodeDataTypes(Node* node, Destruct:
 {
   Destruct::DObject* dataTypesVector = value.get<Destruct::DObject*>();
   if (dataTypesVector == Destruct::DNone)
-    return ;
+    return;
+
   DUInt64 dataTypesCount = dataTypesVector->call("size").get<DUInt64>();    
-  
   for (DUInt64 currentIndex = 0; currentIndex < dataTypesCount; currentIndex++)
   { 
     Destruct::DUnicodeString dataTypeName = dataTypesVector->call("get", Destruct::RealValue<DUInt64>(currentIndex)).get<Destruct::DUnicodeString>();
@@ -463,26 +474,25 @@ void                    DataTypeManager::loadNodeDataTypes(Node* node, Destruct:
     {   
       std::cout << "Can't find datatype " << dataTypeName << std::endl;
       continue;
-      //return  ?
     }
     this->__nodesDataTypes.insert(node, dataType);
   }
+  dataTypesVector->destroy();
 }
 
 bool                    DataTypeManager::load(Destruct::DValue value)
+//bool                    DataTypeManager::load(Destruct::DValue const& value)
 {
   Destruct::DObject* dobject = value.get<Destruct::DObject*>();
-
-  std::cout << "loading datatype " << std::endl;
   try 
   {
     this->__dataTypes.load(dobject);
   }
   catch (Destruct::DException const& exception)
   {
-    std::cout << "DataTypeManager : error loading data type : " << exception.error() << std::endl;
   }
-  std::cout << "DataTypeManager::load successfully" << std::endl;
+  dobject->destroy();
+
   return (true);
 }
 
