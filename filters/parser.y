@@ -35,7 +35,8 @@ reserved identifier (keywords) are the following:
 * filetype
 * mime
 * name
-
+* module
+* tag
   */
 
 %token CONTAIN
