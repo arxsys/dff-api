@@ -17,6 +17,7 @@
 dff_cpp_api(exceptions
   CPP_FILES exceptions.cpp
   SWIG_FILE libexceptions.i
+  LINK_LIBRARIES destruct _destruct
   EXTRA_FILES __init__.py
   )
 

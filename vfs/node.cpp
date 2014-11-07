@@ -63,27 +63,27 @@ void	        Node::setFsobj(fso *obj)
   this->__fsobj = obj;
 }
 
-fso*		Node::fsobj()
+fso*		Node::fsobj() const
 {
   return (this->__fsobj);
 }
 
-uint64_t	Node::uid()
+uint64_t	Node::uid() const
 {
   return (this->__uid);
 }
 
-uint32_t	Node::at()
+uint32_t	Node::at() const
 {
   return (this->__at);
 }
 
-std::string	Node::name()
+std::string	Node::name() const
 {
   return (this->__name);
 }
 
-std::string	Node::extension()
+std::string	Node::extension() const
 {
   size_t	dpos;
   std::string	ext;
@@ -93,7 +93,7 @@ std::string	Node::extension()
   return (ext);
 }
 
-std::string	Node::absolute()
+std::string	Node::absolute() const
 {
   return (this->path() + this->__name);
 }
@@ -141,12 +141,12 @@ bool            Node::removeChild(class Node* node)
   return (false) ;
 }
 
-std::vector<class Node*>	Node::children()
+std::vector<class Node*>	Node::children() const
 {
   return (this->__children);
 }
 
-std::string	Node::path()
+std::string	Node::path() const
 {
   std::string path;
   Node	*tmp;
@@ -170,7 +170,7 @@ std::string	Node::path()
   return (path);
 }
 
-bool            Node::hasChildren()
+bool            Node::hasChildren() const
 {
   if (this->__childcount > 0)
     return (true);
@@ -178,12 +178,12 @@ bool            Node::hasChildren()
     return (false);
 }
 
-uint32_t	Node::childCount()
+uint32_t	Node::childCount() const
 {
   return this->__childcount;
 }
 
-uint64_t	Node::totalChildrenCount(uint32_t depth)
+uint64_t	Node::totalChildrenCount(uint32_t depth) const
 {
   uint64_t	totalsub;
   size_t	i;
@@ -203,7 +203,7 @@ void		Node::setSize(uint64_t size)
   this->__size = size;
 }
 
-uint64_t                	Node::size()
+uint64_t        Node::size() const
 {
   return (this->__size);
 }
@@ -216,7 +216,7 @@ void		Node::setFile()
     throw("attribute ISDIR already setted");
 }
 
-bool				Node::isFile()
+bool	        Node::isFile() const
 {
   if ((this->__common_attributes & ISFILE) == ISFILE)
     return (true);
@@ -232,7 +232,7 @@ void		Node::setDir()
     throw("attribute ISFILE already setted");
 }
 
-bool				Node::isDir()
+bool		Node::isDir() const
 {
   if ((this->__common_attributes & ISDIR) == ISDIR)
     return (true);
@@ -245,7 +245,7 @@ void		Node::setLink()
   this->__common_attributes |= ISLINK;
 }
 
-bool		Node::isLink()
+bool		Node::isLink() const
 {
   if ((this->__common_attributes & ISLINK) == ISLINK)
     return (true);
@@ -253,7 +253,7 @@ bool		Node::isLink()
     return (false);
 }
 
-bool		Node::isVDir()
+bool		Node::isVDir() const
 {
   if (this->isFile() && this->hasChildren())
     return (true);
@@ -266,7 +266,7 @@ void		Node::setDeleted()
   this->__common_attributes |= ISDELETED;
 }
 
-bool		Node::isDeleted()
+bool		Node::isDeleted() const
 {
   if ((this->__common_attributes & ISDELETED) == ISDELETED)
     return (true);
@@ -939,3 +939,15 @@ bool AttributesHandlers::remove(std::string handlerName)
 
   return (false);
 }
+
+Destruct::DValue  Node::save(void) const
+{
+// XXX temp 
+  return VoidNode::save(this);
+}
+
+Node*           Node::load(Destruct::DValue const& args)
+{
+  return VoidNode::load(args);
+}
+//Node*           Node::load(   

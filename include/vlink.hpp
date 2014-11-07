@@ -30,6 +30,8 @@ class VLink : public Node
 private :
   Node* 			__linkedNode;
 public :
+  EXPORT VLink(Node *linkedNode, Node* parent, std::string newname = "");
+  EXPORT ~VLink();
 
   EXPORT void				fileMapping(FileMapping *);
   EXPORT uint64_t			size();
@@ -47,8 +49,6 @@ public :
   EXPORT class fso*			fsobj();
   EXPORT class VFile*			open();
 
-  EXPORT VLink(Node *linkedNode, Node* parent, std::string newname = "");
-  EXPORT ~VLink();
   EXPORT Node*				linkParent();
   EXPORT std::vector<class Node*>	linkChildren();
   EXPORT bool				linkHasChildren();
@@ -79,6 +79,9 @@ public :
   EXPORT bool				isTagged(uint32_t id);	
   EXPORT std::vector<Tag_p >		tags();
   EXPORT std::vector<uint32_t>		tagsId();
+
+  EXPORT virtual Destruct::DValue       save(void) const;
+  EXPORT static  VLink*                 load(Destruct::DValue const& args);
 };
 
 #endif

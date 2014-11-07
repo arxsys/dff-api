@@ -34,6 +34,9 @@
 #include "export.hpp"
 #include "rc.hpp"
 
+#include "dvalue.hpp"
+#include "protocol/dcppobject.hpp"
+
 class Constant;
 class FileMapping;
 class Variant;
@@ -43,6 +46,8 @@ class Tag;
 #define Tag_p		RCPtr< Tag >
 
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
+
+using namespace Destruct;
 
 class AttributesHandler
 {
@@ -125,34 +130,35 @@ public:
 
   EXPORT virtual void				fileMapping(FileMapping *);
   EXPORT virtual uint64_t                       fileMappingState(void);
-  EXPORT virtual uint64_t			size(void);
 
-  EXPORT std::string				path(void);
-  EXPORT std::string				name(void);
-  EXPORT std::string				absolute(void);
-  EXPORT std::string				extension(void);
+  EXPORT virtual uint64_t			size(void) const; 
+
+  EXPORT std::string				path(void) const;
+  EXPORT std::string				name(void) const;
+  EXPORT std::string				absolute(void) const;
+  EXPORT std::string				extension(void) const;
 
 
-  EXPORT virtual bool				isFile(void);
-  EXPORT virtual bool				isDir(void);
-  EXPORT virtual bool				isLink(void);
-  EXPORT virtual bool				isVDir(void);
-  EXPORT virtual bool				isDeleted(void);
+  EXPORT virtual bool				isFile(void) const;
+  EXPORT virtual bool				isDir(void) const;
+  EXPORT virtual bool				isLink(void) const;
+  EXPORT virtual bool				isVDir(void) const;
+  EXPORT virtual bool				isDeleted(void) const;
 
-  EXPORT virtual class fso*			fsobj(void);
+  EXPORT virtual class fso*			fsobj(void) const;
 
   EXPORT Node*					parent(void);
 
-  EXPORT std::vector<class Node*>		children(void);
+  EXPORT std::vector<class Node*>		children(void) const;
   EXPORT bool					addChild(class Node* child);
   EXPORT bool                                   removeChild(class Node* child);
-  EXPORT bool					hasChildren(void);
-  EXPORT uint32_t				childCount(void);
-  EXPORT uint64_t				totalChildrenCount(uint32_t depth=(uint32_t)-1);
+  EXPORT bool					hasChildren(void) const;
+  EXPORT uint32_t				childCount(void) const;
+  EXPORT uint64_t				totalChildrenCount(uint32_t depth=(uint32_t)-1) const;
 
   EXPORT virtual class VFile*			open(void);
-  EXPORT uint32_t				at(void);
-  EXPORT uint64_t				uid(void);
+  EXPORT uint32_t				at(void) const;
+  EXPORT uint64_t				uid(void) const;
 
   EXPORT virtual AttributesHandlers&            attributesHandlers(void);
   EXPORT virtual bool				registerAttributes(AttributesHandler*);
@@ -164,7 +170,7 @@ public:
   EXPORT virtual std::list<std::string>		attributesNames(attributeNameType tname=RELATIVE_ATTR_NAME);
   
   EXPORT virtual std::map<std::string, uint8_t>	attributesNamesAndTypes(void);
-  EXPORT virtual std::string			icon(void);
+  EXPORT virtual std::string			icon(void); //XXX peu pas etre const si pas virtueal en cost ailleur aussi donc surcharge etc...
   EXPORT virtual std::list<std::string>		compatibleModules(void);
   EXPORT virtual Attributes			dynamicAttributes(void);
   EXPORT virtual Attributes			dynamicAttributes(std::string name);
@@ -179,6 +185,73 @@ public:
   EXPORT virtual std::vector<Tag_p >		tags(void);
   EXPORT virtual std::vector<uint32_t>		tagsId(void);
   EXPORT virtual uint64_t                       tagId(void) const;
+
+  EXPORT virtual Destruct::DValue               save(void) const;
+  EXPORT static  Node*                          load(Destruct::DValue const& args);
 };
+
+class VoidNode : public DCppObject<VoidNode>
+{
+public:
+  VoidNode(DStruct* dstruct, DValue const& args) : DCppObject<VoidNode>(dstruct, args)
+  {
+    //this->children = Destruct::Destruct::instance().generate("DVectorObject");  
+  }
+  ~VoidNode() {};
+
+  RealValue<DObject*>       children;
+  RealValue<DUnicodeString> name;
+
+  static DValue      save(const Node* node)
+  {
+    DObject* voidNode = Destruct::Destruct::instance().generate("VoidNode");
+    voidNode->setValue("name", RealValue<DUnicodeString>(node->name()));
+    return (RealValue<DObject*>(voidNode));
+  };     
+
+  static Node*      load(DValue const& args)
+  {
+    DObject* dnode = args.get<DObject*>();
+    std::string name = dnode->getValue("name").get<DUnicodeString>();
+    dnode->destroy();
+    return (new Node(name));
+  }
+
+  static size_t ownAttributeCount()
+  {
+    return (2);
+  }
+
+  static DAttribute* ownAttributeBegin()
+  {
+    static DAttribute  attributes[] = 
+    {
+      DAttribute(DType::DUnicodeStringType, "name"),
+      DAttribute(DType::DObjectType, "children"),
+    };
+    return (attributes);
+  }
+
+  static DPointer<VoidNode>* memberBegin()
+  {
+    static DPointer<VoidNode> memberPointer[] = 
+    {
+      DPointer<VoidNode>(&VoidNode::name),
+      DPointer<VoidNode>(&VoidNode::children),
+    };
+    return (memberPointer);
+  }
+
+  static DAttribute* ownAttributeEnd()
+  {
+    return (ownAttributeBegin() + ownAttributeCount());
+  }
+
+  static DPointer<VoidNode>*  memberEnd()
+  {
+    return (memberBegin() + ownAttributeCount());
+  }
+};
+
 
 #endif

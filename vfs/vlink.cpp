@@ -236,4 +236,33 @@ std::vector<uint32_t>	VLink::tagsId()
 }
 
 VLink::~VLink()
-{}
+{
+}
+
+Destruct::DValue        VLink::save(void) const
+{
+  DObject* vlink = Destruct::Destruct::instance().generate("DVLink");
+
+  vlink->setValue("node", RealValue<DUnicodeString>(this->path()));
+  vlink->setValue("linkNode", RealValue<DUnicodeString>(this->__linkedNode->absolute()));
+  vlink->setValue("name", RealValue<DUnicodeString>(this->name()));
+
+  return (RealValue<DObject*>(vlink));
+}
+
+VLink*                  VLink::load(Destruct::DValue const& arg)
+{
+  VFS& vfs =  VFS::Get();
+  DObject* vlink = arg.get<DObject*>();
+
+  std::string name = vlink->getValue("name").get<DUnicodeString>(); 
+  std::string nodePath = vlink->getValue("node").get<DUnicodeString>();
+  std::string linkedNodePath = vlink->getValue("linkNode").get<DUnicodeString>();
+  Node* node = vfs.GetNode(nodePath);
+  Node* linkedNode = vfs.GetNode(linkedNodePath);
+
+  if (!node || !linkedNode)
+    return (NULL);
+  
+  return (new VLink(linkedNode, node, name));
+}

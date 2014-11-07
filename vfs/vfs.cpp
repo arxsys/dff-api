@@ -40,7 +40,7 @@ void    VFS::__declare(void)
 {
   Destruct::Destruct& destruct = Destruct::Destruct::instance();
 
-  Destruct::DStruct*  dnodeStruct = new Destruct::DStruct(0, "DNode", Destruct::DSimpleObject::newObject);
+  Destruct::DStruct*  dnodeStruct = new Destruct::DStruct(0, "DNode", Destruct::DSimpleObject::newObject); // rename NodeAttribute (on l'apply apres mais ca cree pas vraiment une node 
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt64Type, "uid"));
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "absolute")); //? 
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name")); 
@@ -52,6 +52,7 @@ void    VFS::__declare(void)
   Destruct::DStruct* nodeContainer = Destruct::makeNewDCpp<NodeContainer>("NodeContainer");
   destruct.registerDStruct(nodeContainer);
 
+//XXX doublon avec ce ux method load pour ntfs 
   Destruct::DStruct*  vlinkStruct = new Destruct::DStruct(0, "VLink", Destruct::DSimpleObject::newObject);
   vlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "linkedNode"));
   vlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
@@ -60,6 +61,15 @@ void    VFS::__declare(void)
   Destruct::DStruct*  dpathStruct = new Destruct::DStruct(0, "DPath", Destruct::DSimpleObject::newObject);
   dpathStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "path")); 
   destruct.registerDStruct(dpathStruct);
+
+  Destruct::DStruct* voidNode = Destruct::makeNewDCpp<VoidNode>("VoidNode");
+  destruct.registerDStruct(voidNode);
+
+  Destruct::DStruct* dvlinkStruct = new Destruct::DStruct(0, "DVLink", Destruct::DSimpleObject::newObject);
+  dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
+  dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "node"));
+  dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "linkNode"));
+  destruct.registerDStruct(dvlinkStruct);
 }
 
 /**

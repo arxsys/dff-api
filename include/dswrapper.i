@@ -25,6 +25,41 @@
 %include "wstdint.i"
 #endif
 
+%exception
+{
+  try
+    {
+      $action;
+    }
+  catch (vfsError &e)
+    {
+      SWIG_exception(SWIG_IOError, e.error.c_str());
+    }
+  catch (envError &e)
+    {
+      SWIG_PYTHON_THREAD_BEGIN_BLOCK;
+      PyErr_SetString(PyExc_KeyError, e.error.c_str());
+      SWIG_PYTHON_THREAD_END_BLOCK;
+      return NULL;
+    }
+  catch (std::string e)
+    {
+      SWIG_exception(SWIG_RuntimeError, e.c_str());
+    }
+  catch (char const* cstr)
+    {
+      SWIG_exception(SWIG_RuntimeError, cstr);
+    }
+  catch (Swig::DirectorException e)
+    {
+      SWIG_exception(SWIG_RuntimeError, "Unknown Exception");
+    }
+  catch (Destruct::DException const& exception)
+  {
+      SWIG_exception(SWIG_RuntimeError, exception.error().c_str());
+  }
+}
+
 %typemap(in) (Destruct::DObject*) 
 {
   if (PyObject_TypeCheck($input, PyDObject::pyType))
