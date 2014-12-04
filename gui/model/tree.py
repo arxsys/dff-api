@@ -26,12 +26,13 @@ from dff.api.vfs.libvfs import VFS
 from dff.api.events.libevents import EventHandler
 
 class TreeModel(QStandardItemModel, EventHandler):
-  def __init__(self, __parent = None, selection=None):
+  def __init__(self, __parent = None, selection=None, root=None):
     QStandardItemModel.__init__(self, __parent)
     EventHandler.__init__(self)
     self.__parent = __parent
     self.VFS = VFS.Get()
     # init translation
+    self.root_node = root
     self.__root_uids = []
     self.translation()
     self.itemmap = {}
@@ -58,7 +59,10 @@ class TreeModel(QStandardItemModel, EventHandler):
   def createRootItems(self):
     # Add Root children items (bookmarks, logical etc.)
     self.root_item = self.invisibleRootItem()
-    self.root_node = self.VFS.GetNode("/")
+    if not self.root_node:
+      self.root_node = self.VFS.GetNode("/")
+
+    self.vfsroot = self.VFS.GetNode("/")
     tmp = self.root_node.children()
     item_list = []
     for i in tmp:
@@ -235,7 +239,7 @@ class TreeModel(QStandardItemModel, EventHandler):
   def getParentNodeList(self, node):
     parents = []
     parent = node
-    while parent.uid() != self.root_node.uid():
+    while parent.uid() != self.root_node.uid() and parent.uid() != self.vfsroot.uid():
       if parent != None:
         parents.append(parent)
         parent = parent.parent()
@@ -291,7 +295,7 @@ class TreeModel(QStandardItemModel, EventHandler):
       parents = self.getParentNodeList(node)
       for parent in parents:
         try:
-          item = self.itemmap[parent.uid()]
+          item = self.itemmapx[parent.uid()]
           if item.rowCount() != 0:
             dircount = self.dirCount(parent)
             if item.rowCount() != dircount:
