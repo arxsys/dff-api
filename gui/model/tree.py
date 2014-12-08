@@ -295,7 +295,7 @@ class TreeModel(QStandardItemModel, EventHandler):
       parents = self.getParentNodeList(node)
       for parent in parents:
         try:
-          item = self.itemmapx[parent.uid()]
+          item = self.itemmap[parent.uid()]
           if item.rowCount() != 0:
             dircount = self.dirCount(parent)
             if item.rowCount() != dircount:
