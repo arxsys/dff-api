@@ -132,8 +132,8 @@ class TreeModel(QStandardItemModel, EventHandler):
     # if the role does not correpond to anything.
     if role == Qt.DisplayRole :
       display = QString.fromUtf8(node.name())
-      if self.displayCount:
-        display += QString("  (" + str(node.totalChildrenCount()) + ")")
+      #if self.displayCount:
+        #display += QString("  (" + str(node.totalChildrenCount()) + ")")
       return QVariant(display)
     if role == Qt.DecorationRole:
       pixmap = QPixmap(node.icon())
@@ -146,7 +146,7 @@ class TreeModel(QStandardItemModel, EventHandler):
           nfsobj = node.fsobj().this
         except AttributeError:
 	  nfsobj = None
-        if pfsobj != nfsobj:
+        if pfsobj and pfsobj != nfsobj:
           pixmap = pixmap.scaled(QSize(128, 128), Qt.KeepAspectRatio)
           painter = QPainter(pixmap)
           rootPixmap = QPixmap(":root")

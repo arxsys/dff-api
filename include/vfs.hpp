@@ -38,15 +38,9 @@
 #include "export.hpp"
 #include "exceptions.hpp"
 
-//#include "../destruct/drealvalue.hpp" //fix CMake include directories
+#include "dstructs.hpp"
+#include "dvalue.hpp"
 #include "protocol/dcppobject.hpp"
-
-namespace Destruct
-{
-  //class DValue;
-  //class DObject;
-  ////class RealValue;
-};
 
 class Node;
 class fso;
@@ -85,7 +79,7 @@ private:
   void                         __loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* node);//Node* node 
 };
 
-class VFS : public EventHandler
+class VFS : public EventHandler, public Destruct::DCppObject<VFS>
 {  
 private:
   EXPORT 	                VFS();
@@ -93,6 +87,8 @@ private:
 
   VFS&                          operator=(VFS&);
                                 VFS(const VFS&);
+
+
   void                          __deleteNode(Node* node);
   std::vector<fso*>	        __fsobjs;
   NodeManager                   __nodeManager;
@@ -102,9 +98,17 @@ private:
  
   std::map<uint64_t, uint64_t> __dnodeId; //xxx temp test 
 public:
+  virtual DObject*                      clone(void) const;     
+
+
+  static Destruct::DObject* newObject(Destruct::DStruct * dstruct, Destruct::DValue const& args)
+  {
+    return (&VFS::Get());
+  }
+
   void  addDNodeID(uint64_t duid, uint64_t uid); //xxx temp
   
-Node* getNodeByDUid(uint64_t oldid);
+  Node* getNodeByDUid(uint64_t oldid);
 
   class Node*                   cwd;
   Node*		                root;
@@ -126,11 +130,57 @@ Node* getNodeByDUid(uint64_t oldid);
   //EXPORT Destruct::DObject*     toDNode(Node* node) const;
   //EXPORT void                   load(Destruct::DValue dobject); //const ref ..
   //EXPORT Destruct::DValue       save(void) const;
+
+  Destruct::DValue                        getNode(Destruct::DValue args); //for swig
+/**
+ *  Destruct declaration
+ */
+public:
+  Destruct::RealValue<Destruct::DFunctionObject* >        _getNode;        
+
+  static size_t ownAttributeCount()
+  {
+    return (0);
+  }
+
+  static Destruct::DAttribute* ownAttributeBegin()
+  {
+    static Destruct::DAttribute  attributes[] = 
+    {
+       Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "getNode", Destruct::DType::DUnicodeStringType),
+    };
+    return (attributes);
+  }
+
+  static Destruct::DPointer<VFS>* memberBegin()
+  {
+    static Destruct::DPointer<VFS> memberPointer[] = 
+    {
+      Destruct::DPointer<VFS>(&VFS::_getNode, &VFS::getNode),
+      //DPointer<VoidNode>(&VoidNode::children),
+    };
+    return (memberPointer);
+  }
+
+  static Destruct::DAttribute* ownAttributeEnd()
+  {
+    return (ownAttributeBegin() + ownAttributeCount());
+  }
+
+  static Destruct::DPointer<VFS>*  memberEnd()
+  {
+    return (memberBegin() + ownAttributeCount());
+  }
 };
 
+namespace Destruct{
+template<>
+inline DObject* DCppObject<VFS>::clone() const
+{
+  return (const_cast<DCppObject<VFS> *>(this));
+}
 
-//temp
-
+}
 class NodeContainer : public Destruct::DCppObject<NodeContainer>
 {
 public:
@@ -153,7 +203,6 @@ public:
     static Destruct::DAttribute  attributes[] = 
     {
       Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "absolute"), //XXX ? 
-      //Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "absolute"), //XXX ? ID -> faire avec ID ? 
       
     };
     return (attributes);

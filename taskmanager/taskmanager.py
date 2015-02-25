@@ -289,7 +289,7 @@ class TaskManager():
 	 sched.enqueue(((proc.launch, args),) )
       return proc
 
-    def load(self, cmd, dobject, exec_flags, enqueued = False): #XXX test 
+    def load(self, cmd, dobject, exec_flags, args, enqueued = False): #XXX test 
       mod = self.loader.modules[cmd] 
       proc = None
       if "single" in mod.flags:
@@ -308,9 +308,9 @@ class TaskManager():
         except AttributeError:
 	    pass
       if enqueued:
-	 proc.loadModule(dobject)
+	 proc.loadModule((dobject, args,) )
       else:
-	 sched.enqueue(((proc.loadModule, dobject),) )
+        sched.enqueue(((proc.loadModule, (dobject, args,), ),) )
       return proc
 
   __instance = None
@@ -487,6 +487,14 @@ class PostProcessScheduler():
           self.processusQueue.registerDisplay(self.display.processusItem, self.display.processusProgress)
           self.analyseQueue.registerDisplay(self.display.analyseItem, self.display.analyseProgress)
 	  self.fullAuto = True
+          self.pause = threading.Event() 
+          self.pause.set() #will not wait at start
+
+        def setPause(self, state = True): 
+           if state == True:
+             self.pause.clear()
+           else:
+             self.pause.set()
 
         def fullAutoMode(self, mode):
 	   self.fullAuto = mode
@@ -505,10 +513,10 @@ class PostProcessScheduler():
 	   self.display = func
 
         def enqueueRegister(self, root):
-	  if self.firstRoot and root.absolute().find(self.firstRoot.absolute()) != 0:
-	    self.displayState.ask('Alert', 'Post processing is currently running ! To process ' + str(root.absolute()) + ' you can right-click it and choose scan, once current processing is finished.')
-	  else:	
-	    self.registerQueue.put(root)
+	  #if self.firstRoot and root.absolute().find(self.firstRoot.absolute()) != 0:
+	    #self.displayState.ask('Alert', 'Post processing is currently running ! To process ' + str(root.absolute()) + ' you can right-click it and choose scan, once current processing is finished.') XXX better to block directly connector modules ? the signal system is not right must use return result from module to apply again
+	  #else:	
+	  self.registerQueue.put(root)
 
 	def enqueueProcessing(self, work):
 	  self.processingQueue.put(work)
@@ -555,8 +563,10 @@ class PostProcessScheduler():
 
         def launch(self):
 	  self.firstRoot = None
+        
 	  while True:
 	       root = self.registerQueue.get()
+               self.pause.wait() #Use it a different place to pause and stop/clear queue
 	       if self.firstRoot == None:
 	 	 self.firstRoot = root
 	       self.scanProcessus(root)

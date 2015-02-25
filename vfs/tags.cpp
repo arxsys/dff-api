@@ -20,7 +20,7 @@
 
 #include "dtype.hpp"
 #include "dsimpleobject.hpp"
-#include "destruct.hpp"
+#include "dstructs.hpp"
 #include "dattribute.hpp"
 #include "drealvalue.hpp"
 #include "dnullobject.hpp" 
@@ -95,7 +95,7 @@ TagsManager::TagsManager()
 
 void    TagsManager::__declare(void)
 {
-  Destruct::Destruct& destruct = Destruct::Destruct::instance();
+  Destruct::DStructs& destruct = Destruct::DStructs::instance();
 
   Destruct::DStruct*  color = new Destruct::DStruct(0, "Color", Destruct::DSimpleObject::newObject);
   color->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt8Type, "r"));
@@ -104,7 +104,6 @@ void    TagsManager::__declare(void)
   destruct.registerDStruct(color);
 
   Destruct::DStruct*  tag = new Destruct::DStruct(0, "Tag", Destruct::DSimpleObject::newObject);
-  //tag->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt32Type, "id"));
   tag->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
   tag->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "color"));
   destruct.registerDStruct(tag);
@@ -264,7 +263,7 @@ Tag_p			TagsManager::tag(std::string name)
 
 Destruct::DValue        TagsManager::save(void) const
 {
-  Destruct::Destruct& destruct = Destruct::Destruct::instance();
+  Destruct::DStructs& destruct = Destruct::DStructs::instance();
   Destruct::DStruct* tagStruct = destruct.find("Tag");
   Destruct::DStruct* colorStruct = destruct.find("Color");
   Destruct::DObject* vector = destruct.generate("DVectorObject");
@@ -299,14 +298,14 @@ void                    TagsManager::load(Destruct::DValue value)
   for (DUInt64 index = 0; index < count; index++)
   {
     Destruct::DObject* tag = vector->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DObject*>();
-    std::string name = tag->getValue("name").get<Destruct::DUnicodeString>(); 
+    Destruct::DUnicodeString name = tag->getValue("name").get<Destruct::DUnicodeString>(); 
     Destruct::DObject* color = tag->getValue("color").get<Destruct::DObject*>();
     tag->destroy();
     tag->destroy();
     uint8_t r = color->getValue("r").get<DUInt8>(); 
     uint8_t g = color->getValue("g").get<DUInt8>(); 
     uint8_t b = color->getValue("b").get<DUInt8>(); 
-    this->add(name, r, g, b); 
+    this->add(name.string(), r, g, b); 
   }
   vector->destroy();
 }

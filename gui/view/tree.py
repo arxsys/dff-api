@@ -90,7 +90,7 @@ class NodeTreeView(QTreeView):
       if index.isValid():
         if e.button() == Qt.RightButton:
           node = self.model().getNodeFromIndex(index)
-          if node.absolute().find('/Bookmarks/') == 0:
+          if node.parent().fsobj() and node.parent().fsobj().name == "Bookmarks":
             menu = TreeMenu(self, node)
             menu.popup(QCursor.pos())
         self.model().emit(SIGNAL("layoutAboutToBeChanged"))

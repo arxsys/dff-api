@@ -100,7 +100,7 @@ uint8_t	typeId::getType(std::string type)
 std::string	typeId::typeToName(uint8_t t)
 {
   std::map<uint8_t, std::string>::iterator it;
-  
+ 
   it = this->rmapping.find(t);
   if (it != this->rmapping.end())
     return it->second;
@@ -387,7 +387,9 @@ std::string	Variant::toString() throw (std::string)
   else if (this->_type == typeId::Char)
     res << this->__data.c;
   else if ((this->_type == typeId::String || this->_type == typeId::CArray) && this->__data.str != NULL)
+  {
     res << *(this->__data.str);
+  }
   else if (this->_type == typeId::Path && this->__data.ptr != NULL)
     {
       class Path*	p;

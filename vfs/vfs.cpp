@@ -24,9 +24,11 @@
 //#include "dvalue.hpp"
 //#include "drealvalue.hpp"
 //#include "dnullobject.hpp"
-#include "destruct.hpp"
+#include "dstructs.hpp"
 #include "dsimpleobject.hpp"
 #include "datatype.hpp"
+
+#include "../session/session.hpp"
 /**
  *  Return singleton instance of VFS
  */
@@ -38,7 +40,7 @@ VFS&	VFS::Get()
 
 void    VFS::__declare(void)
 {
-  Destruct::Destruct& destruct = Destruct::Destruct::instance();
+  Destruct::DStructs& destruct = Destruct::DStructs::instance();
 
   Destruct::DStruct*  dnodeStruct = new Destruct::DStruct(0, "DNode", Destruct::DSimpleObject::newObject); // rename NodeAttribute (on l'apply apres mais ca cree pas vraiment une node 
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt64Type, "uid"));
@@ -70,21 +72,36 @@ void    VFS::__declare(void)
   dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "node"));
   dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "linkNode"));
   destruct.registerDStruct(dvlinkStruct);
+
+  //XXX c lui qui devrait load c celui qu igere les ession enfin bon ..
+
+
+  SessionLoader::declare();
 }
+
+
+static Destruct::DStruct vfsStruct = Destruct::DStruct(NULL, "VFS", VFS::newObject, VFS::ownAttributeBegin(), VFS::ownAttributeEnd()); 
 
 /**
  *  Construct VFS and register root node '/'
  */
-VFS::VFS() : __nodeManager(*this)
+VFS::VFS() : DCppObject<VFS>(&vfsStruct), __nodeManager(*this) //XXX
 {
   this->__declare();
   this->root = new VFSRootNode("/");
   this->registerNode(this->root);
   cwd = root;
+  this->init();
 }
 
 VFS::~VFS()
 {
+}
+
+DObject* VFS::clone() const //special for singleton
+{
+        ////return (new CppClass(*static_cast<const CppClass *>(this)));
+  return (const_cast<VFS *>(this));
 }
 
 /**
@@ -159,7 +176,7 @@ bool            VFS::unregister(Node* node)
 
   VLink*  vlink = dynamic_cast<VLink*>(node);
   fso* fsobj = node->fsobj();
-  if (vlink || !fsobj)
+  if (vlink || (fsobj && fsobj->name == "Bookmarks"))
   {
     event* e = new event;
     e->type = 0x0de1; 
@@ -254,6 +271,11 @@ Node* VFS::GetNode(std::string path)
     tmp = GetNode(lpath, tmp);
   }  while (tmp && rpath.size());
   return (tmp);
+}
+
+Destruct::DValue VFS::getNode(Destruct::DValue args) //swig didn't support const&
+{
+  return (RealValue<DObject* >(this->GetNode(args.get<DUnicodeString>()))); 
 }
 
 /**
@@ -374,7 +396,7 @@ bool  NodeManager::remove(Node* node)
 
 bool  NodeManager::load(Destruct::DValue const& data)
 {
-  Destruct::DObject* dnode = data.get<Destruct::DObject*>();
+  //Destruct::DObject* dnode = data.get<Destruct::DObject*>();
 
   std::cout << "creating children tree" << std::endl;
   //NodeId* rootId = new NodeId(dnode);
@@ -395,7 +417,7 @@ bool  NodeManager::load(Destruct::DValue const& data)
   {
     Destruct::DObject* value = children->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DObject*>();
     std::string nodeName = value->getValue("name").get<Destruct::DUnicodeString>(); 
-    if (nodeName != "Bookmarks")
+    if (nodeName != "Bookmarks") //now in /case/bookmarks but with bookmarks->fso == bookmarks
       this->__loadNode(value, nodeMap[nodeName]);
     value->destroy();
     value->destroy();

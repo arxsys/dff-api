@@ -55,20 +55,24 @@ class VariantTreeWidget(QTreeWidget, Ui_VariantTreeWidget):
             item.setText(0, QString.fromUtf8(key))
             vval = vmap[key]
             expand = True
-	    if vval == None:
-	      self.setItemText(item, vval)	
-            elif vval.type() == typeId.Map:
-                vvmap = vval.value()
-                self.fillMap(item, vvmap)
-            elif vval.type() == typeId.List:
-                vlist = vval.value()
-                size = len(vlist)
-                if size > 30:
-                    expand = False
-                item.setText(1, "total items (" + str(size) + ")")
-                self.fillList(item, vlist)
-            else:
-                self.setItemText(item, vval)
+            try: 
+	      if vval == None:
+	        self.setItemText(item, vval)	
+              elif vval.type() == typeId.Map:
+                  vvmap = vval.value()
+                  self.fillMap(item, vvmap)
+              elif vval.type() == typeId.List:
+                  vlist = vval.value()
+                  size = len(vlist)
+                  if size > 30:
+                      expand = False
+                  item.setText(1, "total items (" + str(size) + ")")
+                  self.fillList(item, vlist)
+              else:
+                  self.setItemText(item, vval)
+            except AttributeError as e:
+               print 'VariantTreeWidget.fillMap ' , str(vval), 'is not a variant ', type(vval)
+               self.setItemText(item, str(vval))
             if expand:
                 self.expandItem(item)
 

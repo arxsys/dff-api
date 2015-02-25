@@ -241,7 +241,7 @@ VLink::~VLink()
 
 Destruct::DValue        VLink::save(void) const
 {
-  DObject* vlink = Destruct::Destruct::instance().generate("DVLink");
+  DObject* vlink = Destruct::DStructs::instance().generate("DVLink");
 
   vlink->setValue("node", RealValue<DUnicodeString>(this->path()));
   vlink->setValue("linkNode", RealValue<DUnicodeString>(this->__linkedNode->absolute()));

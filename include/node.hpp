@@ -87,7 +87,7 @@ enum	attributeNameType
   RELATIVE_ATTR_NAME = 1
 };
 
-class Node
+class Node : public DCppObject<Node >
 {
 protected:
   class Node*				__parent;
@@ -188,6 +188,53 @@ public:
 
   EXPORT virtual Destruct::DValue               save(void) const;
   EXPORT static  Node*                          load(Destruct::DValue const& args);
+
+/**
+ *  Destruct declaration
+ */
+  static Destruct::DObject* newObject(Destruct::DStruct * dstruct, Destruct::DValue const& args)
+  {
+    return (new Node());
+  }
+
+  RealValue<DFunctionObject* >        _name, _absolute;
+
+  static size_t ownAttributeCount()
+  {
+    return (2);
+  }
+
+  static DAttribute* ownAttributeBegin()
+  {
+    static DAttribute  attributes[] = 
+    {
+      DAttribute(DType::DUnicodeStringType, "name", DType::DNoneType),
+      DAttribute(DType::DUnicodeStringType, "absolute", DType::DNoneType),
+      //DAttribute(DType::DObjectType, "children"),
+    };
+    return (attributes);
+  }
+
+  static DPointer<Node>* memberBegin()
+  {
+    static DPointer<Node> memberPointer[] = 
+    {
+      DPointer<Node>(&Node::_name, &Node::name),
+      DPointer<Node>(&Node::_absolute, &Node::absolute),
+      //DPointer<VoidNode>(&VoidNode::children),
+    };
+    return (memberPointer);
+  }
+
+  static DAttribute* ownAttributeEnd()
+  {
+    return (ownAttributeBegin() + ownAttributeCount());
+  }
+
+  static DPointer<Node>*  memberEnd()
+  {
+    return (memberBegin() + ownAttributeCount());
+  }
 };
 
 class VoidNode : public DCppObject<VoidNode>
@@ -195,7 +242,8 @@ class VoidNode : public DCppObject<VoidNode>
 public:
   VoidNode(DStruct* dstruct, DValue const& args) : DCppObject<VoidNode>(dstruct, args)
   {
-    //this->children = Destruct::Destruct::instance().generate("DVectorObject");  
+    //this->children = Destruct::DStructs::instance().generate("DVectorObject");  
+    this->init();
   }
   ~VoidNode() {};
 
@@ -204,7 +252,7 @@ public:
 
   static DValue      save(const Node* node)
   {
-    DObject* voidNode = Destruct::Destruct::instance().generate("VoidNode");
+    DObject* voidNode = Destruct::DStructs::instance().generate("VoidNode");
     voidNode->setValue("name", RealValue<DUnicodeString>(node->name()));
     return (RealValue<DObject*>(voidNode));
   };     
@@ -212,9 +260,18 @@ public:
   static Node*      load(DValue const& args)
   {
     DObject* dnode = args.get<DObject*>();
-    std::string name = dnode->getValue("name").get<DUnicodeString>();
+    DUnicodeString name = dnode->getValue("name").get<DUnicodeString>();
     dnode->destroy();
-    return (new Node(name));
+    return (new Node(name.string()));
+  }
+
+  static Node*      load(fso* fsobj, DValue const& args)
+  {
+    DObject* dnode = args.get<DObject*>();
+    DUnicodeString name = dnode->getValue("name").get<DUnicodeString>();
+    dnode->destroy();
+ 
+    return (new Node(name.string(), 0, NULL, fsobj));  
   }
 
   static size_t ownAttributeCount()

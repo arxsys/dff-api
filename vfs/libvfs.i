@@ -16,6 +16,8 @@
 
 #include "pyrun.swg"
 
+#pragma SWIG nowarn=401
+
 %module(package="dff.api.vfs",docstring="libvfs: c++ generated inteface", directors="1") libvfs 
 %feature("autodoc", 1); //1 = generate type for func proto, no work for typemap
 %feature("docstring");

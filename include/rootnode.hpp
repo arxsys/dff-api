@@ -22,6 +22,7 @@
 #include "eventhandler.hpp"
 #include "threading.hpp"
 #include "node.hpp"
+#include "fso.hpp"
 
 class VFSRootNode : public Node
 {
@@ -36,10 +37,34 @@ private:
                                mutex_def(__mutex);
   std::map<std::string, Node*> __modulesNameRootNode;
 public:
-  EXPORT                ModulesRootNode(EventHandler* vfs, Node* root);
+  EXPORT                ModulesRootNode(EventHandler* vfs, Node* root); //EventHandler*, DObject* root .... pour python 
   EXPORT                ~ModulesRootNode();
   EXPORT std::string    icon();
   EXPORT void           Event(event* e); 
+};
+
+class IconNode : public Node
+{
+public:
+  EXPORT                IconNode(Node* parent, const std::string& name, const std::string& iconName, const std::string& fsoName); //Node* a remplacer par Dobject* 
+  EXPORT std::string    icon(void);
+private:
+  const std::string     __iconName;
+};
+
+class SimpleFso : public fso
+{
+public:
+  SimpleFso(const std::string& name);
+
+  void      start(std::map<std::string, RCPtr< Variant > > args);
+  int32_t   vopen(class Node *n);
+  int32_t   vread(int32_t fd, void *rbuff, uint32_t size);
+  int32_t   vwrite(int32_t fd, void *wbuff, uint32_t size);
+  int32_t   vclose(int32_t fd);
+  uint64_t  vseek(int32_t fd, uint64_t offset, int32_t whence);
+  uint32_t  status(void);
+  uint64_t  vtell(int32_t fd); 
 };
 
 #endif

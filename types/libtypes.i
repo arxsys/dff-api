@@ -35,6 +35,8 @@
 #include "confmanager.hpp"
 #include "path.hpp"
 #include "vtime.hpp"
+#include "python/destructmodule.hpp"
+#include "python/py_dobject.hpp"
   
 #ifndef WIN32
 	#include <stdint.h>
@@ -1474,6 +1476,17 @@ namespace std
               err = false;
             }
         }
+        else if (PyObject_TypeCheck(obj, PyDObject::pyType))
+        {
+          Destruct::DObject* dobject = ((PyDObject::DPyObject*)obj)->pimpl;
+          if (dobject->instanceOf()->name().substr(0, 4) == "Node") //check if not herited too
+          {
+            dobject->addRef();
+            v = new Variant((Node*)dobject);
+            err = false;    
+          }
+        }
+
       /* else if (PyDict_Check(obj) && type == typeId::Map) */
       /*   { */
       /*     PyObject*             item = NULL; */

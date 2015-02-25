@@ -22,7 +22,7 @@
 #include "node.hpp"
 #include "vfs.hpp"
 
-#include "destruct.hpp"
+#include "dstructs.hpp"
 #include "dsimpleobject.hpp"
 #include "dobject.hpp"
 #include "dnullobject.hpp"
@@ -129,12 +129,12 @@ bool                                         DataType::load(Destruct::RealValue<
 
 Destruct::RealValue<Destruct::DObject*>      DataType::save(void) const //return Destruct::RealValue //ref count ?
 {
-  Destruct::DObject* dataType = Destruct::Destruct::instance().generate("DataType"); //optimize keep dstruct pointer ? 
+  Destruct::DObject* dataType = Destruct::DStructs::instance().generate("DataType"); //optimize keep dstruct pointer ? 
 
   dataType->setValue("handler",  Destruct::RealValue<Destruct::DUnicodeString>(this->__handler->name));
   dataType->setValue("name", Destruct::RealValue<Destruct::DUnicodeString>(this->__name));
 
-  Destruct::DObject* dvectorString = Destruct::Destruct::instance().generate("DVectorString");
+  Destruct::DObject* dvectorString = Destruct::DStructs::instance().generate("DVectorString");
   std::list<std::string>::const_iterator compatibleModule = this->__compatibleModules.begin();
   for (; compatibleModule != this->__compatibleModules.end(); compatibleModule++)
     dvectorString->call("push", Destruct::RealValue<Destruct::DUnicodeString>(*compatibleModule));
@@ -216,7 +216,7 @@ bool                            DataTypes::load(Destruct::RealValue<Destruct::DO
 Destruct::RealValue<Destruct::DObject*>      DataTypes::save(void) const //return Destruct::RealValue //ref count ?
 {
   std::map<const std::string, const DataType* >::const_iterator type = this->__dataTypes.begin();
-  Destruct::DObject*  dvector = Destruct::Destruct::instance().generate("DVectorObject");
+  Destruct::DObject*  dvector = Destruct::DStructs::instance().generate("DVectorObject");
 
   for (; type != this->__dataTypes.end() ; type++)
   {
@@ -258,7 +258,7 @@ bool                                         NodesTypes::load(Destruct::RealValu
 
 Destruct::RealValue<Destruct::DObject*>      NodesTypes::save(void) const //return Destruct::RealValue //ref count ?
 {
-  Destruct::Destruct& destruct = Destruct::Destruct::instance();
+  Destruct::DStructs& destruct = Destruct::DStructs::instance();
   Destruct::DStruct* dnodeStruct = destruct.find("DNode");
   Destruct::DStruct* dnodeTypesStruct = destruct.find("NodeTypes");
   Destruct::DStruct* dvectorStringStruct = destruct.find("DVectorString");
@@ -298,7 +298,7 @@ Destruct::RealValue<Destruct::DObject*> DataTypeManager::nodeDataType(Node* node
     return Destruct::RealValue<Destruct::DObject*>(Destruct::DNone);
   }
 
-  Destruct::Destruct& destruct = Destruct::Destruct::instance();
+  Destruct::DStructs& destruct = Destruct::DStructs::instance();
   Destruct::DStruct* dvectorStringStruct = destruct.find("DVectorString");
   Destruct::DObject* dvectorString = dvectorStringStruct->newObject(); 
 
@@ -450,7 +450,7 @@ void                    DataTypeManager::declare(void)
 {
   Destruct::DType::init(); //XXX for test only must be done elswhere
 
-  Destruct::Destruct&    destruct = Destruct::Destruct::instance();
+  Destruct::DStructs&    destruct = Destruct::DStructs::instance();
 
   Destruct::DStruct* dtype = new Destruct::DStruct(NULL, "DataType", Destruct::DSimpleObject::newObject); 
   dtype->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "handler"));

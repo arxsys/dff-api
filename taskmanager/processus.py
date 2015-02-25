@@ -69,42 +69,47 @@ class ProcessusManager(object):
        self.lock.release()
        return proc
 
-    def exist(self, module, argument):
+    def exist(self, module, moduleArguments):
        """Search is a processus was created from the given module and argument.
  	  Return True or False.
        """
        try:
          self.lock.acquire()
-	 procList = self.dprocessus[module.name]
-	 for proc in procList:
+	 processusList = self.dprocessus[module.name]
+	 for processus in processusList:
 	    flag = 1
-	    procArgs = proc.args
-            if isinstance(procArgs, VMap):
-	      for k, v in procArgs.iteritems():
+	    processusArguments = processus.args
+            if isinstance(processusArguments, VMap):
+	      for k, v in processusArguments.iteritems():
 	        try :
                    #XXX list of node == list of node ?
-                   arg = argument[k].value()
-                   val  = v.value()
-                   if isinstance(arg, VLink):
-                     arg = arg.linkNode().this
-                   elif isinstance(arg, Node):
-                     arg = arg.this
-                   if isinstance(val, Node):
-                     val = val.this
-                   elif isinstance(val, VLink):
-                     val = val.linkNode().this
-		   if str(val) != str(arg):
+                   moduleArgument= moduleArguments[k].value()
+                   processusArgument = v.value()
+                   if isinstance(moduleArgument, VLink):
+                     moduleArgument = moduleArgument.linkNode().this
+                   elif isinstance(moduleArgument, Node):
+                     moduleArgument= moduleArgument.this
+                   if isinstance(processusArgument, Node):
+                     processusArgument = processusArgument.this
+                   elif isinstance(processusArgument, VLink):
+                     processusArgument = processusArgument.linkNode().this
+		   if str(processusArgument) != str(moduleArgument):
 		    flag = 0
 		    break
-	        except (IndexError, KeyError, TypeError):
-		  flag = 0
-		  break
+	        except Exception as e :#(IndexError, KeyError, TypeError):
+                  if v.value() == 0 or v.value() == None or v.value() == '':
+                    pass
+                  else:
+		    flag = 0
+		    break
               if flag == 1:
                   self.lock.release()
 		  return True 
 	    else:
                 print "vfs.taskmanager.exist type mismatch you should apply SWIG patch. Processus args " + str(type(procArgs)) + ' module ' + str(module.name) 
          self.lock.release()
+         if module.name == "ntfs":
+            print "false"
 	 return False	   
        except KeyError:
 	  pass
@@ -223,7 +228,8 @@ class Processus(Script):
     self.launchCount = 0  
     self.lock.release()
 
-  def loadModule(self, dobject):
+  def loadModule(self, args): 
+    dobject, self.args = args
     self.state = "Running" #loading ?
     self.lock.acquire()
     self.launchCount += 1
@@ -231,8 +237,6 @@ class Processus(Script):
     self.timeend = 0
     self.lock.release()
     try :
-      self.args = None # -> dobject etc ... donc si load & save il n'y aura pu les arguments .... XXX XXX passer aussi en param ?
-                       #une seul function launch(sefl, args, savedData = None) #if data load else arg ?   
       self.load(dobject)
       ModuleProcessusManager().update(self)
       try :

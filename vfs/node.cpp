@@ -22,22 +22,26 @@
 #include "confmanager.hpp"
 #include "node.hpp"
 
+
+static Destruct::DStruct nodeStruct = Destruct::DStruct(NULL, "Node", Node::newObject, Node::ownAttributeBegin(), Node::ownAttributeEnd()); 
 /**
  *  This constructor should only be used by root Node as it doesn't generate UID
  */
-Node::Node() : __parent(NULL), __childcount(0), __size(0), __fsobj(NULL), __common_attributes(0),  __uid(0), __tags(0), __at(0)
+Node::Node() : DCppObject<Node>(&nodeStruct),  __parent(NULL), __childcount(0), __size(0), __fsobj(NULL), __common_attributes(0),  __uid(0), __tags(0), __at(0)
 {
+  this->init();
 }
 
 /**
  *  Node constructor 
  */ 
-Node::Node(std::string name, uint64_t size, Node* parent, fso* fsobj, bool registerNode) : __parent(parent), __childcount(0), __name(name), __size(size), __fsobj(fsobj), __common_attributes(0),  __uid(0), __tags(0), __at(0) 
+Node::Node(std::string name, uint64_t size, Node* parent, fso* fsobj, bool registerNode) : DCppObject<Node>(&nodeStruct),  __parent(parent), __childcount(0), __name(name), __size(size), __fsobj(fsobj), __common_attributes(0),  __uid(0), __tags(0), __at(0) 
 {
   if (registerNode)
     this->__uid = VFS::Get().registerNode(this);
   if (this->__parent != NULL)
     this->__parent->addChild(this);
+  this->init();
 }
 
 Node::~Node()
@@ -881,8 +885,6 @@ AttributesHandler::~AttributesHandler()
 /*
  * Attributes Handlers
  */
-
-
 AttributesHandlers::AttributesHandlers()
 {
   this->__state = 0;
@@ -943,11 +945,10 @@ bool AttributesHandlers::remove(std::string handlerName)
 Destruct::DValue  Node::save(void) const
 {
 // XXX temp 
-  return VoidNode::save(this);
+  return (VoidNode::save(this));
 }
 
-Node*           Node::load(Destruct::DValue const& args)
+Node*           Node::load(Destruct::DValue const& args) //used ?
 {
-  return VoidNode::load(args);
+  return (VoidNode::load(args));
 }
-//Node*           Node::load(   
