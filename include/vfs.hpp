@@ -184,10 +184,10 @@ inline DObject* DCppObject<VFS>::clone() const
 class NodeContainer : public Destruct::DCppObject<NodeContainer>
 {
 public:
-                                                   NodeContainer(Destruct::DStruct* dstruct, Destruct::DValue const& args);
-                                                   NodeContainer(Destruct::DStruct* dstruct, Node* node);
-                                                   ~NodeContainer();
-  Node*                                            node(void);
+  EXPORT                                           NodeContainer(Destruct::DStruct* dstruct, Destruct::DValue const& args);
+  EXPORT                                           NodeContainer(Destruct::DStruct* dstruct, Node* node);
+  EXPORT                                           ~NodeContainer();
+  EXPORT Node*                                     node(void);
   Destruct::RealValue<Destruct::DUnicodeString>    absolute; 
 
   /*
