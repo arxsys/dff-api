@@ -302,8 +302,8 @@ class CaseLoader(object):
               raise Exception("Can't find file " + dpath.path) 
             previousPath = dpath.path[:dpath.path.rfind("/")]
 
-      if moduleArguments.moduleName == 'devices':
-        print "Must check devices please XXX" 
+      #if moduleArguments.moduleName == 'devices':
+        #print "Must check devices please XXX" 
         #XXX show devices boxes ????
 
   def loadModule(self, modules):
