@@ -29,7 +29,7 @@
 #define PACK_START __pragma(pack(push, 1))
 #define PACK_END __pragma(pack(pop))
 #include <String>
-//#include "windows.h"
+#include "windows.h"
 #endif
 
 #endif
