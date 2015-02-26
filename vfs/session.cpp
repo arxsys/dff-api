@@ -20,6 +20,8 @@
 /**
  *  SessionLoader (temp for DLoader/DSerializer)
  */
+
+
 SessionLoader::SessionLoader(DStruct* dstruct, DValue const& args) : DCppObject(dstruct, args) , __destruct(Destruct::DStructs::instance())
 {
   this->init();

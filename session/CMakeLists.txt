@@ -20,9 +20,9 @@ include_directories("../destruct")
   #LINK_LIBRARIES destruct _destruct vfs)
 #XXX add case.py
 
-set(session_libfiles
-  session.cpp
-  configuration.cpp
-)
+#set(session_libfiles
+  #session.cpp
+  #configuration.cpp
+#)
 
-add_library(session SHARED ${session_libfiles})
+#add_library(session SHARED ${session_libfiles})

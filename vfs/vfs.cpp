@@ -28,7 +28,7 @@
 #include "dsimpleobject.hpp"
 #include "datatype.hpp"
 
-#include "../session/session.hpp"
+#include "session.hpp"
 /**
  *  Return singleton instance of VFS
  */
