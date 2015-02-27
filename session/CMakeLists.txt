@@ -14,6 +14,11 @@
 
 include_directories("../destruct")
 
+install_file(
+__init__.py
+case.py
+)
+
 #dff_cpp_api(session
   #SWIG_FILE libsession.i
   #CPP_FILES session.cpp 
