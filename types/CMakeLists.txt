@@ -24,6 +24,6 @@ dff_cpp_api(types
   SWIG_FILE libtypes.i
   DEFINITIONS -D__STDC_LIMIT_MACROS
   SWIG_FLAGS ${swig_flags}
-  LINK_LIBRARIES exceptions
+  LINK_LIBRARIES exceptions _destruct
   EXTRA_FILES __init__.py
   )

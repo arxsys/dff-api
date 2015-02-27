@@ -52,19 +52,18 @@ class DataTypeManager;
 class NodeManager
 {
 public:
-                                NodeManager(VFS& vfs);
-  uint64_t                      uid(Node* node);
-  bool                          remove(uint64_t uid);
-  bool                          remove(Node* node);
-  Node*                         node(uint64_t uid) const;
-  uint64_t                      orphansCount(void) const;
+  EXPORT                        NodeManager(VFS& vfs);
+  EXPORT uint64_t               uid(Node* node);
+  EXPORT bool                   remove(uint64_t uid);
+  EXPORT bool                   remove(Node* node);
+  EXPORT Node*                  node(uint64_t uid) const;
+  EXPORT uint64_t               orphansCount(void) const;
  
-                
-  bool                          load(Destruct::DValue const& base); //load base before loading module to return them the id
+  EXPORT bool                   load(Destruct::DValue const& base); //load base before loading module to return them the id
                                                                    //ntfs node name is set after uid  
 //  void                          clean(void);  call at end of loading to destroy NodeId ?
 
-  Destruct::DValue              save(void) const; //return a base of uid and node 
+  EXPORT Destruct::DValue       save(void) const; //return a base of uid and node 
    
  
   //void                          load(Destruct::DValue const& base);
@@ -106,9 +105,9 @@ public:
     return (&VFS::Get());
   }
 
-  void  addDNodeID(uint64_t duid, uint64_t uid); //xxx temp
+  EXPORT void  addDNodeID(uint64_t duid, uint64_t uid); //xxx temp
   
-  Node* getNodeByDUid(uint64_t oldid);
+  EXPORT Node* getNodeByDUid(uint64_t oldid);
 
   class Node*                   cwd;
   Node*		                root;
@@ -131,7 +130,7 @@ public:
   //EXPORT void                   load(Destruct::DValue dobject); //const ref ..
   //EXPORT Destruct::DValue       save(void) const;
 
-  Destruct::DValue                        getNode(Destruct::DValue args); //for swig
+  EXPORT Destruct::DValue                        getNode(Destruct::DValue args); //for swig
 /**
  *  Destruct declaration
  */

@@ -55,7 +55,7 @@ private:
 class SimpleFso : public fso
 {
 public:
-  SimpleFso(const std::string& name);
+  EXPORT SimpleFso(const std::string& name);
 
   void      start(std::map<std::string, RCPtr< Variant > > args);
   int32_t   vopen(class Node *n);
