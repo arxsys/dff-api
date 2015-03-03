@@ -62,7 +62,7 @@
 
 %typemap(in) (Destruct::DObject*) 
 {
-  if (PyObject_TypeCheck($input, PyDObject::pyType))
+  if (PyObject_TypeCheck($input, PyDObjectT::pyType()))
     $1 = ((PyDObject::DPyObject*)$input)->pimpl;
   else
     $1 = Destruct::DNone;
@@ -72,7 +72,7 @@
 {
   Py_XDECREF($result);
 
-  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObject::pyType);
+  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObjectT::pyType());
   dobjectObject->pimpl = $1;
   $result = (PyObject*)dobjectObject;
 }
@@ -81,7 +81,7 @@
 {
   Py_XDECREF($result);
 
-  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObject::pyType);
+  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObjectT::pyType());
   dobjectObject->pimpl = $1;
   $result = (PyObject*)dobjectObject;
 }

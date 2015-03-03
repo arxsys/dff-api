@@ -1476,7 +1476,7 @@ namespace std
               err = false;
             }
         }
-        else if (PyObject_TypeCheck(obj, PyDObject::pyType))
+        else if (PyObject_TypeCheck(obj, PyDObjectT::pyType()))
         {
           Destruct::DObject* dobject = ((PyDObject::DPyObject*)obj)->pimpl;
           if (dobject->instanceOf()->name().substr(0, 4) == "Node") //check if not herited too
