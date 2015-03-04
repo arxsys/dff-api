@@ -60,9 +60,14 @@
   }
 }
 
+%{
+#include "../destruct/python/py_dobject.hpp"
+#include <typeinfo>
+%}
+
 %typemap(in) (Destruct::DObject*) 
 {
-  if (PyObject_TypeCheck($input, PyDObjectT::pyType()))
+  if (PyObject_TypeCheck($input, PyDObject::pyType()))
     $1 = ((PyDObject::DPyObject*)$input)->pimpl;
   else
     $1 = Destruct::DNone;
@@ -72,7 +77,7 @@
 {
   Py_XDECREF($result);
 
-  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObjectT::pyType());
+  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObject::pyType());
   dobjectObject->pimpl = $1;
   $result = (PyObject*)dobjectObject;
 }
@@ -81,7 +86,7 @@
 {
   Py_XDECREF($result);
 
-  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObjectT::pyType());
+  PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObject::pyType());
   dobjectObject->pimpl = $1;
   $result = (PyObject*)dobjectObject;
 }
@@ -98,9 +103,3 @@
   $result = PythonBaseModule::dvalueAsPyObject($1);
 }
 
-
-%{
-#include "../destruct/python/py_dvalue.hpp"
-#include "../destruct/python/py_dobject.hpp"
-#include <typeinfo>
-%}

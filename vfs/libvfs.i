@@ -835,7 +835,8 @@ Open the node and return a pointer to a VFile instance
 #include "iostat.hpp"
 #include "rootnode.hpp"
 #include "datatype.hpp"
-#include "../destruct/python/py_dvalue.hpp"
+#include "../destruct/python/py_dobject.hpp"
+#include "../destruct/python/py_module.hpp"
 %}
 
 %import "../types/libtypes.i"

@@ -21,6 +21,8 @@
 %feature("autodoc", 1); //1 = generate type for func proto, no work for typemap
 %feature("docstring");
 
+
+
 %{
 #include <sys/stat.h>
 #include <datetime.h>
@@ -35,9 +37,8 @@
 #include "confmanager.hpp"
 #include "path.hpp"
 #include "vtime.hpp"
-#include "python/destructmodule.hpp"
-#include "python/py_dobject.hpp"
-  
+#include "../destruct/python/py_dobject.hpp"
+
 #ifndef WIN32
 	#include <stdint.h>
 #elif _MSC_VER >= 1600
@@ -1476,7 +1477,7 @@ namespace std
               err = false;
             }
         }
-        else if (PyObject_TypeCheck(obj, PyDObjectT::pyType()))
+        else if (PyObject_TypeCheck(obj, PyDObject::pyType()))
         {
           Destruct::DObject* dobject = ((PyDObject::DPyObject*)obj)->pimpl;
           if (dobject->instanceOf()->name().substr(0, 4) == "Node") //check if not herited too
