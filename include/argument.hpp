@@ -53,7 +53,7 @@ private:
   std::string			__name;
   uint16_t			__flags;
   std::string			__description;
-  bool				__enabled;
+  //bool		        __enabled;
   std::list< Variant_p >	__parameters;
   bool				__paramslocked;
   int32_t			__minparams;

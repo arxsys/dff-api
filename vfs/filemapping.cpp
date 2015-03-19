@@ -34,6 +34,7 @@ FileMapping::~FileMapping()
     delete this->__chunks[i];
     this->__chunks[i] = NULL;
   }
+  mutex_unlock(&this->__fm_mutex);
   mutex_destroy(&this->__fm_mutex);
 }
 

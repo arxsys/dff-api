@@ -113,6 +113,7 @@ public:
       DAttribute(DType::DUnicodeStringType, "caseName"),
       DAttribute(DType::DUnicodeStringType, "caseInformation"),
       DAttribute(DType::DUnicodeStringType, "caseFilePath", DType::DNoneType),
+      //CaseItem ... ?
     };
     return (attributes);
   }

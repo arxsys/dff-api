@@ -563,7 +563,6 @@ class PostProcessScheduler():
 
         def launch(self):
 	  self.firstRoot = None
-        
 	  while True:
 	       root = self.registerQueue.get()
                self.pause.wait() #Use it a different place to pause and stop/clear queue
@@ -573,7 +572,7 @@ class PostProcessScheduler():
 	       if self.registerQueue.empty():
 		 self.scanAnalyse(root, self.firstRoot)
 		 self.displayState.updateState(False)
-		 self.taskManager.clearPostProcess()
+		 self.taskManager.clearPostProcess() #clear here ? 
 		 self.firstRoot = None	       
      __instance = None
 	

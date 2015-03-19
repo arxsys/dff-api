@@ -172,7 +172,7 @@ public:
 	  }
 	else if (itype == typeId::CArray)
 	  {
-	    char **cstr = static_cast<char**>(res);
+	    const char **cstr = static_cast<const char**>(res);
 	    *cstr = this->toCArray();
 	    ret = true;
 	  }
@@ -392,7 +392,7 @@ public:
   EXPORT int32_t	toInt32() throw (std::string);
   EXPORT uint64_t	toUInt64() throw (std::string);
   EXPORT int64_t	toInt64() throw (std::string);
-  EXPORT char*		toCArray() throw (std::string);
+  EXPORT const char*    toCArray() throw (std::string);
   EXPORT char		toChar() throw (std::string);
   EXPORT bool		toBool() throw (std::string);
   EXPORT uint8_t	type();

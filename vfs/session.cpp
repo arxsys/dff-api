@@ -238,10 +238,12 @@ void    DFS::loadTree(void)
     if (node == NULL)
         std::cout << "Load Tree node is NULL " << std::endl;
     else
+    {
       std::cout << " dnode " << nodeName << " id " << value->getValue("uid").get<DUInt64>() << " " << node->name() << " id " << node->uid() << std::endl;
-    this->__vfs.addDNodeID(value->getValue("uid").get<DUInt64>(), node->uid());
-    if (nodeName != "Bookmarks")
-      this->__loadNode(value, node);
+      this->__vfs.addDNodeID(value->getValue("uid").get<DUInt64>(), node->uid());
+      if (nodeName != "Bookmarks")
+        this->__loadNode(value, node);
+    }
     value->destroy();
     value->destroy();
   }

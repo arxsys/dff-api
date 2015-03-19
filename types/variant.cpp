@@ -526,8 +526,8 @@ std::string	Variant::toOctString() throw (std::string)
 
 uint16_t	Variant::toUInt16() throw (std::string)
 {
-  uint16_t		res;
   std::stringstream	err;
+  uint16_t		res = 0;
 
   if (this->_type == typeId::UInt16)
     res = this->__data.us;
@@ -586,8 +586,8 @@ uint16_t	Variant::toUInt16() throw (std::string)
 
 int16_t		Variant::toInt16() throw (std::string)
 {
-  int16_t		res;
   std::stringstream	err;
+  int16_t		res = 0;
   
   if (this->_type == typeId::Int16)
     res = this->__data.s;
@@ -643,8 +643,8 @@ int16_t		Variant::toInt16() throw (std::string)
 
 uint32_t	Variant::toUInt32() throw (std::string)
 {
-  uint32_t		res;
   std::stringstream	err;
+  uint32_t		res = 0;
   
   if (this->_type == typeId::UInt16)
     res = static_cast<uint32_t>(this->__data.us);
@@ -700,8 +700,8 @@ uint32_t	Variant::toUInt32() throw (std::string)
 
 int32_t		Variant::toInt32() throw (std::string)
 {
-  int32_t		res;
   std::stringstream	err;
+  int32_t		res = 0;
   
   if (this->_type == typeId::Int16)
     res = static_cast<int32_t>(this->__data.s);
@@ -751,8 +751,8 @@ int32_t		Variant::toInt32() throw (std::string)
 
 uint64_t	Variant::toUInt64() throw (std::string)
 {
-  uint64_t		res;
   std::stringstream	err;
+  uint64_t		res = 0;
   
   if (this->_type == typeId::UInt16)
     res = static_cast<uint64_t>(this->__data.us);
@@ -805,8 +805,8 @@ uint64_t	Variant::toUInt64() throw (std::string)
 
 int64_t		Variant::toInt64() throw (std::string)
 {
-  int64_t		res;
   std::stringstream	err;
+  int64_t		res = 0;
   
   if (this->_type == typeId::Int16)
     res = static_cast<int64_t>(this->__data.s);
@@ -848,28 +848,15 @@ int64_t		Variant::toInt64() throw (std::string)
     return res;
 }
 
-char*	Variant::toCArray() throw (std::string)
+const char*	Variant::toCArray() throw (std::string)
 {
-  char		*res;
-  std::string	str;
-
-  try
-    {
-      res = new char[this->__data.str->size() + 1];
-      memcpy(res, this->__data.str->c_str(), this->__data.str->size());
-      res[this->__data.str->size()] = '\0';
-    }
-  catch (std::string e)
-    {
-      throw std::string("Cannot convert type < " + this->typeName() + " > to type <char*>");
-    }
-  return res;
+  return (this->__data.str->c_str());
 }
 
 char	Variant::toChar() throw (std::string)
 {
-  char			res;
   std::stringstream	err;
+  char		        res = char();
 
   if (this->_type == typeId::Char)
     res = this->__data.c;

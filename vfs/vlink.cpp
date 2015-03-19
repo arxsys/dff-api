@@ -44,52 +44,52 @@ void		VLink::fileMapping(FileMapping *fm)
   this->__linkedNode->fileMapping(fm);
 }
 
-uint64_t	VLink::size()
+uint64_t	VLink::size(void) const
 {
   return this->__linkedNode->size();
 }
 
-std::string 	VLink::linkPath()
+std::string 	VLink::linkPath(void)
 {
   return this->__linkedNode->path();
 }
-std::string	VLink::linkName()
+std::string	VLink::linkName(void)
 {
   return this->__linkedNode->name();
 }
 
-std::string 	VLink::linkAbsolute()
+std::string 	VLink::linkAbsolute(void)
 {
   return this->__linkedNode->absolute();
 }
 
-bool 		VLink::isFile()
+bool 		VLink::isFile(void) const
 {
   return this->__linkedNode->isFile();
 }
 
-bool 		VLink::isDir()
+bool 		VLink::isDir(void) const
 {
   return this->__linkedNode->isDir();
 }
 
-bool		VLink::isVDir()
+bool		VLink::isVDir(void) const
 {
   return this->__linkedNode->isVDir();
 }
 
-bool		VLink::isDeleted()
+bool		VLink::isDeleted(void) const
 {
   return this->__linkedNode->isDeleted();
 }
 
-bool		VLink::isLink()
+bool		VLink::isLink(void) const
 {
   return this->__linkedNode->isLink();
 }
 
 //XXX must return NULL because it's not handled by this fsobj 
-class fso*	VLink::fsobj()
+class fso*	VLink::fsobj(void) const
 {
   return this->__linkedNode->fsobj();
 }

@@ -34,26 +34,26 @@ public :
   EXPORT ~VLink();
 
   EXPORT void				fileMapping(FileMapping *);
-  EXPORT uint64_t			size();
+  EXPORT uint64_t			size(void) const;
 
-  EXPORT std::string			linkPath();
-  EXPORT std::string			linkName();
-  EXPORT std::string			linkAbsolute();
+  EXPORT std::string			linkPath(void);
+  EXPORT std::string			linkName(void);
+  EXPORT std::string			linkAbsolute(void);
 
-  EXPORT bool				isFile();
-  EXPORT bool				isDir();
-  EXPORT bool				isLink();
-  EXPORT bool				isVDir();
-  EXPORT bool				isDeleted();
+  EXPORT bool				isFile(void) const;
+  EXPORT bool				isDir(void) const;
+  EXPORT bool				isLink(void) const;
+  EXPORT bool				isVDir(void) const;
+  EXPORT bool				isDeleted(void) const;
 
-  EXPORT class fso*			fsobj();
-  EXPORT class VFile*			open();
+  EXPORT class fso*			fsobj(void) const;
+  EXPORT class VFile*			open(void);
 
-  EXPORT Node*				linkParent();
-  EXPORT std::vector<class Node*>	linkChildren();
-  EXPORT bool				linkHasChildren();
-  EXPORT uint32_t			linkChildCount();
-  EXPORT Node*				linkNode();
+  EXPORT Node*				linkParent(void);
+  EXPORT std::vector<class Node*>	linkChildren(void);
+  EXPORT bool				linkHasChildren(void);
+  EXPORT uint32_t			linkChildCount(void);
+  EXPORT Node*				linkNode(void);
 
   EXPORT AttributesHandlers&            attributesHandlers(void);
   EXPORT bool				registerAttributes(AttributesHandler*);
