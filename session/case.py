@@ -126,7 +126,8 @@ class ArgumentsConverter(object):
          try:
            setattr(dobject, name, dvalue)
          except AttributeError as e:
-           print "Error setattr ", e
+           pass
+           #print "Error setattr ", e
      return dobject
        
   def toArguments(self, moduleArguments): #return a map<String, Variant>
@@ -232,7 +233,7 @@ class CaseLoader(object):
        try :
          ma.save = processus.save() 
        except AttributeError as e:
-         print 'Error saving with save function :', e
+         #print 'Error saving with save function :', e
          pass
        dfs.modules.push(ma)
  

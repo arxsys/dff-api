@@ -131,7 +131,6 @@ DFS::~DFS()
 
 void    DFS::save(Destruct::DValue const& filePath) 
 {
-  std::cout << "DFS::save(" << filePath.asUnicodeString() << ")" << std::endl;
   Destruct::DMutableObject* arg = static_cast<Destruct::DMutableObject*>(this->__destruct.generate("DMutable"));
   arg->setValueAttribute(Destruct::DType::DUnicodeStringType, "filePath", filePath); 
   arg->setValueAttribute(Destruct::DType::DInt8Type, "input",  Destruct::RealValue<DInt8>(Destruct::DStream::Output));
@@ -149,7 +148,7 @@ void    DFS::save(Destruct::DValue const& filePath)
   dstream->destroy();
   delete serializer;
 
-  std::cout << "DFS::Save(" << filePath.asUnicodeString() << ") finish"  << std::endl;
+  //std::cout << "DFS::Save(" << filePath.asUnicodeString() << ") finish"  << std::endl;
 }
 
 void    DFS::__saveDStruct(Destruct::DStream* dstream, Destruct::DSerialize* serializer) const
@@ -235,11 +234,12 @@ void    DFS::loadTree(void)
     Destruct::DUnicodeString nodeName = value->getValue("name").get<Destruct::DUnicodeString>(); 
   
     Node* node = nodeMap[nodeName];
-    if (node == NULL)
-        std::cout << "Load Tree node is NULL " << std::endl;
-    else
+    //if (node == NULL)
+    //std::cout << "Load Tree node is NULL " << std::endl;
+    //else
+    if (node != NULL)
     {
-      std::cout << " dnode " << nodeName << " id " << value->getValue("uid").get<DUInt64>() << " " << node->name() << " id " << node->uid() << std::endl;
+            //std::cout << " dnode " << nodeName << " id " << value->getValue("uid").get<DUInt64>() << " " << node->name() << " id " << node->uid() << std::endl;
       this->__vfs.addDNodeID(value->getValue("uid").get<DUInt64>(), node->uid());
       if (nodeName != "Bookmarks")
         this->__loadNode(value, node);
