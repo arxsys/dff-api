@@ -24,6 +24,7 @@ from dff.api.taskmanager.scheduler import sched
 from dff.api.taskmanager.processus import ProcessusManager, Processus 
 from dff.api.loader import loader 
 from dff.api.types.libtypes import Config
+from dff.api.filters.libfilters import Filter
 
 class ModulesConfig():
   def __init__(self):
@@ -348,13 +349,20 @@ class ScanQueue(Queue):
          module = self.loader.modules[moduleName]
          try:
            filterText = module.scanFilter
-           arguments = task[1][1]
-           nodeArguments = module.conf.argumentsByType(typeId.Node)
-           if len(nodeArguments) == 1:
-             node = arguments[nodeArguments[0].name()].value() 
-             if node.absolute().lower().find(filterText) == -1:
-               self.task_done()
-               continue
+           if filterText != '':
+             arguments = task[1][1]
+             nodeArguments = module.conf.argumentsByType(typeId.Node)
+             if len(nodeArguments) == 1:
+               node = arguments[nodeArguments[0].name()].value() 
+               filter = Filter('')
+               filter.compile(filterText)
+               filter.process(node)
+               matches = filter.matchedNodes()
+               if not len(matches):
+                 self.task_done()
+                 continue
+               else:
+                 print 'applying on ' + node.absolute()
          except AttributeError:
            pass
 
