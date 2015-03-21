@@ -361,8 +361,6 @@ class ScanQueue(Queue):
                if not len(matches):
                  self.task_done()
                  continue
-               else:
-                 print 'applying on ' + node.absolute()
          except AttributeError:
            pass
 
