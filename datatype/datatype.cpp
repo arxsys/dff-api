@@ -210,7 +210,7 @@ const std::vector<const Type*>  DataTypeManager::__type(Node* node)
       }
       catch (...)
       {
-        std::cout << "Error : Can't get data type on node"  << std::endl;
+        //std::cout << "Error : Can't get data type on node"  << std::endl;
         result = "error";
       }
       mutex_lock(&this->__mutex);
