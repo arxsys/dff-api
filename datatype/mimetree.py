@@ -26,9 +26,7 @@ class MimeTree():
             else:
                 self.mgc = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
         else:
-            #self.mgc = "/usr/share/misc/magic.mgc"
-            #self.mgc = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
-            self.mgc = "/home/udgover/sources/file-5.21/magic/magic.mgc"
+            self.mgc = "/usr/share/misc/magic.mgc"
         try:
             self.mgcfile = open(self.mgc, 'rb')
         except:
