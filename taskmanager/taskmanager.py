@@ -24,6 +24,7 @@ from dff.api.taskmanager.scheduler import sched
 from dff.api.taskmanager.processus import ProcessusManager, Processus 
 from dff.api.loader import loader 
 from dff.api.types.libtypes import Config
+from dff.api.filters.libfilters import Filter
 
 class ModulesConfig():
   def __init__(self):
@@ -233,12 +234,13 @@ class TaskManager():
 	   if not self.processusManager.exist(moduleObj, arg):
              ppsched.enqueueProcessus((self.add, (mod, arg, exec_flags, True)))
       except:
-        print 'Post process error compat module : ', str(compatModule)
-	err_type, err_value, err_traceback = sys.exc_info()
-        for l in  traceback.format_exception_only(err_type, err_value):
-	  print l
-        for l in  traceback.format_tb(err_traceback):
-	  print l
+        pass
+        #print 'Post process error compat module : ', str(compatModule)
+	#err_type, err_value, err_traceback = sys.exc_info()
+        #for l in  traceback.format_exception_only(err_type, err_value):
+	  #print l
+        #for l in  traceback.format_tb(err_traceback):
+	  #print l
  
     def postProcessAnalyse(self, root): 
        for mod in self.ppAnalyses:
@@ -334,6 +336,7 @@ class ScanQueue(Queue):
       self.count = 0
       self.countLock = threading.Lock()
       self.moduleMapCount  = {}
+      self.loader = loader.loader()
 
    def registerDisplay(self, item, progress):
       self.displayItem = item
@@ -360,14 +363,35 @@ class ScanQueue(Queue):
       jobs = []
       while not self.empty():
          task = self.get()
+         moduleName = task[1][0]
 	 if modulesToApply != None:
-	   if not task[1][0] in modulesToApply:
+	   if not module in modulesToApply:
 	 	self.task_done()
-		continue	
+		continue
+
+         module = self.loader.modules[moduleName]
+         try:
+           filterText = module.scanFilter
+           if filterText != '':
+             arguments = task[1][1]
+             nodeArguments = module.conf.argumentsByType(typeId.Node)
+             if len(nodeArguments) == 1:
+               node = arguments[nodeArguments[0].name()].value() 
+               filter = Filter('')
+               filter.compile(filterText)
+               filter.process(node)
+               matches = filter.matchedNodes()
+               if not len(matches):
+                 self.task_done()
+                 continue
+         except AttributeError:
+           pass
+
          try :
   	   modMap[task[1][0]] += 1
 	 except KeyError:
 	   modMap[task[1][0]] = 1
+
 	 job2 = (self.task_done_scan, (root, task[1][0],))
 	 job = (task, job2)
          jobs.append(job)
@@ -541,6 +565,9 @@ class PostProcessScheduler():
              self.displayRoot(root)
              self.taskManager.postProcessWalk(root)
              self.processingQueue.scanJoin(root)
+
+             
+
 	
 	     if (not self.fullAuto) and self.display:
 	       h = {}
@@ -551,7 +578,6 @@ class PostProcessScheduler():
 		    h[n[1][0]] = 1
                 
 	       modulesToApply = self.displayState.askModulesWait('Apply module', 'Please select modules to apply', h)
-
              self.processusQueue.scanJoin(root, modulesToApply)
 
         def scanAnalyse(self, root, firstRoot):

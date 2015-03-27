@@ -48,13 +48,20 @@ class MimeTree():
             version, = struct.unpack(">I", buff[4:8])
         else:
             version, = struct.unpack("<I", buff[4:8])
-        if version == 7:
-            self.__maxoff = 64
-        elif version == 8:
-            self.__maxoff = 96
+        print "Working with magic version", version
+        # default == version <= 7
+        self.__magic_size = 232
+        self.__desc_offset = 64
+        self.__desc_size = 64
+        self.__mime_size = 64
+        if version == 8:
+            self.__desc_offset = 96
         else:
-            self.__err("bad magic file version")
-        self.nmagic = (self.mgcsize / (self.__maxoff + 136)) - 1
+            self.__magic_size = 248
+            self.__desc_offset = 96
+            self.__mime_size = 80
+        self.__mime_offset = self.__desc_offset + self.__desc_size
+        self.nmagic = (self.mgcsize / (self.__magic_size)) - 1
         self.populate(buff)
 
 
@@ -66,11 +73,12 @@ class MimeTree():
 
 
     def populate(self, buff):
-        bpos = self.__maxoff + 136
+        bpos = self.__magic_size
         for i in xrange(0, self.nmagic):
-            bpos += self.__maxoff
-            desc, = struct.unpack("64s", buff[bpos:bpos+64])
-            mime, = struct.unpack("64s", buff[bpos+64:bpos+128])
+            desc, = struct.unpack(str(self.__desc_size) + "s",
+                                  buff[bpos+self.__desc_offset:bpos+self.__desc_offset+self.__desc_size])
+            mime, = struct.unpack(str(self.__mime_size) + "s",
+                                  buff[bpos+self.__mime_offset:bpos+self.__mime_offset+self.__mime_size])
             if len(mime) and mime[0] != '\0':
                 smime = mime.split("/", 1)
                 if len(smime) == 2:
@@ -80,4 +88,4 @@ class MimeTree():
                         self.mimetypes[key] = []
                     if val not in self.mimetypes[key]:
                         self.mimetypes[key].append(val)
-            bpos += 136
+            bpos += self.__magic_size

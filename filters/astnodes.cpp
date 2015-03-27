@@ -40,6 +40,7 @@ KEYWORD(tags, tags, AttributeFactory::Named, QueryFlags::Tags)
 KEYWORD(tagged, tagged, AttributeFactory::Named, QueryFlags::Tags)
 KEYWORD(to, pff.Transport headers.To, AttributeFactory::Named, QueryFlags::Advanced)
 KEYWORD(from, pff.Transport headers.From, AttributeFactory::Named, QueryFlags::Advanced)
+KEYWORD(module, module, AttributeFactory::Named, QueryFlags::Primitive)
 
 InterpreterContext::InterpreterContext()
 {
@@ -107,6 +108,10 @@ void		InterpreterContext::setCurrentNode(Node* node)
 	  this->__attributes["deleted"] = new Variant(node->isDeleted());
 	  this->__attributes["folder"] = new Variant(node->isDir());
 	  this->__attributes["file"] = new Variant(node->isFile());
+	  if (node->fsobj() != NULL)
+	    this->__attributes["module"] = new Variant(node->fsobj()->name);
+	  else
+	    this->__attributes["module"] = new Variant(std::string("unknown"));
 	}
       if ((this->__qflags & QueryFlags::DataType) == QueryFlags::DataType)
 	{
