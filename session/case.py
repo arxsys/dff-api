@@ -232,9 +232,10 @@ class CaseLoader(object):
        ma.arguments = self.converter.toDObject(ma.moduleName, processus.args)
        try :
          ma.save = processus.save() 
-       except AttributeError as e:
-         #print 'Error saving with save function :', e
+       except AttributeError as e: #module don't have save function
          pass
+       except Exception as e: #Catch other error
+         print "Can't save module ", processus.mod.name, " exception occur : ", str(e)
        dfs.modules.push(ma)
  
   def load(self, filePath, connectorNewFilePath = None):
@@ -242,6 +243,7 @@ class CaseLoader(object):
      #XXX cherche ds la liste de module les connector/ verifier s il les dump existes 
      #si non demander le nouveau chemin des dumps 
      dfs = self.sessionLoader.load(filePath)
+     print "DFS LOADED FROM PYTHON"
      self.connectorFilesExists(dfs.modules)
      self.update('Loading datas types') #avant que les modules soit appliques ? c juste la base je suppose
      DataTypeManager.Get().load(dfs.dataType)

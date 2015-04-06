@@ -5,8 +5,8 @@
 #include "protocol/dcppmutable.hpp"
 #include "protocol/dmutableobject.hpp"
 #include "protocol/dmutablestruct.hpp"
-#include "protocol/dstream.hpp"
-#include "protocol/dserialize.hpp"
+//#include "protocol/dstream.hpp"
+//#include "protocol/dserialize.hpp"
 
 using namespace Destruct;
 
@@ -28,12 +28,12 @@ public:
 
 private:
   Destruct::DStructs&           __destruct;
-  DSerialize*                   __serializer;
-  DStream*                      __stream;
+  DObject*                      __serializer;
+  DObject*                      __stream;
 
-  void  __openRead(void);
-  void  __openWrite(void);
-  void  __close(void);
+  void                          __openRead(void);
+  void                          __openWrite(void);
+  void                          __close(void);
 public:
   /*
    *  DStruct declaration

@@ -76,7 +76,6 @@ public:
   }
 private:
   Destruct::DStructs&                           __destruct;
-  void                                          __loadDStruct(Destruct::DStream* dstream, Destruct::DSerialize* serializer);
 };
 
 class DFS : public Destruct::DCppObject<DFS> //singleton ?
@@ -86,7 +85,7 @@ public:
   void                                             save(Destruct::DValue const& filePath);
   void                                             loadTree(void);
 
-  Destruct::RealValue<Destruct::DObject*>          caseInformations, modules, dataType, tags, nodeTree, report;
+  Destruct::RealValue<Destruct::DObject*>          dstructs, caseInformations, modules, dataType, tags, nodeTree, report;
   Destruct::RealValue<Destruct::DFunctionObject* > _save, _loadTree;
 
   /*
@@ -94,7 +93,7 @@ public:
    */
   static size_t ownAttributeCount()
   {
-    return (8);
+    return (9);
   }
 
   static Destruct::DAttribute* ownAttributeBegin()
@@ -102,6 +101,7 @@ public:
     static Destruct::DAttribute  attributes[] = 
     {
      //VERSION attribute ?
+      Destruct::DAttribute(Destruct::DType::DObjectType, "dstructs"),
       Destruct::DAttribute(Destruct::DType::DObjectType, "caseInformations"),
       Destruct::DAttribute(Destruct::DType::DNoneType, "save", Destruct::DType::DUnicodeStringType),
       Destruct::DAttribute(Destruct::DType::DNoneType, "loadTree", Destruct::DType::DNoneType),
@@ -118,6 +118,7 @@ public:
   {
     static Destruct::DPointer<DFS> memberPointer[] = 
     {
+      Destruct::DPointer<DFS>(&DFS::dstructs),
       Destruct::DPointer<DFS>(&DFS::caseInformations),
       Destruct::DPointer<DFS>(&DFS::_save, &DFS::save),
       Destruct::DPointer<DFS>(&DFS::_loadTree, &DFS::loadTree),
@@ -149,7 +150,7 @@ private:
   Destruct::DObject*    __toDNodeTree(Node* node) const;
   Node*                 __getNode(const std::string& name, Node* parent) const;
   void                  __loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* node); 
-  void                  __saveDStruct(Destruct::DStream*, Destruct::DSerialize* serializer) const;
+  void                  __saveDStruct(void) const;
 };
 
 #endif

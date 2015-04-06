@@ -2,7 +2,7 @@
 #include "dstructs.hpp"
 #include "dsimpleobject.hpp"
 #include "protocol/dstream.hpp"
-#include "protocol/dserialize.hpp"
+//#include "protocol/dserialize.hpp"
 #include "protocol/dmutableobject.hpp"
 #include "dattribute.hpp"
 #include "dstruct.hpp"
@@ -33,6 +33,7 @@ SessionLoader::~SessionLoader()
 
 void            SessionLoader::declare(void)
 {
+  std::cout << "declaring structure " << std::endl;
   Destruct::DStructs& destruct = Destruct::DStructs::instance();
   Destruct::DStruct*  binaryFile = Destruct::makeNewDCpp<BinaryFile>("BinaryFile");
   destruct.registerDStruct(binaryFile);
@@ -65,15 +66,13 @@ Destruct::DObject* SessionLoader::load(Destruct::DValue filePath)
   
   try 
   {
-    Destruct::DStream* dstream = static_cast<Destruct::DStream*>(this->__destruct.generate("DStream", Destruct::RealValue<Destruct::DObject*>(arg)));
+    Destruct::DObject* dstream = this->__destruct.generate("DStream", Destruct::RealValue<Destruct::DObject*>(arg));
+
     arg->destroy();
-    Destruct::DSerialize* serializer = Destruct::DSerializers::to("Binary");
 
-     //load runtime DStruct
-    this->__loadDStruct(dstream, serializer);
-
-    Destruct::DObject* session = serializer->deserialize(*dstream, Destruct::DType::DObjectType).get<Destruct::DObject*>();
-    delete serializer;
+    Destruct::DObject* deserializer = this->__destruct.generate("DeserializeBinary", RealValue<DObject*>(dstream));
+    Destruct::DObject* session = deserializer->call("DObject").get<DObject*>();
+    deserializer->destroy();
     dstream->destroy();
     session->destroy();
 
@@ -94,24 +93,13 @@ Destruct::DObject* SessionLoader::load(Destruct::DValue filePath)
   return (Destruct::RealValue<Destruct::DObject*>(Destruct::DNone));
 }
 
-void    SessionLoader::__loadDStruct(Destruct::DStream* dstream, Destruct::DSerialize* serializer)
-{
-  Destruct::DValue count(Destruct::RealValue<DUInt64>(0));
-  *dstream >> count;
-
-  for (DUInt64 c = count.get<DUInt64>(); c != 0; c--)
-  {
-    Destruct::DStruct* dstruct = serializer->deserialize(*dstream);
-    this->__destruct.registerDStruct(dstruct);
-  }
-}
-
 /** 
  * DFS
 */
 DFS::DFS(Destruct::DStruct* dstruct, Destruct::DValue const& args) : Destruct::DCppObject<DFS>(dstruct, args), __vfs(VFS::Get()), __destruct(Destruct::DStructs::instance()), __dataTypeManager(DataTypeManager::Get())
 {
   this->init();
+  this->dstructs = Destruct::DStructs::instance().generate("DVectorStruct");
   this->modules = Destruct::DStructs::instance().generate("DVectorObject");
 }
 
@@ -134,38 +122,35 @@ void    DFS::save(Destruct::DValue const& filePath)
   Destruct::DMutableObject* arg = static_cast<Destruct::DMutableObject*>(this->__destruct.generate("DMutable"));
   arg->setValueAttribute(Destruct::DType::DUnicodeStringType, "filePath", filePath); 
   arg->setValueAttribute(Destruct::DType::DInt8Type, "input",  Destruct::RealValue<DInt8>(Destruct::DStream::Output));
-  Destruct::DStream* dstream = static_cast<Destruct::DStream*>(this->__destruct.generate("DStream", Destruct::RealValue<Destruct::DObject*>(arg)));
+  DObject* dstream = this->__destruct.generate("DStream", Destruct::RealValue<Destruct::DObject*>(arg));
   arg->destroy();
-  Destruct::DSerialize* serializer = Destruct::DSerializers::to("Binary");
+  //Destruct::DSerialize* serializer = Destruct::DSerializers::to("Binary");
+  Destruct::DObject* serializer = this->__destruct.generate("SerializeBinary", RealValue<DObject*>(dstream)); 
+
 
   //serialize each object rather than all object tree to use less memory ? (save incremental ?)
-  this->__saveDStruct(dstream , serializer);
+  this->__saveDStruct();
   this->nodeTree = this->__toDNodeTree(this->__vfs.root); 
   this->dataType = this->__dataTypeManager->save();
   this->tags = TagsManager::get().save();
 
-  serializer->serialize(*dstream, this);
+  serializer->call("DObject", RealValue<DObject*>(this));
+  serializer->destroy();
   dstream->destroy();
-  delete serializer;
-
   //std::cout << "DFS::Save(" << filePath.asUnicodeString() << ") finish"  << std::endl;
 }
 
-void    DFS::__saveDStruct(Destruct::DStream* dstream, Destruct::DSerialize* serializer) const
+void    DFS::__saveDStruct(void) const
 {
-  //Save runtime DStruct
-  std::list<Destruct::DStruct*>  argumentList;
+  DObject* dstructs = this->dstructs;
   for (size_t index = 0; index != this->__destruct.count(); index++)
   {
     Destruct::DStruct* dstruct = this->__destruct.find(index);
     if (dstruct->name().find("ArgumentsTest") != std::string::npos)
-      argumentList.push_back(dstruct);
+    {
+      dstructs->call("push", RealValue<DStruct*>(dstruct)); //if object is none it doesn't throw anything want call is called that;s strange  must return function didn't exist 
+    }
   }
-
-  Destruct::DValue size(Destruct::RealValue<DUInt64>(argumentList.size()));
-  *dstream << size;
-  for (std::list<Destruct::DStruct*>::iterator dstruct = argumentList.begin(); dstruct != argumentList.end(); dstruct++)
-    serializer->serialize(*dstream, *(*dstruct));
 }
 
 Destruct::DObject*    DFS::__toDNodeTree(Node* node) const

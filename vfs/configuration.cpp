@@ -16,14 +16,14 @@ Configuration::~Configuration()
 /**
  *  BinaryFile
  */
-BinaryFile::BinaryFile(DStruct* dstruct, DValue const& args) : DCppObject<BinaryFile>(dstruct, args), __destruct(Destruct::DStructs::instance()), __serializer(DSerializers::to("Binary")), __stream(NULL)
+BinaryFile::BinaryFile(DStruct* dstruct, DValue const& args) : DCppObject<BinaryFile>(dstruct, args), __destruct(Destruct::DStructs::instance())//, __serializer(__destruct.generate("SerializeBinary")), __stream(NULL) //XXX reasd or write ?? XXX fix me
 {
   this->init();
   this->fileName = args.get<DUnicodeString>();
   this->__openRead();
 }
 
-BinaryFile::BinaryFile(BinaryFile const& copy) : DCppObject<BinaryFile>(copy), __destruct(Destruct::DStructs::instance()), __serializer(DSerializers::to("Binary")), __stream(NULL)
+BinaryFile::BinaryFile(BinaryFile const& copy) : DCppObject<BinaryFile>(copy), __destruct(Destruct::DStructs::instance())// XXXread or write fix me , __serializer(DSerializers::to("Binary")), __stream(NULL)
 {
   this->init();
 }
@@ -31,42 +31,44 @@ BinaryFile::BinaryFile(BinaryFile const& copy) : DCppObject<BinaryFile>(copy), _
 BinaryFile::~BinaryFile()
 {
   std::cout << "good bye binary file  " << std::endl; //XXX not called from python ..
-  if (this->__stream)
-    this->__stream->destroy();
-  delete this->__serializer;
+  //if (this->__stream)
+  //this->__stream->destroy();
+  //delete this->__serializer;
 }
 
 DValue  BinaryFile::load(void)
 {
   this->__openRead();
-  DValue object = this->__serializer->deserialize(*this->__stream, Destruct::DType::DObjectType);
+  //DValue object = this->__serializer->deserialize(*this->__stream, Destruct::DType::DObjectType);
   //this->__close();
 
-  return (object);  
+  //return (object); 
+  return (RealValue<DObject*>(DNone)); //XXX 
 }
 
 DValue  BinaryFile::loadDStruct(void)
 {
   this->__openRead();
-  DStruct* dstruct = this->__serializer->deserialize(*this->__stream);
-  
-  if (!dstruct)
-    throw DException("Can't read dstruct.");
-
-  this->__destruct.registerDStruct(dstruct);
+  //DStruct* dstruct = this->__serializer->deserialize(*this->__stream);
+  // 
+  //if (!dstruct)
+  //throw DException("Can't read dstruct.");
+  //
+  //this->__destruct.registerDStruct(dstruct);
   //this->__close();
 
-  return (RealValue<DUnicodeString>(dstruct->name()));
+  //return (RealValue<DUnicodeString>(dstruct->name()));
+  return (RealValue<DObject*>(DNone)); //XXX 
 }
 
 void    BinaryFile::saveDStruct(DValue const& object)
 {
   this->__openWrite();
 
-  DObject* dobject = object.get<DObject*>();
-  this->__serializer->serialize(*this->__stream, *dobject->instanceOf());
-
-  dobject->destroy();
+  //DObject* dobject = object.get<DObject*>();
+  //this->__serializer->serialize(*this->__stream, *dobject->instanceOf());
+  //
+  //dobject->destroy();
   //this->__close();
 }
 
@@ -74,41 +76,41 @@ void    BinaryFile::save(DValue const& object)
 {
   this->__openWrite();
 
-  DObject* dobject = object.get<DObject*>();
-  this->__serializer->serialize(*this->__stream, dobject);
+  //DObject* dobject = object.get<DObject*>();
+  //this->__serializer->serialize(*this->__stream, dobject);
 
-  dobject->destroy();
+  //dobject->destroy();
   this->__close();
 }
 
 void    BinaryFile::__openRead(void)
 {
-  DMutableObject* arg = static_cast<DMutableObject*>(this->__destruct.generate("DMutable"));
-  arg->setValueAttribute(DType::DUnicodeStringType, "filePath", this->fileName); 
-  arg->setValueAttribute(DType::DInt8Type, "input",  RealValue<DInt8>(DStream::Input));
+  //DMutableObject* arg = static_cast<DMutableObject*>(this->__destruct.generate("DMutable"));
+  //arg->setValueAttribute(DType::DUnicodeStringType, "filePath", this->fileName); 
+  //arg->setValueAttribute(DType::DInt8Type, "input",  RealValue<DInt8>(DStream::Input));
 
-  if (this->__stream)
-    this->__stream->destroy(); 
-  this->__stream = static_cast<DStream*>(this->__destruct.generate("DStream", RealValue<DObject*>(arg)));
+  //if (this->__stream)
+    //this->__stream->destroy(); 
+  //this->__stream = static_cast<DStream*>(this->__destruct.generate("DStream", RealValue<DObject*>(arg)));
   
-  arg->destroy();
+  //arg->destroy();
 }
 
 void    BinaryFile::__openWrite(void)
 {
-  DMutableObject* arg = static_cast<DMutableObject*>(this->__destruct.generate("DMutable"));
-  arg->setValueAttribute(DType::DUnicodeStringType, "filePath", this->fileName); 
-  arg->setValueAttribute(DType::DInt8Type, "input",  RealValue<DInt8>(DStream::Output));
+  //DMutableObject* arg = static_cast<DMutableObject*>(this->__destruct.generate("DMutable"));
+  //arg->setValueAttribute(DType::DUnicodeStringType, "filePath", this->fileName); 
+  //arg->setValueAttribute(DType::DInt8Type, "input",  RealValue<DInt8>(DStream::Output));
 
-  if (this->__stream)
-    this->__stream->destroy();
-  this->__stream = static_cast<Destruct::DStream*>(this->__destruct.generate("DStream", RealValue<DObject*>(arg)));
-  arg->destroy();
+  //if (this->__stream)
+    //this->__stream->destroy();
+  //this->__stream = static_cast<Destruct::DStream*>(this->__destruct.generate("DStream", RealValue<DObject*>(arg)));
+  //arg->destroy();
 }
 
 void    BinaryFile::__close(void)
 {
-  this->__stream->destroy();
-  this->__stream = NULL;
+  //this->__stream->destroy();
+  //this->__stream = NULL;
 }
 
