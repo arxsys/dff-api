@@ -33,10 +33,7 @@ SessionLoader::~SessionLoader()
 
 void            SessionLoader::declare(void)
 {
-  std::cout << "declaring structure " << std::endl;
   Destruct::DStructs& destruct = Destruct::DStructs::instance();
-  Destruct::DStruct*  binaryFile = Destruct::makeNewDCpp<BinaryFile>("BinaryFile");
-  destruct.registerDStruct(binaryFile);
 
   Destruct::DStruct* configuration = new Destruct::DMutableStruct(NULL, "Configuration", Configuration::newObject, Configuration::ownAttributeBegin(), Configuration::ownAttributeEnd());
   destruct.registerDStruct(configuration);
