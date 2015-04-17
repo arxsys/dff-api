@@ -16,7 +16,7 @@
 
 dff_cpp_api(vfs 
   SWIG_FILE libvfs.i
-  CPP_FILES node.cpp rc.cpp tags.cpp vlink.cpp vfile.cpp vfs.cpp fso.cpp mfso.cpp filemapping.cpp fdmanager.cpp cache.cpp iostat.cpp rootnode.cpp datatype.cpp session.cpp configuration.cpp 
+  CPP_FILES node.cpp rc.cpp tags.cpp vlink.cpp vfile.cpp vfs.cpp fso.cpp mfso.cpp filemapping.cpp fdmanager.cpp cache.cpp iostat.cpp rootnode.cpp datatype.cpp session.cpp configuration.cpp log.cpp 
   LINK_LIBRARIES search exceptions types events destruct _destruct #pthread ?
   EXTRA_FILES vfs.py __init__.py iodevice.py extract.py mimetree.py magichandler.py
   )
