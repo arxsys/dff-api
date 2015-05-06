@@ -1,68 +1,66 @@
 #include "dstructs.hpp"
 #include "dstruct.hpp"
+#include "protocol/dmutableobject.hpp"
+#include "protocol/dstream.hpp"
+
 #include "log.hpp"
+#include <ctime>
 
-Log::Log(Destruct::DStruct* dstruct, Destruct::DValue const& args) : Destruct::DCppObject<Log>(dstruct, args)
+Time::Time(DStruct* dstruct, DValue const& args) : DCppObject<Time>(dstruct, args)
 {
-  // ONLY DO IT THE FIRST TIME ? IS POSSIBLE OR CREATE FUNCTION TO CHANGE STREAM
-  // OR NO SINGLETON
-
-  //opening log file
   this->init();
-
-  this->stream = Destruct::DStructs::instance().find("DStream")->newObject(args); //File Mode XXX
-  this->serializer = Destruct::DStructs::instance().find("SerializeText")->newObject(this->stream); //rather iniherit ?
 }
 
-Log::Log(const Log& copy) : Destruct::DCppObject<Log>(copy)
+Time::Time(const Time& copy) : DCppObject<Time>(copy)
 {
   this->init();
+}
+
+DUnicodeString Time::current(void)
+{
+  std::time_t t = std::time(NULL);
+  char mbstr[100];
+
+  if (std::strftime(mbstr, sizeof(mbstr), "%c", std::localtime(&t))) 
+    return (mbstr);
+  return "Error";
+}
+
+Log::Log(Destruct::DStruct* dstruct, Destruct::DValue const& args) : Destruct::DCppObjectSingleton<Log>(dstruct, args)
+{
+  DStructs& dstructs = DStructs::instance();
+
+  this->init();
+  
+  DMutableObject* arg = static_cast<DMutableObject*>(dstructs.generate("DMutable"));
+  //  this->configuration() -> get log file path ? (dependance qui sera loader en premier ??)
+  arg->setValueAttribute(DType::DUnicodeStringType, "filePath", RealValue<DUnicodeString>("dff.log"));  //XXX ful path
+  arg->setValueAttribute(DType::DInt8Type, "input",  RealValue<DInt8>(DStream::Output));
+  
+  this->stream = DStructs::instance().find("DStream")->newObject(RealValue<DObject*>(arg)); //File Mode XXX
+  this->serializer = DStructs::instance().find("SerializeText")->newObject(this->stream); //rather iniherit ?
+  this->time = DStructs::instance().find("Time")->newObject();
+}
+
+Log::Log(Log const& copy) : Destruct::DCppObjectSingleton<Log>(copy)
+{
+  this->init();
+}
+
+Log::~Log()
+{
+  std::cout << "DESTRIY LOG" << std::endl;
 }
 
 void    Log::append(Destruct::DValue const& args)
 {
-  std::cout << "Appending " << args.asUnicodeString() << " to log file." << std::endl;
+  //std::cout << "Appending " << args.asUnicodeString() << " to log file." << std::endl;
+  //DUnicodeString msg = DTime().asUnicodeString + " : " + args.asUnicodeString;
+  DUnicodeString msg = ((DObject*)this->time)->call("current").get<DUnicodeString>();
+  msg += " : " + args.asUnicodeString() + "\n";
+  ((DObject*)this->serializer)->call("DUnicodeString", RealValue<DUnicodeString>(msg)); //stream.write ?
+
+  ((DObject*)this->stream)->call("flush"); 
+ //XXX flush !!!
+
 }
-
-//Destruct::Log() //Singleton
-//{
-  //DStream __myStream;
-  //DSerializer  __serializer;
-
-  //setSerializer
-  //setStream ?
-
-  //this->add();
-  //this->serialize->DUnicodeStrng();
-  
-  
-  //add();
-  //{
-    //DuncidoeString val;
-
-  
-   //current = DateTime();
-
-   
-
-   //this->serialize->DUnicodeStrng(time + current);
-
-    //ex : 
-
-    //[10/12/15 21:12:33] Erreur ntfs ...
-
-  //}
-  
-
-  ////setStream(dobject);
-  ////add();
-  ////add(DUnicodeString message , int level);
-  ////add(DObject);
-
-
-  ////this->stream->
-
- 
- 
-
-//}

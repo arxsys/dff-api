@@ -20,67 +20,67 @@ from dff.api.types.libtypes import VMap
 event_type = ["add_qwidget"]
 
 class WorkQueue():
-	class __WorkQueue():
-		def launch(self):
-			while True:
-				work = self.waitQueue.get()
-				self.workerQueue.put(work)
-	
-		def enqueue(self, proc):
-			self.waitQueue.put(proc)
+  __instance = None
 
-		def set_callback(self, type, func):
-			if type in self.event_func:
-				self.event_func[type].append(func)
+  def __init__(self):
+    if WorkQueue.__instance is None:
+      WorkQueue.__instance = WorkQueue.__WorkQueue()
 	
-		def worker(self):
-			while True:
-				queuedTask = self.workerQueue.get()
-				for (func, arg) in queuedTask:
-				  try:
-  				   if func.im_class.__name__ == "Processus":
-  		  		       func(arg)
-				   elif arg:
-				       func(*arg)
-				   else:	
-					func()
-				  except :
-				    print "worker error"
-				    err_type, err_value, err_traceback = sys.exc_info()
-   				    for n in  traceback.format_exception_only(err_type, err_value):
-				       print n
-				    for n in traceback.format_tb(err_traceback):
-				       print n
-				self.workerQueue.task_done() 
+  def __setattr__(self, attr, value):
+   setattr(self.__instance, attr, value)
 
-		def __init__(self, max = multiprocessing.cpu_count() + 2):
-			self.waitQueue = Queue()
-			self.workerQueue = Queue(max)
-			self.max = max
-			self.event_func = {}
-			for type in event_type:
-				self.event_func[type] = []
-			for i in range(max):
-				thread = threading.Thread(target = self.worker, name = "Worker" + str(i))
-				thread.setDaemon(True)
-				thread.start()
+  def __getattr__(self, attr):
+    return getattr(self.__instance, attr)
 
-	__instance = None
+  class __WorkQueue():
+    def __init__(self, max = multiprocessing.cpu_count() + 2):
+      self.waitQueue = Queue()
+      self.workerQueue = Queue(max)
+      self.max = max
+      self.event_func = {}
+      for type in event_type:
+        self.event_func[type] = []
+      for i in range(max):
+        thread = threading.Thread(target = self.worker, name = "Worker" + str(i))
+        thread.setDaemon(True)
+        thread.start()
+
+    def launch(self):
+      while True:
+        work = self.waitQueue.get()
+        self.workerQueue.put(work)
 	
-	def __init__(self):
-		if WorkQueue.__instance is None:
-			WorkQueue.__instance = WorkQueue.__WorkQueue()
-	
-	def __setattr__(self, attr, value):
-		setattr(self.__instance, attr, value)
+    def enqueue(self, proc):
+      self.waitQueue.put(proc)
 
-	def __getattr__(self, attr):
-		return getattr(self.__instance, attr)
+    def set_callback(self, type, func):
+      if type in self.event_func:
+        self.event_func[type].append(func)
+	
+    def worker(self):
+      while True:
+        queuedTask = self.workerQueue.get()
+	for (func, arg) in queuedTask:
+          try:
+            if func.im_class.__name__ == "Processus":
+              func(arg)
+            elif arg:
+              func(*arg)
+            else:	
+              func()
+          except :
+            print "worker error"
+            err_type, err_value, err_traceback = sys.exc_info()
+            for n in  traceback.format_exception_only(err_type, err_value):
+              print n
+            for n in traceback.format_tb(err_traceback):
+              print n
+            self.workerQueue.task_done() 
 
 sched = WorkQueue()
 
 def voidcall(node):
-	pass
+  pass
 
 sched.set_callback("add_widget", voidcall)
 

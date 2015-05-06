@@ -29,6 +29,7 @@
 #include "datatype.hpp"
 
 #include "session.hpp"
+#include "log.hpp"
 /**
  *  Return singleton instance of VFS
  */
@@ -51,8 +52,7 @@ void    VFS::__declare(void)
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "dataTypes"));
   destruct.registerDStruct(dnodeStruct);
 
-  Destruct::DStruct* nodeContainer = Destruct::makeNewDCpp<NodeContainer>("NodeContainer");
-  destruct.registerDStruct(nodeContainer);
+  destruct.registerDStruct(Destruct::makeNewDCpp<NodeContainer>("NodeContainer"));
 
 //XXX doublon avec ce ux method load pour ntfs 
   Destruct::DStruct*  vlinkStruct = new Destruct::DStruct(0, "VLink", Destruct::DSimpleObject::newObject);
@@ -64,14 +64,16 @@ void    VFS::__declare(void)
   dpathStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "path")); 
   destruct.registerDStruct(dpathStruct);
 
-  Destruct::DStruct* voidNode = Destruct::makeNewDCpp<VoidNode>("VoidNode");
-  destruct.registerDStruct(voidNode);
+  destruct.registerDStruct(Destruct::makeNewDCpp<VoidNode>("VoidNode"));
 
   Destruct::DStruct* dvlinkStruct = new Destruct::DStruct(0, "DVLink", Destruct::DSimpleObject::newObject);
   dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
   dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "node"));
   dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "linkNode"));
   destruct.registerDStruct(dvlinkStruct);
+
+  destruct.registerDStruct(Destruct::makeNewDCppSingleton<Time>("Time"));
+  destruct.registerDStruct(Destruct::makeNewDCppSingleton<Log>("Log"));
 
   //XXX c lui qui devrait load c celui qu igere les ession enfin bon ..
 

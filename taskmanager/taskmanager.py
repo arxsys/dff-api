@@ -25,6 +25,7 @@ from dff.api.taskmanager.processus import ProcessusManager, Processus
 from dff.api.loader import loader 
 from dff.api.types.libtypes import Config
 from dff.api.filters.libfilters import Filter
+from dff.api.destruct import DStructs
 
 class ModulesConfig():
   def __init__(self):
@@ -337,6 +338,7 @@ class ScanQueue(Queue):
       self.countLock = threading.Lock()
       self.moduleMapCount  = {}
       self.loader = loader.loader()
+      self.logger = DStructs().find("Log").newObject()
 
    def registerDisplay(self, item, progress):
       self.displayItem = item
@@ -345,17 +347,6 @@ class ScanQueue(Queue):
    def refresh(self):
       self.count = 0     
       self.moduleMapCount.clear()
-
-   def task_done_scan(self, root, module):
-     self.countLock.acquire()
-     self.count += 1
-     try:
-       self.moduleMapCount[module] += 1
-     except KeyError:
-       self.moduleMapCount[module] = 1
-     self.countLock.release()
-     self.displayProgress(root, self.count, module, self.moduleMapCount[module])
-     self.task_done()
 
    def scanJoin(self, root, modulesToApply = None):
       modMap = {}
@@ -369,14 +360,15 @@ class ScanQueue(Queue):
 	 	self.task_done()
 		continue
 
+         node = None
          module = self.loader.modules[moduleName]
          try:
-           filterText = module.scanFilter
-           if filterText != '':
-             arguments = task[1][1]
-             nodeArguments = module.conf.argumentsByType(typeId.Node)
-             if len(nodeArguments) == 1:
-               node = arguments[nodeArguments[0].name()].value() 
+           arguments = task[1][1]
+           nodeArguments = module.conf.argumentsByType(typeId.Node)
+           if len(nodeArguments) == 1:
+             node = arguments[nodeArguments[0].name()].value() 
+             filterText = module.scanFilter
+             if filterText != '':
                filter = Filter('')
                filter.compile(filterText)
                filter.process(node)
@@ -392,6 +384,10 @@ class ScanQueue(Queue):
 	 except KeyError:
 	   modMap[task[1][0]] = 1
 
+         if node:
+           self.logger.append("Add task : " +  moduleName + ' ' + str(task[1][1]) + " " +  node.absolute())
+         else:
+           self.logger.append("Add task : " + moduleName + ' ' + str(task[1][1]))
 	 job2 = (self.task_done_scan, (root, task[1][0],))
 	 job = (task, job2)
          jobs.append(job)
@@ -402,6 +398,21 @@ class ScanQueue(Queue):
         sched.enqueue(job)
       self.join()
       self.refresh()
+
+   def task_done_scan(self, root, module):
+     self.countLock.acquire()
+     self.count += 1
+     self.logger.append("Finish task : " + str(module) + ' ' + str(root))
+     try:
+       self.moduleMapCount[module] += 1
+     except KeyError:
+       self.moduleMapCount[module] = 1
+     #if configuration.logg == 1 : #XXX
+     #self.log.append(str())
+     self.countLock.release()
+     self.displayProgress(root, self.count, module, self.moduleMapCount[module])
+     self.task_done()
+
 
 class ProcessingQueue(ScanQueue):
    def __init__(self):
@@ -414,6 +425,18 @@ class ProcessingQueue(ScanQueue):
       self.total = 0
       self.percent = 0 	 
   
+   def scanJoin(self, root):
+      total = self.qsize()
+      self.displayItem(root, total)
+      self.total = total
+      while not self.empty():
+         task =  self.get()
+         job2 = (self.task_done_scan, (root,))
+         jobs = (task, job2)
+         sched.enqueue(jobs)
+      self.join() 
+      self.refresh()
+
    def task_done_scan(self, root):
       self.countLock.acquire()
       self.count += 1
@@ -427,18 +450,6 @@ class ProcessingQueue(ScanQueue):
       if newpercent :
         self.displayProgress(root, self.count)
       self.task_done()
-
-   def scanJoin(self, root):
-      total = self.qsize()
-      self.displayItem(root, total)
-      self.total = total
-      while not self.empty():
-         task =  self.get()
-         job2 = (self.task_done_scan, (root,))
-         jobs = (task, job2)
-         sched.enqueue(jobs)
-      self.join() 
-      self.refresh()
 
 class PostProcessDisplay():
   def __init__(self, verbose = True):
@@ -513,6 +524,7 @@ class PostProcessScheduler():
 	  self.fullAuto = True
           self.pause = threading.Event() 
           self.pause.set() #will not wait at start
+          self.logger = DStructs().find('Log').newObject()
 
         def setPause(self, state = True): 
            if state == True:
@@ -563,12 +575,11 @@ class PostProcessScheduler():
 		  return
              self.displayState.updateState(True)
              self.displayRoot(root)
+             self.logger.append("Scan : " + root.absolute())
              self.taskManager.postProcessWalk(root)
              self.processingQueue.scanJoin(root)
 
-             
-
-	
+             self.logger.append("Finish - Scan : " + root.absolute()) 
 	     if (not self.fullAuto) and self.display:
 	       h = {}
 	       for n in self.processusQueue.queue:

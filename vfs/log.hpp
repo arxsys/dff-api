@@ -17,36 +17,62 @@
   ////clone();
 //};
 
-class Log : public Destruct::DCppObject<Log> //singleton ?
+using namespace Destruct;
+
+class Time : public DCppObject<Time>
 {
 public:
-  Log(Destruct::DStruct* dstruct, Destruct::DValue const& args);
+  Time(DStruct* dstruct, DValue const& args);
+  Time(const Time& time);
+  
+  RealValue<DFunctionObject* > _current; 
+
+  DUnicodeString              current(void);
+
+  static size_t ownAttributeCount()
+  {
+    return (1);
+  }
+
+  static DAttribute* ownAttributeBegin()
+  {
+    static DAttribute  attributes[] = 
+    {
+      DAttribute(DType::DUnicodeStringType, "current", DType::DNoneType),
+    };
+    return (attributes);
+  }
+
+  static DPointer<Time>* memberBegin()
+  {
+    static DPointer<Time> memberPointer[] = 
+    {
+      DPointer<Time>(&Time::_current, &Time::current),
+    };
+    return (memberPointer);
+  }
+
+  static DAttribute* ownAttributeEnd()
+  {
+    return (ownAttributeBegin() + ownAttributeCount());
+  }
+
+  static DPointer<Time>*  memberEnd()
+  {
+    return (memberBegin() + ownAttributeCount());
+  }
+};
+
+class Log : public DCppObjectSingleton<Log>
+{
+public:
+  Log(DStruct* dstruct, DValue const& args);
   Log(const Log& copy);
 
-  void          append(Destruct::DValue const& args);
+  void          append(DValue const& args);
                                         
-  Destruct::RealValue<Destruct::DObject*>          stream, serializer;
-  Destruct::RealValue<Destruct::DFunctionObject* > _append; //add // append
-
-/*
-  static DObject* newObject(Destruct::DMutableStruct* dstruct, DValue const& args)
-  {
-    static DObject* configuration = new CaseInformations(dstruct, args);
-    configuration->addRef();
-    return (configuration);
-  }
-
-  virtual DObject* clone() const
-  {
-    DObject* configuration = static_cast<DObject*>(const_cast<CaseInformations*>(this));
-    configuration->addRef();
-    return (configuration);
-  }
-*/
-  //XXX Singleton
-
-//  newObject
-// clone
+  RealValue<DObject*>          stream, serializer, time;
+  RealValue<DFunctionObject* > _append;
 
   /*
    *  DStruct declaration
@@ -56,34 +82,37 @@ public:
     return (3);
   }
 
-  static Destruct::DAttribute* ownAttributeBegin()
+  static DAttribute* ownAttributeBegin()
   {
-    static Destruct::DAttribute  attributes[] = 
+    static DAttribute  attributes[] = 
     {
-      Destruct::DAttribute(Destruct::DType::DObjectType, "stream"),
-      Destruct::DAttribute(Destruct::DType::DObjectType, "serializer"),
-      Destruct::DAttribute(Destruct::DType::DNoneType, "append", Destruct::DType::DUnicodeStringType),
+      DAttribute(DType::DObjectType, "stream"),
+      DAttribute(DType::DObjectType, "serializer"),
+      //debug
+      //info
+      //warn
+      DAttribute(DType::DNoneType, "append", DType::DUnicodeStringType),
     };
     return (attributes);
   }
 
-  static Destruct::DPointer<Log>* memberBegin()
+  static DPointer<Log>* memberBegin()
   {
-    static Destruct::DPointer<Log> memberPointer[] = 
+    static DPointer<Log> memberPointer[] = 
     {
-      Destruct::DPointer<Log>(&Log::stream),
-      Destruct::DPointer<Log>(&Log::serializer),
-      Destruct::DPointer<Log>(&Log::_append, &Log::append),
+      DPointer<Log>(&Log::stream),
+      DPointer<Log>(&Log::serializer),
+      DPointer<Log>(&Log::_append, &Log::append),
     };
     return (memberPointer);
   }
 
-  static Destruct::DAttribute* ownAttributeEnd()
+  static DAttribute* ownAttributeEnd()
   {
     return (ownAttributeBegin() + ownAttributeCount());
   }
 
-  static Destruct::DPointer<Log >*  memberEnd()
+  static DPointer<Log >*  memberEnd()
   {
     return (memberBegin() + ownAttributeCount());
   }
