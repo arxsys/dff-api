@@ -338,7 +338,7 @@ class ScanQueue(Queue):
       self.countLock = threading.Lock()
       self.moduleMapCount  = {}
       self.loader = loader.loader()
-      self.logger = DStructs().find("Log").newObject()
+      #self.logger = DStructs().find("Log").newObject()
 
    def registerDisplay(self, item, progress):
       self.displayItem = item
@@ -384,10 +384,10 @@ class ScanQueue(Queue):
 	 except KeyError:
 	   modMap[task[1][0]] = 1
 
-         if node:
-           self.logger.append("Add task : " +  moduleName + ' ' + str(task[1][1]) + " " +  node.absolute())
-         else:
-           self.logger.append("Add task : " + moduleName + ' ' + str(task[1][1]))
+         #if node:
+           #self.logger.append("Add task : " +  moduleName + ' ' + str(task[1][1]) + " " +  node.absolute())
+         #else:
+           #self.logger.append("Add task : " + moduleName + ' ' + str(task[1][1]))
 	 job2 = (self.task_done_scan, (root, task[1][0],))
 	 job = (task, job2)
          jobs.append(job)
@@ -402,7 +402,7 @@ class ScanQueue(Queue):
    def task_done_scan(self, root, module):
      self.countLock.acquire()
      self.count += 1
-     self.logger.append("Finish task : " + str(module) + ' ' + str(root))
+     #self.logger.append("Finish task : " + str(module) + ' ' + str(root))
      try:
        self.moduleMapCount[module] += 1
      except KeyError:
@@ -524,7 +524,7 @@ class PostProcessScheduler():
 	  self.fullAuto = True
           self.pause = threading.Event() 
           self.pause.set() #will not wait at start
-          self.logger = DStructs().find('Log').newObject()
+          #self.logger = DStructs().find('Log').newObject()
 
         def setPause(self, state = True): 
            if state == True:
@@ -575,11 +575,11 @@ class PostProcessScheduler():
 		  return
              self.displayState.updateState(True)
              self.displayRoot(root)
-             self.logger.append("Scan : " + root.absolute())
+             #self.logger.append("Scan : " + root.absolute())
              self.taskManager.postProcessWalk(root)
              self.processingQueue.scanJoin(root)
 
-             self.logger.append("Finish - Scan : " + root.absolute()) 
+             #self.logger.append("Finish - Scan : " + root.absolute()) 
 	     if (not self.fullAuto) and self.display:
 	       h = {}
 	       for n in self.processusQueue.queue:
@@ -610,7 +610,8 @@ class PostProcessScheduler():
 		 self.scanAnalyse(root, self.firstRoot)
 		 self.displayState.updateState(False)
 		 self.taskManager.clearPostProcess() #clear here ? 
-		 self.firstRoot = None	       
+		 self.firstRoot = None	    
+                 #log time to process ?   
      __instance = None
 	
      def __init__(self):
