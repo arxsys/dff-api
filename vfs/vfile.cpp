@@ -328,7 +328,7 @@ std::string  VFile::readline(uint32_t size)
 
 int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
-  unsigned char		*buffer;
+  unsigned char		*buffer = NULL;
   int32_t		bread;
   int32_t		idx;
   int32_t		hlen;
@@ -368,10 +368,12 @@ int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcar
   }
   catch (vfsError const& e)
   {
-    free(buffer);
+    if (buffer)
+      free(buffer);
     throw std::string(e.error);
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   if (idx == -1)
     pos = -1;
   else
@@ -382,7 +384,7 @@ int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcar
 
 int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
-  unsigned char		*buffer;
+  unsigned char		*buffer = NULL;
   int32_t		bread;
   int32_t		idx;
   int32_t		hlen;
@@ -432,10 +434,12 @@ int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildca
   }
   catch (vfsError const& e)
   {
-    free(buffer);
+    if (buffer)
+      free(buffer);
     throw std::string(e.error);
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   if (idx == -1)
     pos = -1;
   else
