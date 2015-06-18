@@ -884,7 +884,7 @@ char	Variant::toChar() throw (std::string)
     }
   else if (this->_type == typeId::UInt16)
     {
-      if ((this->__data.us >= INT8_MIN) && (this->__data.us <= INT8_MAX))
+      if (this->__data.us <= INT8_MAX)
 	res = static_cast<char>(this->__data.us);
       else
 	err << "value [ " << this->__data.us;
