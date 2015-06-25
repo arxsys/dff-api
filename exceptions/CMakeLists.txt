@@ -37,3 +37,5 @@ elseif(UNIX)
 endif(UNIX)
 
 add_dependencies("dff.api.exceptions" patchexceptions)
+
+add_subdirectory(breakpad)

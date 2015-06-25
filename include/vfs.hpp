@@ -29,6 +29,13 @@
 #else
   #include "wstdint.h"
 #endif
+
+#ifndef WIN32
+  #include "client/linux/handler/exception_handler.h"
+#else
+  #include "client/windows/handler/exception_handler.h"
+#endif
+
 #include <vector>
 #include <deque>
 #include <list>
@@ -37,6 +44,7 @@
 #include "eventhandler.hpp"
 #include "export.hpp"
 #include "exceptions.hpp"
+
 
 class Node;
 class fso;
@@ -67,6 +75,7 @@ private:
   void                          __deleteNode(Node* node);
   std::vector<fso*>	        __fsobjs;
   NodeManager                   __nodeManager;
+  google_breakpad::ExceptionHandler *__eh;
 public:
   class Node*                   cwd;
   Node*		                root;

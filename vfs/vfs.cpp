@@ -20,6 +20,17 @@
 #include "rootnode.hpp"
 #include "vlink.hpp"
 
+
+
+static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
+                         void* context,
+                         bool succeeded)
+{
+  printf("Dump path: %s\n", descriptor.path());
+  return succeeded;
+}
+
+
 /**
  *  Return singleton instance of VFS
  */
@@ -37,6 +48,24 @@ VFS::VFS()
   this->root = new VFSRootNode("/");
   this->registerNode(this->root);
   cwd = root;
+  #ifndef WIN32
+	google_breakpad::MinidumpDescriptor descriptor("/tmp/pouet");
+	this->__eh = new google_breakpad::ExceptionHandler(descriptor, 
+							   NULL,//DmpFilter, 
+							   dumpCallback, 
+							   NULL, 
+							   true,
+							   -1);
+  #else
+	this->__eh = new google_breakpad::ExceptionHandler(L"C:\\", 
+							   NULL,//DmpFilter, 
+							   dumpCallback, 
+							   0, 
+							   google_breakpad::ExceptionHandler::HANDLER_ALL,
+							   MiniDumpNormal,
+							   L""
+							   0);	
+  #endif
 }
 
 VFS::~VFS()
