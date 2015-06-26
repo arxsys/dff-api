@@ -22,6 +22,7 @@
 
 
 
+#ifndef WIN32
 static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
                          void* context,
                          bool succeeded)
@@ -29,6 +30,15 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
   printf("Dump path: %s\n", descriptor.path());
   return succeeded;
 }
+
+#else
+
+bool dumpCallback(const wchar_t* _dump_dir, const wchar_t* _minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo* assertion, bool success)
+{
+  std::wcout << "Dumping to " << _dump_dir << std::endl;
+  return true;
+}
+#endif
 
 
 /**
@@ -57,14 +67,15 @@ VFS::VFS()
 							   true,
 							   -1);
   #else
-	this->__eh = new google_breakpad::ExceptionHandler(L"C:\\", 
+	this->__eh = new google_breakpad::ExceptionHandler(L"C:\\Users\\builder\\Desktop", 
 							   NULL,//DmpFilter, 
-							   dumpCallback, 
-							   0, 
-							   google_breakpad::ExceptionHandler::HANDLER_ALL,
-							   MiniDumpNormal,
-							   L""
-							   0);	
+							   dumpCallback,//DmpCallback 
+							   0,
+							   true);
+							   // google_breakpad::ExceptionHandler::HANDLER_ALL,
+							   // MiniDumpNormal,
+							   // L"",
+							   // 0);	
   #endif
 }
 
