@@ -1,4 +1,4 @@
-import os
+import os, sys, traceback
 from time import time
 
 from dff.api.destruct import * #Destruct, DNone, DStruct, DAttribute, DUnicodeString, *
@@ -11,6 +11,8 @@ from dff.api.taskmanager.taskmanager import TaskManager
 from dff.pro.api.report.manager import ReportManager
 
 from dff.ui.gui.utils.menu import BookmarkManager, BookNode
+
+#XXX XXX move to api/pro ...
 
 class ArgumentsConverter(object):
   typeConverter = {
@@ -212,15 +214,27 @@ class CaseLoader(object):
      self.saveAs(filePath)
 
   def saveAs(self, filePath):
+    try:
      dfs = self.destruct.find("DFS").newObject()
+     print 'saving processus'
      self.update('Saving processus')
      self.saveProcessus(dfs)
      self.update('Saving report')
+     print 'saving report '
      dfs.report = ReportManager().save()
+     print 'writing file'
      self.update('Writing file')
      dfs.save(filePath)
      dfs = None
      self.update('Case saved')
+    except Exception as e:
+      print e
+      err_type, err_value, err_traceback = sys.exc_info()
+      for n in  traceback.format_exception_only(err_type, err_value):
+        print n
+      for n in traceback.format_tb(err_traceback):
+        print n
+      raise e
 
   def saveProcessus(self, dfs):
      dfs.caseInformations = DStructs().find("CaseInformations").newObject() 
@@ -248,14 +262,14 @@ class CaseLoader(object):
      self.update('Loading datas types') #avant que les modules soit appliques ? c juste la base je suppose
      DataTypeManager.Get().load(dfs.dataType)
      self.update('Loading tags') #avant que les modules soit appliques ? c juste la base je suppose ?
-     TagsManager.get().load(dfs.tags )
+     TagsManager.get().load(dfs.tags)
      self.update('Loading modules')
      self.loadModule(dfs.modules)
      self.update('Loading tree')
      dfs.loadTree()
      self.update('Loading modules arguments')
      for moduleArguments in self.loadLate:
-        self.loadModuleArguments(moduleArguments) 
+       self.loadModuleArguments(moduleArguments) 
      self.update('Loading bookmarks')
      self.loadBookmarks(dfs.nodeTree) 
      self.update('Loading report')

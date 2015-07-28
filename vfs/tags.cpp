@@ -301,11 +301,11 @@ void                    TagsManager::load(Destruct::DValue value)
     Destruct::DUnicodeString name = tag->getValue("name").get<Destruct::DUnicodeString>(); 
     Destruct::DObject* color = tag->getValue("color").get<Destruct::DObject*>();
     tag->destroy();
-    tag->destroy();
     uint8_t r = color->getValue("r").get<DUInt8>(); 
     uint8_t g = color->getValue("g").get<DUInt8>(); 
     uint8_t b = color->getValue("b").get<DUInt8>(); 
     this->add(name.string(), r, g, b); 
+    color->destroy();
   }
   vector->destroy();
 }

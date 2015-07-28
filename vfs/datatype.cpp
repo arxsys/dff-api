@@ -121,7 +121,7 @@ const std::list<std::string>                 DataType::compatibleModules(void) c
   return (this->__compatibleModules);
 }
 
-bool                                         DataType::load(Destruct::RealValue<Destruct::DObject*>  dobject)
+bool                                         DataType::load(Destruct::DValue const&  dobject)
 {
   //XXX code me 
   return (false);
@@ -176,9 +176,9 @@ const DataType*                 DataTypes::insert(DataTypeHandler* handler, std:
   return (newDataType);
 }
 
-bool                            DataTypes::load(Destruct::RealValue<Destruct::DObject*>  dobject)
+bool                            DataTypes::load(Destruct::DValue const&  dobject)
 {
-  Destruct::DObject* vector = dobject;
+  Destruct::DObject* vector = dobject.get<Destruct::DObject*>();
   DataTypeManager* dataTypeManager = DataTypeManager::Get();
 
   DUInt64 size = vector->call("size").get<DUInt64>();
@@ -199,7 +199,6 @@ bool                            DataTypes::load(Destruct::RealValue<Destruct::DO
     if (handler == NULL)
     {
        dataType->destroy();
-       dataType->destroy();
        compatibleModulesVector->destroy();
        return (false);
     }
@@ -207,8 +206,8 @@ bool                            DataTypes::load(Destruct::RealValue<Destruct::DO
     this->__dataTypes[dataTypeName] = new DataType(dataTypeManager->handler(handlerName), dataTypeName, compatibleModules);
     compatibleModulesVector->destroy();
     dataType->destroy();
-    dataType->destroy();
   }
+  vector->destroy();
  
   return (true);
 }                       
@@ -222,7 +221,7 @@ Destruct::RealValue<Destruct::DObject*>      DataTypes::save(void) const //retur
   {
     Destruct::DObject* dt = type->second->save(); 
     dvector->call("push", Destruct::RealValue<Destruct::DObject*>(dt)); 
-    dt->destroy();
+    //dt->destroy();
   }
   return (dvector);
 }
@@ -250,7 +249,7 @@ void    NodesTypes::insert(Node* node, const DataType* type)
 }
 
 
-bool                                         NodesTypes::load(Destruct::RealValue<Destruct::DObject*>  dobject)
+bool                                         NodesTypes::load(Destruct::DValue const&  dobject)
 {
   //XXX code me 
   return (false);
@@ -272,16 +271,16 @@ Destruct::RealValue<Destruct::DObject*>      NodesTypes::save(void) const //retu
     
     dnode->setValue("absolute", Destruct::RealValue<Destruct::DUnicodeString>(nodeDataTypes->first->absolute()));
     dnodeTypes->setValue("node", Destruct::RealValue<Destruct::DObject*>(dnode)); //? intret ? y a rien de set
-    dnode->destroy();
+    //dnode->destroy();
     
     Destruct::DObject* dvectorString = dvectorStringStruct->newObject(); 
     std::vector<const DataType*>::const_iterator dataType = nodeDataTypes->second.begin();
     for (; dataType != nodeDataTypes->second.end(); dataType++)
       dvectorString->call("push", Destruct::RealValue<Destruct::DUnicodeString>((*dataType)->name()));
     dnodeTypes->setValue("dataTypes", Destruct::RealValue<Destruct::DObject*>(dvectorString));
-    dvectorString->destroy();
+    //dvectorString->destroy();
     dvectorObject->call("push", Destruct::RealValue<Destruct::DObject*>(dnodeTypes));
-    dnodeTypes->destroy();
+    //dnodeTypes->destroy();
   }
   
   return (dvectorObject); 
@@ -481,17 +480,14 @@ void                    DataTypeManager::loadNodeDataTypes(Node* node, Destruct:
 }
 
 bool                    DataTypeManager::load(Destruct::DValue value)
-//bool                    DataTypeManager::load(Destruct::DValue const& value)
 {
-  Destruct::DObject* dobject = value.get<Destruct::DObject*>();
   try 
   {
-    this->__dataTypes.load(dobject);
+    this->__dataTypes.load(value);
   }
   catch (Destruct::DException const& exception)
   {
   }
-  dobject->destroy();
 
   return (true);
 }

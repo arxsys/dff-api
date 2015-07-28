@@ -68,7 +68,7 @@ public:
   EXPORT const std::string                              handlerName(void) const;
   EXPORT const std::string                              name(void) const;
   EXPORT const std::list<std::string>                   compatibleModules(void) const;
-  EXPORT bool                                           load(Destruct::RealValue<Destruct::DObject*>);
+  EXPORT bool                                           load(Destruct::DValue const& value);
   EXPORT Destruct::RealValue<Destruct::DObject*>        save(void) const; 
 private:
   void		                                        __compatibleModulesByType(const std::map<std::string, Constant*>& cmime, const std::string dtypes, std::list<std::string>& result);
@@ -87,7 +87,7 @@ public:
   EXPORT                                                ~DataTypes();
   EXPORT const DataType*                                find(std::string typeName) const;
   EXPORT const DataType*                                insert(DataTypeHandler*, std::string typeName);
-  EXPORT bool                                           load(Destruct::RealValue<Destruct::DObject*>);
+  EXPORT bool                                           load(Destruct::DValue const& value);
   EXPORT Destruct::RealValue<Destruct::DObject*>        save(void) const;
 private:
   std::map<const std::string, const DataType* >         __dataTypes; //to serialize by map ? string / dobject type
@@ -102,7 +102,7 @@ public:
   EXPORT                                                NodesTypes();
   EXPORT const std::vector<const DataType* >            find(Node* node) const; 
   EXPORT void                                           insert(Node* node, const DataType* type);
-  EXPORT bool                                           load(Destruct::RealValue<Destruct::DObject*>);
+  EXPORT bool                                           load(Destruct::DValue const& value);
   EXPORT Destruct::RealValue<Destruct::DObject*>        save(void) const;
 private:
   std::map<Node*, std::vector<const DataType* > >       __nodesDataTypes; //XXX dff:map //for locking / to serialize by map dobject, dobject (string, type) -> could be a list to insert in map ? 
@@ -111,7 +111,7 @@ private:
 /**
  *  This class let you register handler and get info for node compatible type and modules
  */
-class DataTypeManager 
+class DataTypeManager  //DCppObjectSingleton ? 
 {
 public:
   EXPORT static DataTypeManager* 		Get();

@@ -839,6 +839,10 @@ Open the node and return a pointer to a VFile instance
 #include "../destruct/python/py_module.hpp"
 %}
 
+%ignore NodesTypes;
+%ignore DataTypes;
+%ignore DataType;
+
 %import "../types/libtypes.i"
 
 %refobject RCObj "$this->addref();"

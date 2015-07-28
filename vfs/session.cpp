@@ -20,8 +20,6 @@
 /**
  *  SessionLoader (temp for DLoader/DSerializer)
  */
-
-
 SessionLoader::SessionLoader(DStruct* dstruct, DValue const& args) : DCppObject(dstruct, args) , __destruct(Destruct::DStructs::instance())
 {
   this->init();
@@ -64,14 +62,13 @@ Destruct::DObject* SessionLoader::load(Destruct::DValue filePath)
   try 
   {
     Destruct::DObject* dstream = this->__destruct.generate("DStream", Destruct::RealValue<Destruct::DObject*>(arg));
-
     arg->destroy();
 
     Destruct::DObject* deserializer = this->__destruct.generate("DeserializeBinary", RealValue<DObject*>(dstream));
     Destruct::DObject* session = deserializer->call("DObject").get<DObject*>();
     deserializer->destroy();
     dstream->destroy();
-    session->destroy();
+    std::cout << "return loaded session ref " << session->refCount() << std::endl;
 
     return (session);
   } 
@@ -87,7 +84,7 @@ Destruct::DObject* SessionLoader::load(Destruct::DValue filePath)
   {
     std::cout << "Error loading file '" << filePath.asUnicodeString() << "' : " << " Can't allocate object " << exception.what() << std::endl;
   }
-  return (Destruct::RealValue<Destruct::DObject*>(Destruct::DNone));
+  return (Destruct::DNone);
 }
 
 /** 
@@ -221,12 +218,11 @@ void    DFS::loadTree(void)
     //else
     if (node != NULL)
     {
-            //std::cout << " dnode " << nodeName << " id " << value->getValue("uid").get<DUInt64>() << " " << node->name() << " id " << node->uid() << std::endl;
+       //std::cout << " dnode " << nodeName << " id " << value->getValue("uid").get<DUInt64>() << " " << node->name() << " id " << node->uid() << std::endl;
       this->__vfs.addDNodeID(value->getValue("uid").get<DUInt64>(), node->uid());
       if (nodeName != "Bookmarks")
         this->__loadNode(value, node);
     }
-    value->destroy();
     value->destroy();
   }
   children->destroy();
@@ -278,7 +274,6 @@ void    DFS::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* n
     }
     this->__loadNode(Destruct::RealValue<Destruct::DObject*>(childObject), childNode);
     childObject->destroy();
-    childObject->destroy(); 
   }
   children->destroy();
 }
@@ -295,7 +290,6 @@ void Debug::inspect(Destruct::DObject* dobject)
       Destruct::DObject* subobject = dobject->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DObject*>();
       std::cout << "  contain : " << subobject->instanceOf()->name() << " refcount : " << subobject->refCount()  - 2 <<  std::endl;
       Debug::inspect(subobject);
-      subobject->destroy();
       subobject->destroy();
     }
     return ; 
