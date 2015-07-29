@@ -33,6 +33,7 @@ Search::Search()
   this->__find = NULL;
   this->__rfind = NULL;
 #if HAVE_TRE
+  memset(&this->__preg, 0, sizeof(this->__preg));
   memset(&this->__aparams, 0, sizeof(this->__aparams));
   this->__aparams.max_err = 3;
   this->__aparams.max_ins = this->__aparams.max_del = this->__aparams.max_subst = 1;
@@ -51,10 +52,10 @@ Search::Search(std::string pattern, CaseSensitivity cs, PatternSyntax syntax)
   this->__find = NULL;
   this->__rfind = NULL;
 #if HAVE_TRE
+  memset(&this->__preg, 0, sizeof(this->__preg));
   memset(&this->__aparams, 0, sizeof(this->__aparams));
   this->__aparams.max_err = 3;
   this->__aparams.max_ins = this->__aparams.max_del = this->__aparams.max_subst = 1;
-  memset(&this->__preg, 0, sizeof(this->__preg));
 #endif
 }
 
