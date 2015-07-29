@@ -16,12 +16,11 @@
 
 #include "boyer_moore.hpp"
 
-BoyerMoore::BoyerMoore()
+BoyerMoore::BoyerMoore() : needle(NULL), wildcard(0), needleSize(0), bcs(NULL), debug(false)
 {
-  this->bcs = NULL;
 }
 
-BoyerMoore::BoyerMoore(unsigned char *needle, unsigned int needlesize, unsigned char wildcard)
+BoyerMoore::BoyerMoore(unsigned char *needle, unsigned int needlesize, unsigned char wildcard) : needle(needle), wildcard(wildcard), needleSize(needlesize), bcs(NULL), debug(false)
 {
   this->bcs = NULL;
   if (needle != NULL)
