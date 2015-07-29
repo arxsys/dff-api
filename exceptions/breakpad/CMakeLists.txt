@@ -16,10 +16,12 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIRECTORY})
+include_directories(.)
 
 if (WIN32)
 
+  add_definitions(-DUNICODE -D_UNICODE)
+  
   set(breakpad_client_sources    
     client/windows/crash_generation/crash_generation_client.cc
     client/windows/crash_generation/crash_generation_server.cc
@@ -68,10 +70,14 @@ endif(UNIX)
 add_library(breakpad_client STATIC ${breakpad_client_sources})
 
 if ( CMAKE_GENERATOR MATCHES "Visual Studio" )
+  message("HOLY SHIT?!")
   set_target_properties (breakpad_client PROPERTIES
     SUFFIX ".lib"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}"
-    RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_CURRENT_BINARY_DIR}"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
+    ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}"
+    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}"
+    LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_CURRENT_BINARY_DIR}"
+    ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_CURRENT_BINARY_DIR}"
     )
 endif()
