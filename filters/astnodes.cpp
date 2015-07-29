@@ -483,7 +483,7 @@ ComparisonExpression::ComparisonExpression(Expression* lhs, Expression* rhs, int
 	}
     }
   else
-    throw ("Comparison expression, left or right expression cannot be NULL");
+    throw std::string("Comparison expression, left or right expression cannot be NULL");
 }
 
 ComparisonExpression::~ComparisonExpression()
@@ -668,7 +668,7 @@ Expression*	TimestampAttribute::create(std::string val)
   return new TimestampAttribute(val);
 }
 
-NamedAttribute::NamedAttribute(std::string val) : __val(val)
+NamedAttribute::NamedAttribute(std::string val) : __val(val), __attrtype(attributeNameType())
 {
 }
 
@@ -785,12 +785,13 @@ Variant*	DataPatternCount::evaluate()
   uint64_t	counter;
   
   vf = NULL;
+  s = NULL;
+  counter = 0;
   try
     {    
       if ((vf = this->_ic->data()) != NULL)
 	{
 	  this->connection(vf);
-	  counter = 0;
 	  this->__container->reset();
 	  while (counter != this->__count && !this->_stop && ((s = this->__container->getPattern()) != NULL))
 	    {
@@ -850,11 +851,11 @@ Variant*	DataMatches::evaluate()
   
   ret = false;
   vf = NULL;
+  counter = 0;
   try
     {      
       if ((vf = this->_ic->data()) != NULL)
 	{
-	  counter = 0;
 	  this->connection(vf);
 	  if (this->__count > 1)
 	    {

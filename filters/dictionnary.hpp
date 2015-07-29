@@ -35,7 +35,11 @@ class Node;
 class IndexedPatterns
 {
 private:
-  EXPORT	IndexedPatterns() {}
+  EXPORT	IndexedPatterns() :  __nodePatterns(dff::map<Node*, dff::vector< uint32_t > >()),
+				     __patternNodes(dff::map<uint32_t, dff::vector< Node* > >()),
+				     __uniq(dff::map<std::string, uint32_t>()),
+				     __idString(dff::map<uint32_t, std::string>()),
+				     __counter(0) {}
   EXPORT	IndexedPatterns(IndexedPatterns&) {}
   EXPORT	~IndexedPatterns() {}
   EXPORT	IndexedPatterns&	operator=(IndexedPatterns&);

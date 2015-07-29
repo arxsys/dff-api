@@ -111,14 +111,8 @@ hexdigit	[a-fA-F0-9]
 					mul = 1024*1024*1024;
 				     }
 				   errno = 0;
-				   if (ptr != NULL)
-				      {
-					 val = strtoull(yytext, NULL, 10);
-                                      }
-                                   else
-				      {
-					 val = strtoull(yytext, NULL, 10);
-				      }
+                                   val = strtoull(yytext, NULL, 10);
+				   val *= mul;
                                    if (errno == ERANGE && val == ULLONG_MAX)
 				   {
 				        //OVERFLOW_ERROR;
