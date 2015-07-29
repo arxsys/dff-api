@@ -49,7 +49,7 @@ VFS::VFS()
   this->registerNode(this->root);
   cwd = root;
   #ifndef WIN32
-	google_breakpad::MinidumpDescriptor descriptor("/tmp/pouet");
+	google_breakpad::MinidumpDescriptor descriptor("/tmp");
 	this->__eh = new google_breakpad::ExceptionHandler(descriptor, 
 							   NULL,//DmpFilter, 
 							   dumpCallback, 
