@@ -284,6 +284,8 @@ void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
       else
   	this->_addBadPattern(pattern, std::string("Error while creating Search instance"), line);
     }
+  if (s != NULL)
+    delete s;
 }
 
 
@@ -336,7 +338,7 @@ bool		FileDictionnary::compile()
       pattern = "";
       while (this->__fdict.good())
 	{
-	  c = this->__fdict.get();
+	  this->__fdict.get(c);
 	  if (c == '\n')
 	    {
 	      ++this->__line_count;
