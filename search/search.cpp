@@ -30,6 +30,8 @@ Search::Search()
   this->__nlen = 512;
   this->__syntax = Fixed;
 #if HAVE_TRE
+  this->__preg.re_nsub = 0;
+  this->__preg.value = NULL;
   this->__aparams.max_err = 3;
   this->__aparams.max_ins = this->__aparams.max_del = this->__aparams.max_subst = 1;
 #endif
@@ -44,6 +46,8 @@ Search::Search(std::string pattern, CaseSensitivity cs, PatternSyntax syntax)
   this->__needtrefree = false;
   this->__nlen = 0;
 #if HAVE_TRE
+  this->__preg.re_nsub = 0;
+  this->__preg.value = NULL;
   this->__aparams.max_err = 3;
   this->__aparams.max_ins = this->__aparams.max_del = this->__aparams.max_subst = 1;
 #endif
