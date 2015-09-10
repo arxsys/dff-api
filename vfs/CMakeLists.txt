@@ -14,17 +14,9 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 
-if (WIN32)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/breakpad_client.lib")
-elseif (UNIX)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/libbreakpad_client.a")
-endif(WIN32)
-
-
 dff_cpp_api(vfs 
   SWIG_FILE libvfs.i
   CPP_FILES rc.cpp tags.cpp node.cpp vlink.cpp vfile.cpp vfs.cpp fso.cpp mfso.cpp filemapping.cpp fdmanager.cpp cache.cpp iostat.cpp rootnode.cpp
-  LINK_LIBRARIES datatype search exceptions types events ${libbreakpad}
+  LINK_LIBRARIES datatype search exceptions types events
   EXTRA_FILES vfs.py __init__.py iodevice.py extract.py
-  INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad"
   )

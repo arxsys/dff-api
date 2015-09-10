@@ -15,3 +15,12 @@
 
 __version__ = "${API_EXCEPTIONS_VERSION}"
 __all__ = ["libexceptions"]
+
+from libexceptions import CrashHandler
+
+from dff import VERSION
+
+handler = CrashHandler()
+handler.setVersion(VERSION)
+handler.setHandler()
+
