@@ -17,7 +17,11 @@
 
 #include <iostream>
 
-CrashDialog::CrashDialog() : __details(""), __layout(NULL)
+CrashDialog::CrashDialog() : __version(""), __minidumpPath(""), __details(""), __layout(NULL),
+			     __buttonsLayout(NULL), __crashLabel(NULL), __reportBox(NULL), 
+			     __reportDetails(NULL), __userComment(NULL), __contactBox(NULL), 
+			     __email(NULL), __proxyBox(NULL), __proxyHost(NULL), __proxyUser(NULL), 
+			     __proxyPassword(NULL), __quit(NULL), __restart(NULL)
 {
   this->__layout = new QGridLayout;
   this->setLayout(this->__layout);
@@ -42,9 +46,32 @@ CrashDialog::~CrashDialog()
 }
 
 
+void	CrashDialog::setVersion(std::string version)
+{
+  this->__version = version;
+}
+
+
+void	CrashDialog::setMinidumpPath(std::string path)
+{
+  this->__minidumpPath = path;
+}
+
+
 void	CrashDialog::setDetails(std::string details)
 {
   this->__details = details;
+}
+
+
+std::string	CrashDialog::details()
+{
+  std::string	result;
+
+  result = "Version: " + this->__version;
+  result += "\nMinidump path: " + this->__minidumpPath;
+  result += "\n" + this->__details;
+  return result;
 }
 
 
@@ -112,14 +139,14 @@ void	CrashDialog::restart(void)
 
 void	CrashDialog::showDetails(void)
 {
-  std::cout << this->__details << std::endl;
-  QMessageBox::information(this, QString(tr("Details informations")), QString(this->__details.c_str()));
+  QMessageBox::information(this, QString(tr("Details informations")), QString(this->details().c_str()));
 }
 
 
 void	CrashDialog::__createReportBox()
 {
   QVBoxLayout*	vbox;
+  QLabel*	commentLabel;
 
   vbox = new QVBoxLayout;
   this->__reportBox = new QGroupBox(tr("Tell ArxSys about this crash so they can fix it"), this);
@@ -128,12 +155,14 @@ void	CrashDialog::__createReportBox()
   this->__reportBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
   this->__reportBox->setLayout(vbox);
 
-  this->__reportDetails = new QPushButton(tr("Details"), this);
+  this->__reportDetails = new QPushButton(tr("Details..."), this);
   this->__reportDetails->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
   this->__reportDetails->setMaximumWidth(100);
   connect(this->__reportDetails, SIGNAL(clicked(bool)), this, SLOT(showDetails(void)));  
   vbox->addWidget(this->__reportDetails);
 
+  commentLabel = new QLabel(tr("Add a comment (comments are publicly visible)"), this);
+  vbox->addWidget(commentLabel);
   this->__userComment = new QTextEdit(this);
   this->__userComment->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
   this->__userComment->setAcceptRichText(false);
@@ -159,7 +188,7 @@ void	CrashDialog::__createContactBox()
   this->__contactBox->setLayout(hbox);
   this->__email = new QLineEdit(this);
   this->__email->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-  this->__email->setPlaceholderText(tr("Enter your email address"));
+  this->__email->setPlaceholderText(tr("Enter your email address (email is publicly visible)"));
   hbox->addWidget(this->__email);
 }
 

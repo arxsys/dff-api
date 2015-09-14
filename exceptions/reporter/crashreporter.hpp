@@ -21,7 +21,7 @@
 #ifndef WIN32
   #include "common/linux/google_crashdump_uploader.h"
 #else
-  //#include "client/windows/handler/exception_handler.h"
+  #include "client/windows/handler/exception_handler.h"
 #endif
 
 #define DEFAULT_CRASH_HOST "http://crash.arxsys.fr"
@@ -37,6 +37,11 @@ private:
   std::string	__proxyHost;
   std::string	__proxyUser;
   std::string	__proxyPassword;
+
+protected:
+  int		_httpStatusCode;
+  std::string	_httpResponseHeader;
+  std::string	_httpResponseBody;
 
 public:
   CrashReporter();
@@ -59,8 +64,12 @@ public:
   void			setProxyPassword(std::string proxypassword);
   std::string		proxyPassword();
   std::string		proxyUserAndPassword();
-  virtual void		sendReport() throw (std::string) = 0;
-  virtual void		deleteDump() throw (std::string) = 0;
+  int			httpStatusCode();
+  std::string		httpResponseHeader();
+  std::string		httpResponseBody();
+  std::string		viewUrl();
+  virtual bool		sendReport() throw (std::string) = 0;
+  virtual bool		deleteDump() throw (std::string) = 0;
 };
 
 #if defined(__gnu_linux__) || defined(__linux__) || defined(__unix__)
@@ -70,8 +79,8 @@ class LinuxCrashReporter : public CrashReporter
 public:
   LinuxCrashReporter();
   ~LinuxCrashReporter();
-  virtual void	sendReport() throw (std::string);
-  virtual void	deleteDump() throw (std::string);
+  virtual bool	sendReport() throw (std::string);
+  virtual bool	deleteDump() throw (std::string);
 };
 
 #elif _WIN32
@@ -81,8 +90,8 @@ class WindowsCrashReporter : public CrashReporter
 public:
   WindowsCrashReporter();
   ~WindowsCrashReporter();
-  virtual void	sendReport() throw (std::string);
-  virtual void	deleteDump() throw (std::string);  
+  virtual bool	sendReport() throw (std::string);
+  virtual bool	deleteDump() throw (std::string);  
 };
 
 #endif

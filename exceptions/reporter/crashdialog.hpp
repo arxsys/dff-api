@@ -37,6 +37,8 @@ class CrashDialog : public QDialog
   Q_OBJECT
 
 private:
+  std::string	__version;
+  std::string	__minidumpPath;
   std::string	__details;
   QGridLayout*	__layout;
   QHBoxLayout*	__buttonsLayout;
@@ -72,6 +74,9 @@ public:
     } ExitType;
   CrashDialog();
   ~CrashDialog();
+  void		setVersion(std::string);
+  void		setMinidumpPath(std::string);
+  std::string	details();
   void		setDetails(std::string);
   bool		reportEnabled();
   bool		contactEnabled();

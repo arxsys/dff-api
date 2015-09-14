@@ -30,7 +30,7 @@ CrashReporter*	createCrashReporter()
 }
 
 
-CrashReporter::CrashReporter() : __path(""), __version(""), __host(DEFAULT_CRASH_HOST), __email(""), __comment(""), __proxyHost(""), __proxyUser(""), __proxyPassword("")
+CrashReporter::CrashReporter() : __path(""), __version(""), __host(DEFAULT_CRASH_HOST), __email(""), __comment(""), __proxyHost(""), __proxyUser(""), __proxyPassword(""), _httpStatusCode(0), _httpResponseHeader(""), _httpResponseBody("")
 {
 }
 
@@ -157,6 +157,33 @@ std::string	CrashReporter::proxyUserAndPassword()
 }
 
 
+int			CrashReporter::httpStatusCode()
+{
+  return this->_httpStatusCode;
+}
+
+
+std::string		CrashReporter::httpResponseHeader()
+{
+  return this->_httpResponseHeader;
+}
+
+
+std::string		CrashReporter::httpResponseBody()
+{
+  return this->_httpResponseBody;
+}
+
+
+std::string		CrashReporter::viewUrl()
+{
+  std::string		vurl;
+
+  vurl = DEFAULT_CRASH_HOST;
+  return vurl + "/view/" + this->_httpResponseBody;
+}
+
+
 LinuxCrashReporter::LinuxCrashReporter()
 {
 }
@@ -167,12 +194,8 @@ LinuxCrashReporter::~LinuxCrashReporter()
 }
 
 
-void	LinuxCrashReporter::sendReport() throw (std::string)
-{
-  int		httpStatusCode;
-  std::string	httpResponseHeader;
-  std::string	httpResponseBody;
-  
+bool	LinuxCrashReporter::sendReport() throw (std::string)
+{  
   google_breakpad::GoogleCrashdumpUploader g("DFF",
                                              this->version(),
                                              "0",
@@ -182,14 +205,13 @@ void	LinuxCrashReporter::sendReport() throw (std::string)
                                              this->comment(),
                                              this->minidumpPath(),
 					     this->postAddress(),
-                                             //"http://195.154.93.200:1127/post",
                                              this->proxyHost(),
 					     this->proxyUserAndPassword());
-  g.Upload(&httpStatusCode, &httpResponseHeader, &httpResponseBody);
-  std::cout << "Status code: " << httpStatusCode << "\nResponse header: " << httpResponseHeader << "\nResponse body: " << httpResponseBody << std::endl;  
+  return g.Upload(&this->_httpStatusCode, &this->_httpResponseHeader, &this->_httpResponseBody);
 }
 
 
-void	LinuxCrashReporter::deleteDump() throw (std::string)
+bool	LinuxCrashReporter::deleteDump() throw (std::string)
 {
+  return false;
 }

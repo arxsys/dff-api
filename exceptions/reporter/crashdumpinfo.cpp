@@ -18,7 +18,9 @@
 #include <sstream>
 
 
-CrashDumpInfo::CrashDumpInfo()
+CrashDumpInfo::CrashDumpInfo() : __minidump(NULL), __sysinfo(NULL), __rawSysinfo(NULL), __exception(NULL),
+				 __rawException(NULL), __processorArchitecture(""), __cpuInformation(""),
+				 __osName(""), __osVersion(""), __crashAddress(0), __crashReason("")
 {
 }
 

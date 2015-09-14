@@ -12,8 +12,7 @@
 // Author(s):
 //  Frederic Baguelin <fba@digital-forensic.org>
 
-
-#include <unistd.h>
+#include <string.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>
@@ -23,49 +22,57 @@
 #include "crashdumpinfo.hpp"
 
 #include <QApplication>
+#include <QDesktopWidget>
+#include <QObject>
 
-void		sendDump(char* version, char* path);
+void		sendDump(int argc, char* argv[], char* version, char* path);
+void		usage();
+void		parseArguments(int argc, char* argv[], char** version, char** path);
 
 int		main(int argc, char* argv[])
 {
-  int		c;
   char*		path;
   char*		version;
  
   path = NULL;
   version = NULL;
-  while ((c = getopt(argc, argv, "v:p:")) != -1)
-    {
-      switch (c)
-	{
-	case 'v':
-	  version = optarg;
-	  break;
-	case 'p':
-	  path = optarg;
-	  break;
-	default:
-	  std::cout << "Wrong argument provided to CrashReporter" << std::endl;
-	  exit(1);
-	}
-    }
-  if (version == NULL || path == NULL)
-    {
-      std::cout << "Missing arguments to CrashReporter" << std::endl;
-      exit(1);
-    }
-  QApplication app(argc, argv, true);
-  sendDump(version, path);
+  parseArguments(argc, argv, &version, &path);
+  sendDump(argc, argv, version, path);
 }
 
 
-void			sendDump(char* version, char* path)
+void	parseArguments(int argc, char* argv[], char** version, char** path)
+{
+  int	i;
+
+  if (argc != 5)
+    usage();
+  for (i = 0; i != 5; i++)
+    {
+      if ((strncmp(argv[i], "-p", 2) == 0) && i < 5 && (strncmp(argv[i+1], "-v", 2) != 0))
+	*path = argv[i+1];
+      if ((strncmp(argv[i], "-v", 2) == 0) && i < 5 && (strncmp(argv[i+1], "-p", 2) != 0))
+	*version = argv[i+1];
+    }
+  if (version == NULL || path == NULL)
+    usage();
+}
+
+
+void	usage()
+{
+  std::cout << "usage: CrashReporter -v version -p path" << std::endl;
+  exit(1);
+}
+
+void			sendDump(int argc, char* argv[], char* version, char* path)
 {
   int			ret;
+  std::string		msg;
   CrashDialog*		cdialog;
   CrashReporter*	reporter;
   CrashDumpInfo*	cinfo;
-
+  
   cinfo = new CrashDumpInfo();
   try
     {
@@ -76,8 +83,11 @@ void			sendDump(char* version, char* path)
       std::cout << err << std::endl;
       exit(1);
     }
+  QApplication app(argc, argv, true);
   cdialog = new CrashDialog();
   cdialog->setDetails(cinfo->details());
+  cdialog->setVersion(version);
+  cdialog->setMinidumpPath(path);
   ret = cdialog->exec();
   if (cdialog->reportEnabled())
     {
@@ -91,7 +101,19 @@ void			sendDump(char* version, char* path)
 	  reporter->setProxyUser(cdialog->proxyUser());
 	  reporter->setProxyPassword(cdialog->proxyPassword());
 	}
-      reporter->sendReport();
+      if (!reporter->sendReport())
+	{ 
+	  msg = "Error while uploading dump " + reporter->minidumpPath();
+	  msg += "\nYou can send it by mail at the following address : contact@arxsys.fr";
+	  QMessageBox::critical(QDesktopWidget().screen(), "Crash Reporter", QObject::tr(msg.c_str()));
+	}
+      else
+	{
+	  msg = "Dump " + reporter->minidumpPath() + " successfully uploaded";
+	  msg += "\nand is available at " + reporter->viewUrl();
+	  msg += "\n\nThanks for your support!";
+	  QMessageBox::information(QDesktopWidget().screen(), "Crash Reporter", QObject::tr(msg.c_str()));
+	}
     }
   if (ret == CrashDialog::Exit)
     exit(1);

@@ -16,7 +16,6 @@
 #ifndef __CRASHDUMPINFO_HPP__
 #define __CRASHDUMPINFO_HPP__
 
-#include <unistd.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>
