@@ -46,11 +46,12 @@ if (WIN32)
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_CURRENT_BINARY_DIR}"
     )
+  install (TARGETS CrashReporter DESTINATION dff/dff/api/exceptions/reporter)
 else (WIN32)
   add_executable(CrashReporter main.cpp crashdumpinfo.cpp crashreporter.cpp crashdialog.cpp ${CrashDialog_MOC})
   target_link_libraries (CrashReporter Qt4::QtCore Qt4::QtGui dl "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/libbreakpad.a")
+  install (TARGETS CrashReporter DESTINATION dff/api/exceptions/reporter)
 endif (WIN32)
 
 add_dependencies(CrashReporter breakpad)
 
-install (TARGETS CrashReporter DESTINATION bin)
