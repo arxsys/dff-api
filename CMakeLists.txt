@@ -18,6 +18,8 @@ install_file(__init__.py)
 
 # compiled
 
+include_directories("${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad")
+
 add_subdirectory (exceptions)
 add_subdirectory (events)
 add_subdirectory (loader)
