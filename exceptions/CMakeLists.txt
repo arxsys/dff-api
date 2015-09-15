@@ -26,9 +26,8 @@ endif(WIN32)
 dff_cpp_api(exceptions
   CPP_FILES exceptions.cpp
   SWIG_FILE libexceptions.i
-  LINK_LIBRARIES destruct _destruct
   EXTRA_FILES __init__.py
-  LINK_LIBRARIES ${libbreakpad}
+  LINK_LIBRARIES ${libbreakpad} destruct _destruct
   INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad"
   )
 
@@ -51,4 +50,4 @@ elseif(UNIX)
     )
 endif(UNIX)
 
-add_dependencies("dff.api.exceptions" patchexceptions)
+#add_dependencies("dff.api.exceptions" patchexceptions)

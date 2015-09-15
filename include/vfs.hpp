@@ -39,12 +39,9 @@
 #include "export.hpp"
 #include "exceptions.hpp"
 
-<<<<<<< HEAD
 #include "dstructs.hpp"
 #include "dvalue.hpp"
 #include "protocol/dcppobject.hpp"
-=======
->>>>>>> origin/develop
 
 class Node;
 class fso;
