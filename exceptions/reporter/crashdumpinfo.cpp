@@ -16,7 +16,10 @@
 #include "crashdumpinfo.hpp"
 #include "processor/symbolic_constants_win.h"
 #include <sstream>
-
+#include <string>
+#ifdef WIN32
+	#define snprintf _snprintf
+#endif
 
 CrashDumpInfo::CrashDumpInfo() : __minidump(NULL), __sysinfo(NULL), __rawSysinfo(NULL), __exception(NULL),
 				 __rawException(NULL), __processorArchitecture(""), __cpuInformation(""),

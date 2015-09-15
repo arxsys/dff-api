@@ -14,10 +14,13 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 
+add_subdirectory(breakpad)
+add_subdirectory(reporter)
+
 if (WIN32)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/breakpad_client.lib")
+  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/breakpad.lib")
 elseif (UNIX)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/libbreakpad_client.a")
+  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/libbreakpad.a")
 endif(WIN32)
 
 dff_cpp_api(exceptions
@@ -28,6 +31,8 @@ dff_cpp_api(exceptions
   INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad"
   )
 
+add_dependencies(exceptions breakpad)
+
 if (UNIX)
   add_custom_target(patchexceptions ALL
     DEPENDS ${SWIG_MODULE_libexceptions_REAL_NAME}
@@ -36,6 +41,7 @@ if (UNIX)
     ${CMAKE_CURRENT_BINARY_DIR}/libexceptions.py
     )
 elseif(UNIX)
+  add_definitions(-DUNICODE -D_UNICODE)
   add_custom_target(patchexceptions ALL
     DEPENDS ${SWIG_MODULE_libexceptions_REAL_NAME}
     COMMENT "Patching libexceptions.py"
@@ -44,7 +50,4 @@ elseif(UNIX)
     )
 endif(UNIX)
 
-add_dependencies("dff.api.exceptions" patchexceptions)
-
-add_subdirectory(breakpad)
-add_subdirectory(reporter)
+#add_dependencies("dff.api.exceptions" patchexceptions)

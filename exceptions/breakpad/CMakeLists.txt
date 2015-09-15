@@ -18,11 +18,21 @@ cmake_minimum_required(VERSION 2.8.12)
 
 include_directories(.)
 
+set(breakpad_sources
+  processor/basic_code_modules.cc
+  processor/dump_context.cc
+  processor/dump_object.cc
+  processor/logging.cc
+  processor/minidump.cc
+  processor/pathname_stripper.cc
+  processor/symbolic_constants_win.cc
+)
+
 if (WIN32)
 
   add_definitions(-DUNICODE -D_UNICODE)
   
-  set(breakpad_client_sources    
+  set(breakpad_sources "${breakpad_sources}"
     client/windows/crash_generation/crash_generation_client.cc
     client/windows/crash_generation/crash_generation_server.cc
     client/windows/crash_generation/client_info.cc
@@ -38,9 +48,7 @@ endif (WIN32)
 
 if (UNIX)
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror=missing-braces -Werror=non-virtual-dtor -Werror=overloaded-virtual -Werror=reorder -Werror=sign-compare -Werror=unused-variable -Werror=vla")
-
-  set(breakpad_client_sources
+  set(breakpad_sources "${breakpad_sources}"
     client/linux/crash_generation/crash_generation_client.cc
     client/linux/crash_generation/crash_generation_server.cc
     client/linux/dump_writer_common/seccomp_unwinder.cc
@@ -59,7 +67,9 @@ if (UNIX)
     common/string_conversion.cc
     common/linux/elfutils.cc
     common/linux/file_id.cc
+    common/linux/google_crashdump_uploader.cc
     common/linux/guid_creator.cc
+    common/linux/libcurl_wrapper.cc
     common/linux/linux_libc_support.cc
     common/linux/memory_mapped_file.cc
     common/linux/safe_readlink.cc
@@ -67,11 +77,10 @@ if (UNIX)
 
 endif(UNIX)
 
-add_library(breakpad_client STATIC ${breakpad_client_sources})
+add_library(breakpad STATIC ${breakpad_sources})
 
 if ( CMAKE_GENERATOR MATCHES "Visual Studio" )
-  message("HOLY SHIT?!")
-  set_target_properties (breakpad_client PROPERTIES
+  set_target_properties (breakpad PROPERTIES
     SUFFIX ".lib"
     LIBRARY_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
     ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"

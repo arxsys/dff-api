@@ -6406,7 +6406,11 @@ std::string NTStatusToString(uint32_t ntstatus) {
       break;
     default: {
       char reason_string[11];
+#if defined(WIN32)
+      _snprintf(reason_string, sizeof(reason_string), "0x%08x", ntstatus);
+#else
       std::snprintf(reason_string, sizeof(reason_string), "0x%08x", ntstatus);
+#endif
       reason = reason_string;
       break;
     }

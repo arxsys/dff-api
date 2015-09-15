@@ -16,13 +16,15 @@
 
 #include "exceptions.hpp"
 
-#include <unistd.h>
 #include <iostream>
 #include <string>
 
 #define ReportExecutable "CrashReporter"
 
 #ifndef WIN32
+
+#include <unistd.h>
+
 static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
                          void* context,
                          bool succeeded)
@@ -47,10 +49,36 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
 
 #else
 
-bool dumpCallback(const wchar_t* _dump_dir, const wchar_t* _minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo* assertion, bool success)
-  std::wcout << "Dumping to " << _dump_dir << std::endl;
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>	
+	
+bool	dumpCallback(const wchar_t* _dump_dir, const wchar_t* _minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo* assertion, bool success)
+{
+  STARTUPINFO		si;
+  PROCESS_INFORMATION	pi;
+  
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  ZeroMemory(&pi, sizeof(pi));
+  std::wstring args(L"CrashReporer -p ");
+  args += std::wstring(_dump_dir);
+  args += std::wstring(_minidump_id);
+  args += std::wstring(L".dmp -v ");
+  args += std::wstring((char*)context, (char*)context+strlen((char*)context));
+  if (!CreateProcessW(L"dff\\api\\exceptions\\reporter\\CrashReporter.exe", 
+		      (LPWSTR)args.c_str(),
+		      NULL, NULL, FALSE, 0, NULL, NULL, (LPSTARTUPINFOW)&si, &pi))
+    {
+      printf("Create Process failed (%d)\n", GetLastError());
+      TerminateProcess(GetCurrentProcess(), 1);
+      return false;
+    }
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
   return true;
 }
+
 #endif
 
 
@@ -81,15 +109,18 @@ void	CrashHandler::setHandler()
 							   true,
 							   -1);
   #else
-	this->__eh = new google_breakpad::ExceptionHandler(L"C:\\Users\\builder\\Desktop", 
+	TCHAR tempPath[1024];
+	std::string spath;
+	std::wstring wpath;
+	
+	GetTempPath(1024, tempPath);
+	spath = std::string(tempPath);
+	wpath.assign(spath.begin(), spath.end());
+	this->__eh = new google_breakpad::ExceptionHandler(wpath,
 							   NULL,//DmpFilter, 
 							   dumpCallback,//DmpCallback 
-							   0,
+  							   (void*)this->__version.c_str(), 
 							   true);
-							   // google_breakpad::ExceptionHandler::HANDLER_ALL,
-							   // MiniDumpNormal,
-							   // L"",
-							   // 0);	
   #endif
 }
 
