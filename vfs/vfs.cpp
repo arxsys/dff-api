@@ -30,6 +30,7 @@
 
 #include "session.hpp"
 #include "log.hpp"
+
 /**
  *  Return singleton instance of VFS
  */
