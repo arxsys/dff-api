@@ -34,11 +34,11 @@ private:
   std::string				__version;
   google_breakpad::ExceptionHandler	*__eh;
 public:
-  CrashHandler();
-  ~CrashHandler();
-  void	setVersion(std::string);
-  void	setHandler();
-  void	unsetHandler();
+  EXPORT CrashHandler();
+  EXPORT ~CrashHandler();
+  EXPORT void	setVersion(std::string);
+  EXPORT void	setHandler();
+  EXPORT void	unsetHandler();
 };
 
 class envError

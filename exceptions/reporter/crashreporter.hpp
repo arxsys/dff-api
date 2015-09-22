@@ -21,7 +21,7 @@
 #ifndef WIN32
   #include "common/linux/google_crashdump_uploader.h"
 #else
-  #include "client/windows/handler/exception_handler.h"
+  #include "common/windows/http_upload.h"
 #endif
 
 #define DEFAULT_CRASH_HOST "http://crash.arxsys.fr"
