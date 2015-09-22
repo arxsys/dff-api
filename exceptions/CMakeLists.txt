@@ -49,5 +49,3 @@ elseif(UNIX)
     ${CMAKE_CURRENT_BINARY_DIR}/libexceptions.py
     )
 endif(UNIX)
-
-#add_dependencies("dff.api.exceptions" patchexceptions)
