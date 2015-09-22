@@ -33,14 +33,7 @@ dff_cpp_api(exceptions
 
 add_dependencies(exceptions breakpad)
 
-if (UNIX)
-  add_custom_target(patchexceptions ALL
-    DEPENDS ${SWIG_MODULE_libexceptions_REAL_NAME}
-    COMMENT "Patching libexceptions.py"
-    COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/patch.py
-    ${CMAKE_CURRENT_BINARY_DIR}/libexceptions.py
-    )
-elseif(UNIX)
+if (WIN32)
   add_definitions(-DUNICODE -D_UNICODE)
   add_custom_target(patchexceptions ALL
     DEPENDS ${SWIG_MODULE_libexceptions_REAL_NAME}
@@ -48,4 +41,4 @@ elseif(UNIX)
     COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/patch.py
     ${CMAKE_CURRENT_BINARY_DIR}/libexceptions.py
     )
-endif(UNIX)
+endif(WIN32)
