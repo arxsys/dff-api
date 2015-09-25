@@ -45,6 +45,7 @@
 /* #include "../include/export.hpp" */
 /* #include "../include/eventhandler.hpp" */
 #include "../include/filter.hpp"
+#include "../include/timeline.hpp"
 #include "dictionnary.hpp"
 %}
 
@@ -55,6 +56,7 @@ namespace std
   %template(BadPatterns)            std::vector<BadPattern*>;
   %template(VectString)             std::vector<std::string>;
   %template(Dictionnaries)          std::map<std::string, Dictionnary* >;
+  %template(VectTimeLineNode)       std::vector<TimeLineNode>;
 };
 
 %traits_swigtype(Dictionnary);
@@ -62,6 +64,7 @@ namespace std
 
 
 %include "../include/filter.hpp"
+%include "../include/timeline.hpp"
 %include "factory.hpp"
 %include "dictionnary.hpp"
 

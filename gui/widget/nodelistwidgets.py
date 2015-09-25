@@ -19,7 +19,7 @@ from PyQt4.QtGui import *
 from dff.api.vfs.vfs import vfs, Node
 from dff.api.vfs.libvfs import VFS, VecNode, TagsManager
 from dff.api.types.libtypes import typeId, Variant, RCVariant
-from dff.api.filters.libfilters import Filter
+from dff.api.filters.libfilters import Filter, TimeLine
 from dff.api.events.libevents import event, EventHandler
 
 from dff.api.gui.widget.propertytable import PropertyTable
@@ -155,6 +155,14 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.search.setVisible(False)
     self.toolbar.addWidget(self.filter)
     self.connect(self.filter, SIGNAL("clicked(bool)"), self.viewFilter)
+
+    #XXX Timeline button
+    self.timeLineButton = QPushButton(QIcon(":cal"), self.tr("Timeline"), self)
+    self.timeLineButton.setCheckable(True)
+    self.toolbar.addWidget(self.timeLineButton)
+    self.connect(self.timeLineButton, SIGNAL("clicked(bool)"), self.showTimeLine)
+    ####
+
     self.mainlayout.addWidget(self.toolbar, 0)
 
   def viewFilter(self):
@@ -171,6 +179,20 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.viewpan.setCurrentWidget(self.currentView())
       self.infostack.hide()
     self.updateStatus()
+
+  #XXX
+  def showTimeLine(self):
+     print "show timeline !"
+     currentList = self.model().list()
+     timeLine = TimeLine(currentList)
+     sortedList = timeLine.sort()
+     #for timeLineNode in sortedList:
+       #print timeLineNode.node().name(), ' ', timeLineNode.attributeName(), ' ', str(timeLineNode.attribute().value().get_time())
+      #print dir(timeLineNode)
+     #self.timeLineWidget.set(timeLine)
+ 
+     #self.infostack.setCurrentWidget(self.timeLineWidget) #XXX ?
+     self.viewpan.setCurrentWidget(self.timeLineWidget)
 
   def factorminus(self):
     value = self.factorSlider.value() - 1
@@ -244,6 +266,15 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.searchwidget = SearchPanel(self, self.searchview)
       self.connect(self.searchwidget, SIGNAL("finished()"), self.updateStatus)
       self.leftpan.addWidget(self.searchwidget)
+
+
+    #XXX timelien start 
+    self.timeLineWidget = self.createNodeWidget(self.selection)
+    #self.connecti
+    self.views.append(self.timeLineWidget)
+    self.viewpan.addWidget(self.timeLineWidget)    
+
+
     self.splitter.addWidget(self.leftpan)
     self.splitter.addWidget(self.viewstack)
     self.splitter.addWidget(self.attributes)

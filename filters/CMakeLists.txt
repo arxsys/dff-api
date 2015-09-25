@@ -55,7 +55,7 @@ message(STATUS ${FLEX_scanner_OUTPUTS} ${BISON_parser_OUTPUTS})
 
 dff_cpp_api(filters
   SWIG_FILE libfilters.i
-  CPP_FILES factory.cpp dictionnary.cpp filter.cpp astnodes.cpp ${BISON_parser_OUTPUTS} ${FLEX_scanner_OUTPUTS}
+  CPP_FILES factory.cpp dictionnary.cpp filter.cpp astnodes.cpp timeline.cpp ${BISON_parser_OUTPUTS} ${FLEX_scanner_OUTPUTS}
   LINK_LIBRARIES events vfs types search
   EXTRA_FILES __init__.py
   )
