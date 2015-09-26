@@ -57,6 +57,7 @@ namespace std
   %template(VectString)             std::vector<std::string>;
   %template(Dictionnaries)          std::map<std::string, Dictionnary* >;
   %template(VectTimeLineNode)       std::vector<TimeLineNode>;
+  %template(VectPtrTimeLineNode)    std::vector<TimeLineNode*>;
 };
 
 %traits_swigtype(Dictionnary);

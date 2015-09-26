@@ -36,15 +36,15 @@ ARCHIVES = ["zip", "rar", "7zip", "gz", "ZIP", "RAR", "7ZIP", "GZ"]
 class NodeListModel(QAbstractItemModel):
   def __init__(self, selection):
     QAbstractItemModel.__init__(self)
-    self.__list = []
-    self.__rows = []
-    self.__current_row = 0
-    self.__row_selected = 0
-    self.__thumb = True
-    self.__visible_rows = 0
-    self.__visible_cols = 0
-    self.__recursive = False
-    self.__root = None
+    self._list = []
+    self._rows = []
+    self._current_row = 0
+    self._row_selected = 0
+    self._thumb = True
+    self._visible_rows = 0
+    self._visible_cols = 0
+    self._recursive = False
+    self._root = None
     self.selection = selection
     if self.selection != None:
       self.connect(self.selection, SIGNAL("selectionChanged"), self.updateSelected)
@@ -69,30 +69,30 @@ class NodeListModel(QAbstractItemModel):
   def __removeNode(self, node):
     children = node.children()
     for child in children:
-      self.__removeNode(child)
-    for n in self.__list:
+      self._removeNode(child)
+    for n in self._list:
       if n.uid() == node.uid():
-        self.__list.remove(n)
-        self.__row_selected = 0 
-    for n in self.__rows:
+        self._list.remove(n)
+        self._row_selected = 0 
+    for n in self._rows:
       if n.uid() == node.uid():
-        self.__rows.remove(n)      
+        self._rows.remove(n)      
 
   def removeNode(self, node): 
     try:
-     if self.__root == None or (self.__root.path().find(node.parent().path()) != -1):
-      self.__row_selected = 0 
-      self.changeList(node.parent(), self.__recursive, None)
+     if self._root == None or (self._root.path().find(node.parent().path()) != -1):
+      self._row_selected = 0 
+      self.changeList(node.parent(), self._recursive, None)
     except Exception as e :
       pass
-    self.__removeNode(node)
+    self._removeNode(node)
 
   def vfsNotification(self, node, eventType = None):
     if eventType == 0xde1:
       pass #called by noedelistwidget
     else:
-      if node.parent().uid() == self.__root.uid():
-        self.changeList(self.__root, self.__recursive, self.__list[self.__row_selected])
+      if node.parent().uid() == self._root.uid():
+        self.changeList(self._root, self._recursive, self._list[self._row_selected])
 
   def updateSelected(self, count):
     self.emit(SIGNAL("layoutChanged()"))
@@ -131,35 +131,35 @@ class NodeListModel(QAbstractItemModel):
     If selected is provided it will automatically be the current row
     """
     if root != None:
-      self.__root = root
-      self.__recursive = recursive
-      self.__list = []
+      self._root = root
+      self._recursive = recursive
+      self._list = []
       self.row_selected = 0
-      self.__current_row = 0
+      self._current_row = 0
       if recursive:
-        self.__fillRecursiveList(root.children())
+        self._fillRecursiveList(root.children())
       else:
-        self.__list = root.children()
+        self._list = root.children()
       self.sort(self.headerorder.keys()[0], self.headerorder[self.headerorder.keys()[0]])
       idx = 0
       if not recursive and selected != None:
-        for i in xrange(0, len(self.__list)):
-          if selected.uid() == self.__list[i].uid():
+        for i in xrange(0, len(self._list)):
+          if selected.uid() == self._list[i].uid():
             idx = i
             break
-      self.emit(SIGNAL("maximum"), len(self.__list))
-      if idx > self.__current_row + self.__visible_rows:
-        self.__current_row = idx
+      self.emit(SIGNAL("maximum"), len(self._list))
+      if idx > self._current_row + self._visible_rows:
+        self._current_row = idx
         self.select(0)
       else:
         self.select(idx)
       self.emit(SIGNAL("changeList"))
 
   def currentRoot(self):
-    return self.__root
+    return self._root
 
   def recursive(self):
-    return self.__recursive
+    return self._recursive
 
   def updateList(self, nodes, recursive=False, selected=None):
     """ 
@@ -167,23 +167,23 @@ class NodeListModel(QAbstractItemModel):
     Useful when switching from filtered view
     """
     if len(nodes):
-      self.__recursive = recursive
-      self.__list = nodes
+      self._recursive = recursive
+      self._list = nodes
       if not recursive and selected != None:
-        for i in xrange(0, len(self.__list)):
-          if selected.uid() == self.__list[i].uid():
-            self.__current_row = i
+        for i in xrange(0, len(self._list)):
+          if selected.uid() == self._list[i].uid():
+            self._current_row = i
             self.row_selected = i
             break
-      self.emit(SIGNAL("maximum"), len(self.__list))
+      self.emit(SIGNAL("maximum"), len(self._list))
       self.select(0)
       self.emit(SIGNAL("changeList"))
 
   def __fillRecursiveList(self, nodes):
     for node in nodes:
-      self.__list.append(node)
+      self._list.append(node)
       if node.hasChildren():
-        self.__fillRecursiveList(node.children())
+        self._fillRecursiveList(node.children())
 
   def appendList(self, node):
     """
@@ -191,23 +191,23 @@ class NodeListModel(QAbstractItemModel):
     """
     if node != None:
       try:
-        self.__list.append(node)
+        self._list.append(node)
         self.emit(SIGNAL("nodeAppended"))
-        self.emit(SIGNAL("maximum"), len(self.__list))
-        self.refresh(self.__current_row)
+        self.emit(SIGNAL("maximum"), len(self._list))
+        self.refresh(self._current_row)
       except:
         print "Error while appending node"
         return
 
   def defaultAttributes(self):
-    return self.__default_attributes
+    return self._default_attributes
 
   def clearList(self):
     self.emit(SIGNAL("clearList"))
-    self.__recursive = False
-    self.__list = []
-    self.__current_row = 0
-    self.refresh(self.__current_row)
+    self._recursive = False
+    self._list = []
+    self._current_row = 0
+    self.refresh(self._current_row)
 
   def columnCount(self, index):
     attrs = self.availableAttributes()
@@ -217,10 +217,10 @@ class NodeListModel(QAbstractItemModel):
     attributes = self.availableAttributes()
     if not index.isValid():
       return QVariant()
-    if index.row() > len(self.__list) or index.row() < 0:
+    if index.row() > len(self._list) or index.row() < 0:
       return QVariant()
     try:
-      node = self.__rows[index.row()]
+      node = self._rows[index.row()]
     except:
       return QVariant()
     if role == Qt.DisplayRole :
@@ -283,7 +283,7 @@ class NodeListModel(QAbstractItemModel):
     # Display icons
     if (role == Qt.DecorationRole) and (attributes[index.column()] == "name"):
       pixmap = None
-      if self.__thumb:
+      if self._thumb:
 	if self.thumbnailer.isThumbnailable(node):
 	  pixmap = self.thumbnailer.generate(node)
           if pixmap is None:
@@ -336,7 +336,7 @@ class NodeListModel(QAbstractItemModel):
     return QVariant()
 
   def setThumb(self, state):
-    self.__thumb = state
+    self._thumb = state
 
   def getIconPixmap(self, node):
     ext = self.getExtension(node)
@@ -368,7 +368,7 @@ class NodeListModel(QAbstractItemModel):
 
   def getNode(self, row):
     try:
-      node = self.__list[row]
+      node = self._list[row]
       if node:
         return node
       else:
@@ -380,7 +380,7 @@ class NodeListModel(QAbstractItemModel):
     if not self.hasIndex(row, column, parent):
      return QModelIndex()
     if not parent.isValid():
-      index = self.createIndex(row, column, self.__rows[row])
+      index = self.createIndex(row, column, self._rows[row])
       return index
     return QModelIndex()
 
@@ -388,90 +388,90 @@ class NodeListModel(QAbstractItemModel):
     return QModelIndex()
 
   def refresh(self, start):
-    llist = len(self.__list)
+    llist = len(self._list)
     if start < 0:
       rstart = 0
     elif (start >= llist):
       # End of list
-      rstart = llist - (self.__visible_rows)
+      rstart = llist - (self._visible_rows)
       if rstart < 0:
         rstart = 0
-    # elif ((llist - start) <= self.__visible_rows + 1):
-    #   rstart = self.__current_row
+    # elif ((llist - start) <= self._visible_rows + 1):
+    #   rstart = self._current_row
     #   if rstart < 0:
     #     rstart = 0
     else:
       rstart = start
 
     # End of List range
-    if (rstart + self.__visible_rows) > len(self.__list):
-      end = len(self.__list)
+    if (rstart + self._visible_rows) > len(self._list):
+      end = len(self._list)
     else:
-      end = rstart + self.__visible_rows + 1
+      end = rstart + self._visible_rows + 1
     self.resetDisplay()
     try:
-      tmplist = self.__list[rstart:end]
+      tmplist = self._list[rstart:end]
     except IndexError:
       return
     try:
       for nodeId in range(0, len(tmplist)):
         if tmplist[nodeId] != None:
-          self.__rows.append(tmplist[nodeId])
+          self._rows.append(tmplist[nodeId])
       self.emit(SIGNAL("layoutAboutToBeChanged()"))
       self.emit(SIGNAL("layoutChanged()"))
 
-      if self.__current_row >= 0:
-        self.__current_row = rstart
+      if self._current_row >= 0:
+        self._current_row = rstart
       else:
-        self.__current_row = 0
-      self.emit(SIGNAL("current"), self.__current_row)
+        self._current_row = 0
+      self.emit(SIGNAL("current"), self._current_row)
     except IndexError:
       print "Error while refreshing model"
       pass
 
   def resetDisplay(self):
-    if len(self.__rows) > 0:
-      self.__rows = []
+    if len(self._rows) > 0:
+      self._rows = []
       self.emit(SIGNAL("layoutAboutToBeChanged()"))
       self.emit(SIGNAL("layoutChanged()"))
 
   def rowCount(self, parent = None):
-    return len(self.__rows)
+    return len(self._rows)
 
   def currentRow(self):
-    return self.__current_row
+    return self._current_row
 
   def size(self):
-    return len(self.__list)
+    return len(self._list)
 
   def setVisibleRows(self, rows):
-    self.__visible_rows = rows + 1
-    self.emit(SIGNAL("maximum"), len(self.__list))
-    if self.__visible_rows > self.size():
+    self._visible_rows = rows + 1
+    self.emit(SIGNAL("maximum"), len(self._list))
+    if self._visible_rows > self.size():
       self.emit(SIGNAL("hideScroll"))
-    self.refresh(self.__current_row)
+    self.refresh(self._current_row)
 
   def visibleRows(self):
-    return self.__visible_rows
+    return self._visible_rows
 
   def seek(self, position, where = 0):
     if where == 0:
       self.refresh(position)
     elif where == 1:
-      pos = self.__current_row + position
+      pos = self._current_row + position
       self.refresh(pos)
     else:
-      self.refresh(self.__current_row)
+      self.refresh(self._current_row)
 
   def select(self, row):
     """
     Set absolute selected row id in model's list
     """
-    absrow = self.__current_row + row
+    absrow = self._current_row + row
     try:
-      node = self.__list[absrow]
-      self.__row_selected = absrow
-      self.refresh(self.__current_row)
+      node = self._list[absrow]
+      self._row_selected = absrow
+      self.refresh(self._current_row)
       self.emit(SIGNAL("nodeListClicked"), Qt.NoButton)
       return True
     except:
@@ -481,30 +481,30 @@ class NodeListModel(QAbstractItemModel):
     """
     Return relative selected row id
     """
-    return self.__row_selected - self.__current_row
+    return self._row_selected - self._current_row
 
   def currentNode(self):
     try:
-      node = self.__list[self.__row_selected]
+      node = self._list[self._row_selected]
       return node 
     except:
       return None
 
   def nodeSelected(self):
     nodes = []
-    nodes.append(self.__list[self.__row_selected])
+    nodes.append(self._list[self._row_selected])
     return nodes
 
   def setDefaultAttributes(self):
-    self.__default_attributes = ["name", "size","tags", "path", "extension", "absolute", "module", "has children", "child count", "is deleted"]
+    self._default_attributes = ["name", "size","tags", "path", "extension", "absolute", "module", "has children", "child count", "is deleted"]
     self.setSelectedAttributes(["name", "size", "tags", "path"])
 
   def setSelectedAttributes(self, attributes):
-    self.__selected_attributes = attributes
-    self.refresh(self.__current_row)
+    self._selected_attributes = attributes
+    self.refresh(self._current_row)
 
   def selectedAttributes(self):
-    return self.__selected_attributes
+    return self._selected_attributes
 
   def availableAttributes(self):
     attrs = self.selectedAttributes()[:]
@@ -544,48 +544,48 @@ class NodeListModel(QAbstractItemModel):
       self.select(0)
       return
 
-    if isinstance(self.__list, VecNode):
+    if isinstance(self._list, VecNode):
       tmplist = []
-      for i in range(0, len(self.__list)):
-        tmplist.append(self.__list[i])
-      self.__list = tmplist
-    if attrpath in self.__default_attributes:
+      for i in range(0, len(self._list)):
+        tmplist.append(self._list[i])
+      self._list = tmplist
+    if attrpath in self._default_attributes:
       if attrpath == "name":
-        self.__list = sorted(self.__list, cmp=locale.strcoll,
+        self._list = sorted(self._list, cmp=locale.strcoll,
                            key=lambda Node: Node.name(), 
                            reverse=Reverse)
       elif attrpath == "size":
-        self.__list = sorted(self.__list,
+        self._list = sorted(self._list,
                            key=lambda Node: Node.size(),
                            reverse=Reverse)
       elif attrpath == "extension":
-        self.__list = sorted(self.__list, cmp=locale.strcoll,
+        self._list = sorted(self._list, cmp=locale.strcoll,
                            key=lambda Node: Node.extension(),
                            reverse=Reverse)
       elif attrpath == "path":
-        self.__list = sorted(self.__list, cmp=locale.strcoll,
+        self._list = sorted(self._list, cmp=locale.strcoll,
                            key=lambda Node: Node.path(),
                            reverse=Reverse)
       elif attrpath == "absolute":
- 	self.__list = sorted(self.__list, cmp=locale.strcoll,
+ 	self._list = sorted(self._list, cmp=locale.strcoll,
 			     key=lambda Node: Node.absolute(),
 			     reverse=Reverse)
       elif attrpath == "module":
-	self.__list = sorted(self.__list, cmp=self.cmp_fsobj, 
+	self._list = sorted(self._list, cmp=self.cmp_fsobj, 
 			    key=lambda Node: Node.fsobj(),
 			    reverse=Reverse)
       elif attrpath == "has children":
-	self.__list = sorted(self.__list, key=lambda Node: Node.hasChildren(), reverse=Reverse)
+	self._list = sorted(self._list, key=lambda Node: Node.hasChildren(), reverse=Reverse)
       elif attrpath == "child count":
-	self.__list = sorted(self.__list, key=lambda Node: Node.childCount(), reverse=Reverse)
+	self._list = sorted(self._list, key=lambda Node: Node.childCount(), reverse=Reverse)
       elif attrpath == "is deleted": 
-	self.__list = sorted(self.__list, key=lambda Node: Node.isDeleted(), reverse=Reverse)
+	self._list = sorted(self._list, key=lambda Node: Node.isDeleted(), reverse=Reverse)
       elif attrpath == "tags":
-        self.__list = sorted(self.__list,
+        self._list = sorted(self._list,
                              key=lambda Node: len(Node.tags()),
                              reverse=Reverse)
     else:
-        self.__list = sorted(self.__list,
+        self._list = sorted(self._list,
                              cmp=self.cmp_none, key=lambda Node: self.attributesByName(Node, attrpath, ABSOLUTE_ATTR_NAME),
                              reverse=Reverse)
     QApplication.restoreOverrideCursor()
@@ -626,19 +626,225 @@ class NodeListModel(QAbstractItemModel):
             return val[0].value()
 
   def list(self):
-    return self.__list
+    return self._list
 
   def allListChecked(self):
     checked = self.selection.get()
-    for node in self.__list:
+    for node in self._list:
       if not node.uid() in checked:
         return False
     return True
 
   def selectAll(self):
-    for node in self.__list:
+    for node in self._list:
       self.selection.add(node)
 
   def unselectAll(self):
-    for node in self.__list:
+    for node in self._list:
       self.selection.rm(node)
+
+
+class TimeLineNodeListModel(NodeListModel):
+  def __init__(self, selection):
+    NodeListModel.__init__(self, selection)
+
+  def thumbnailUpdate(self, node, pixmap):
+     currentRow = self.currentRow()
+     visibleRow = self.visibleRows()
+     nodeList = self.list()
+     currentList = nodeList[currentRow:currentRow + visibleRow]
+     index = 0
+     for cnode in currentList:
+         if node.uid() == cnode.node().uid():
+	   modelIndex = self.index(index, 0)
+           self.emit(SIGNAL("dataChanged"), modelIndex, modelIndex)
+         index += 1
+
+  def __removeNode(self, node):
+    children = node.children()
+    for child in children:
+      self._removeNode(child)
+    for n in self._list:
+      if n.node().uid() == node.uid():
+        self._list.remove(n)
+        self._row_selected = 0 
+    for n in self._rows:
+      if n.node().uid() == node.uid():
+        self._rows.remove(n)      
+
+  def updateList(self, nodes, recursive=False, selected=None):
+    """ 
+    Update list from an existing one.
+    Useful when switching from filtered view
+    """
+    if len(nodes):
+      self._recursive = recursive
+      self._list = nodes
+      if not recursive and selected != None:
+        for i in xrange(0, len(self._list)):
+          if selected.uid() == self._list[i].node().uid():
+            self._current_row = i
+            self.row_selected = i
+            break
+      self.emit(SIGNAL("maximum"), len(self._list))
+      self.select(0)
+      self.emit(SIGNAL("changeList"))
+
+  def data(self, index, role): #XXX
+    attributes = self.availableAttributes()
+    if not index.isValid():
+      return QVariant()
+    if index.row() > len(self._list) or index.row() < 0:
+      return QVariant()
+    try:
+      timeLineNode = self._rows[index.row()]
+      node = timeLineNode.node()
+    except:
+      return QVariant()
+    if role == Qt.DisplayRole :
+      attrpath = str(unicode(attributes[index.column()]).encode('utf-8'))
+      if attrpath == "name":
+          return QVariant(QString.fromUtf8(node.name()))
+
+      elif attrpath == "time":
+          return QVariant(QString.fromUtf8(str(timeLineNode.attribute().get_time())))
+      elif attrpath == "time attribute":
+          return QVariant(QString.fromUtf8(timeLineNode.attributeName()))
+
+      elif attrpath == "size":
+          return QVariant(node.size())
+      elif attrpath == "extension":
+          return QVariant(QString.fromUtf8(node.extension()))
+      elif attrpath == "path":
+          if isinstance(node, VLink):
+            return QVariant(QString.fromUtf8(node.linkPath()))
+          else:
+            return QVariant(QString.fromUtf8(node.path()))
+      elif attrpath == "absolute":
+          if isinstance(node, VLink):
+            return QVariant(QString.fromUtf8(node.linkAbsolute()))
+          else:
+           return QVariant(QString.fromUtf8(node.absolute()))
+      elif attrpath == "module":
+	  if node.fsobj():
+            return QVariant(QString.fromUtf8(node.fsobj().name))
+          return QVariant()
+      elif attrpath == "has children":
+          if isinstance(node, VLink):
+            return QVariant(node.linkHasChildren())
+          else:
+            return QVariant(node.hasChildren())
+      elif attrpath == "child count":
+          if isinstance(node, VLink):
+            return QVariant(node.linkChildCount())
+          else:
+            return QVariant(node.childCount())
+      elif attrpath == "is deleted":
+          return QVariant(node.isDeleted())
+      elif attrpath == "tags":
+          #Special case tag use a delegate to draw boxes
+          return QVariant()
+      else:
+	try :
+          val = node.attributesByName(attrpath, ABSOLUTE_ATTR_NAME)
+	except Exception as e:
+	   print "NodeListModel data can't get attribute " + attrpath + " by name " + str(e)
+	   return QVariant()
+        if len(val) == 1:
+          if val[0].type() == typeId.VTime:
+            vtime = val[0].value()
+            if vtime:
+              return QVariant(str(vtime.get_time()))
+          elif val[0].type() == typeId.String:
+            return QVariant(QString.fromUtf8(val[0].value()))
+          else:
+            return QVariant(val[0].value())
+        else:
+          return QVariant()
+    if role == Qt.ToolTipRole :
+      return QVariant(QString.fromUtf8(node.name()))
+
+    # Display icons
+    if (role == Qt.DecorationRole) and (attributes[index.column()] == "name"):
+      pixmap = None
+      if self._thumb:
+	if self.thumbnailer.isThumbnailable(node):
+	  pixmap = self.thumbnailer.generate(node)
+          if pixmap is None:
+	    pixmap = QPixmap(":file_temporary.png")
+      if not pixmap:
+        pixmap = self.getIconPixmap(node)
+        if not pixmap:
+          pixmap = QPixmap(node.icon())
+        
+        if isinstance(node, VLink):
+          pixmap = pixmap.scaled(QSize(128, 128), Qt.KeepAspectRatio)
+          painter = QPainter(pixmap)
+          linkPixmap = QPixmap(":vlink") 
+          painter.drawPixmap(0, 0, linkPixmap)
+          painter.end()
+
+	elif node.hasChildren():
+          try:
+            pfsobj = node.children()[0].fsobj().this
+          except AttributeError:
+  	    pfsobj = None
+          try:
+            nfsobj = node.fsobj().this
+          except AttributeError:
+	    nfsobj = None
+          if pfsobj != nfsobj:
+            pixmap = pixmap.scaled(QSize(128, 128), Qt.KeepAspectRatio)
+            painter = QPainter(pixmap)
+            rootPixmap = QPixmap(":root")
+            painter.drawPixmap(0, 0, rootPixmap)
+            painter.end()
+      return QVariant(QIcon(pixmap))
+	
+    if role == Qt.BackgroundRole:
+      if index.row() == self.activeSelection():
+        palette = QPalette().color(QPalette.Highlight)
+        return QVariant(QColor(palette))
+    if role == Qt.ForegroundRole:
+      if index.row() == self.activeSelection():
+        palette = QPalette().color(QPalette.HighlightedText)
+        return QVariant(QColor(palette))
+      if node.isDeleted():
+        return  QVariant(QColor(Qt.red))
+
+    if (role == Qt.CheckStateRole) and (attributes[index.column()] == "name"):
+      if node.uid() in self.selection.get():
+        return Qt.Checked
+      else:
+        return Qt.Unchecked
+    return QVariant()
+
+
+  def setDefaultAttributes(self):
+    self._default_attributes = ["name", "size", "tags", "path", "extension", "absolute", "module", "has children", "child count", "is deleted"]
+    self.setSelectedAttributes(["name", "time", "time attribute", "tags", "size", "path"])
+
+  def setSelectedAttributes(self, attributes):
+    self._selected_attributes = attributes
+    try:
+      self.refresh(self._current_row)
+    except AttributeError:
+      self.refresh(0)
+
+  def selectedAttributes(self):
+    return self._selected_attributes
+
+  def sort(self, column, order):
+    return
+
+  def getNode(self, row):
+    try:
+      node = self._list[row].node()
+      if node:
+        return node
+      else:
+        return None
+    except IndexError:
+      return None
+
+

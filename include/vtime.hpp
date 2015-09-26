@@ -61,6 +61,7 @@ private:
   void			__setFromTime(std::string time);
 public:
   EXPORT		vtime();
+  EXPORT                vtime(const vtime&);
   EXPORT 		vtime(int, int, int, int, int, int, int);
   EXPORT		vtime(uint16_t dos_time, uint16_t dos_date);//DOS 32 bits format 
   EXPORT		vtime(uint64_t value, int type);
@@ -71,6 +72,7 @@ public:
   EXPORT bool		operator<(vtime* v);
   EXPORT bool		operator>=(vtime* v);
   EXPORT bool		operator<=(vtime* v);
+  EXPORT bool		operator<(const vtime & v);
   EXPORT virtual	~vtime();
   int 			year;
   int 			month;

@@ -24,6 +24,10 @@ vtime::vtime(int y, int mo, int d, int h, int mi, int s, int us) : year(y), mont
 {
 }
 
+vtime::vtime(const vtime& copy) : year(copy.year), month(copy.month), day(copy.day), hour(copy.day), minute(copy.minute), second(copy.second), usecond(copy.usecond), wday(copy.wday), yday(copy.yday), dst(copy.dst)
+{
+}
+
 vtime::vtime(uint16_t dos_time, uint16_t dos_date) : hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
 {
   this->day = (dos_date & 31);
@@ -177,6 +181,25 @@ bool	vtime::operator>=(vtime* v)
 bool	vtime::operator<=(vtime* v)
 {
   return !(this->operator>=(v));
+}
+
+bool    vtime::operator<(const vtime& v)
+{
+  if (this->year != v.year)
+    return (this->year < v.year);
+  if (this->month != v.month)
+    return (this->month < v.month);
+  if (this->day != v.day)
+    return (this->day < v.day);
+  if (this->hour != v.hour)
+    return (this->hour < v.hour);
+  if (this->minute != v.minute)
+    return (this->minute < v.minute);
+  if (this->second != v.second)
+    return (this->second < v.second);
+  if (this->usecond != v.usecond)
+    return (this->usecond < v.usecond);
+  return true;
 }
 
 vtime::~vtime()

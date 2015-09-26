@@ -25,18 +25,19 @@ class TimeLineNode
 {
 public:
   TimeLineNode(void);
-  TimeLineNode(Node* node, const std::string& attributeName, Variant_p attribute);
+  TimeLineNode(Node* node, const std::string& attributeName, const vtime& time);
   TimeLineNode(const TimeLineNode& copy);
+  ~TimeLineNode();
  
   bool operator<(const TimeLineNode& rhs);
 
   Node*                 node(void) const;
-  Variant_p             attribute(void) const;
+  vtime                 attribute(void) const;
   const std::string     attributeName(void) const;
 private:
   Node*                 __node;
   std::string           __attributeName;
-  Variant_p             __timeAttribute;
+  vtime                 __timeAttribute;
 };
 
 class TimeLine
@@ -44,11 +45,11 @@ class TimeLine
 public:
   TimeLine(std::vector<Node*> nodes);
   
-  std::vector<TimeLineNode>    sort(void);
+  std::vector<TimeLineNode*>   sort(void);
   void                         clear(void);
 private:
   std::vector<Node*>           __nodes;
-  std::vector<TimeLineNode>    __sorted;
+  std::vector<TimeLineNode*>   __sorted;
 };
 
 #endif

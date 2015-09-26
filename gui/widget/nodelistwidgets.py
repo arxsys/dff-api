@@ -27,7 +27,7 @@ from dff.api.gui.model.node_list import NodeListModel
 from dff.api.gui.model.tree import TreeModel
 from dff.api.gui.model.selection import SelectionManager
 from dff.api.gui.view.tree import NodeTreeView
-from dff.api.gui.widget.nodewidget import NodeWidget
+from dff.api.gui.widget.nodewidget import NodeWidget, TimeLineNodeWidget
 from dff.api.gui.widget.search.thread import SearchThread
 from dff.api.gui.widget.search.search_widget import SearchPanel
 from dff.api.gui.widget.search.filter import FilterBar
@@ -101,6 +101,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.browserview.model.removeNode(node)
       self.filterview.model.removeNode(node)
       self.searchview.model.removeNode(node)
+      self.timeLineView.model.removeNode(node)
       self.bookManager.removeCategory(node)
     else:
       self.emit(SIGNAL("refreshList"), e)
@@ -156,12 +157,10 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.toolbar.addWidget(self.filter)
     self.connect(self.filter, SIGNAL("clicked(bool)"), self.viewFilter)
 
-    #XXX Timeline button
-    self.timeLineButton = QPushButton(QIcon(":cal"), self.tr("Timeline"), self)
+    self.timeLineButton = QPushButton(QIcon(":clock"), self.tr("Timeline"), self)
     self.timeLineButton.setCheckable(True)
     self.toolbar.addWidget(self.timeLineButton)
     self.connect(self.timeLineButton, SIGNAL("clicked(bool)"), self.showTimeLine)
-    ####
 
     self.mainlayout.addWidget(self.toolbar, 0)
 
@@ -180,19 +179,21 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.infostack.hide()
     self.updateStatus()
 
-  #XXX
-  def showTimeLine(self):
-     print "show timeline !"
-     currentList = self.model().list()
-     timeLine = TimeLine(currentList)
-     sortedList = timeLine.sort()
-     #for timeLineNode in sortedList:
-       #print timeLineNode.node().name(), ' ', timeLineNode.attributeName(), ' ', str(timeLineNode.attribute().value().get_time())
-      #print dir(timeLineNode)
-     #self.timeLineWidget.set(timeLine)
- 
-     #self.infostack.setCurrentWidget(self.timeLineWidget) #XXX ?
-     self.viewpan.setCurrentWidget(self.timeLineWidget)
+  def showTimeLine(self): 
+     if self.timeLineButton.isChecked():
+       currentList = self.model().list()
+       timeLine = TimeLine(currentList)
+       sortedList = timeLine.sort()
+       self.viewpan.setCurrentWidget(self.timeLineView)
+       self.model().updateList(sortedList)
+     else:
+       if self.search.isChecked():
+         self.viewpan.setCurrentWidget(self.searchview) 
+       elif self.filter.isChecked():
+          self.viewpan.setCurrentWidget(self.filerview)
+       else:
+          self.viewpan.setCurrentWidget(self.browserview)
+        
 
   def factorminus(self):
     value = self.factorSlider.value() - 1
@@ -267,13 +268,10 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.connect(self.searchwidget, SIGNAL("finished()"), self.updateStatus)
       self.leftpan.addWidget(self.searchwidget)
 
-
-    #XXX timelien start 
-    self.timeLineWidget = self.createNodeWidget(self.selection)
-    #self.connecti
-    self.views.append(self.timeLineWidget)
-    self.viewpan.addWidget(self.timeLineWidget)    
-
+    self.timeLineView = TimeLineNodeWidget(self.selection)
+    self.connect(self.timeLineView, SIGNAL("nodePressed"), self.timeLineNodePressed)
+    self.views.append(self.timeLineView)
+    self.viewpan.addWidget(self.timeLineView)
 
     self.splitter.addWidget(self.leftpan)
     self.splitter.addWidget(self.viewstack)
@@ -283,6 +281,13 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.splitter.setStretchFactor(2, 15)
 
     self.mainlayout.addWidget(self.splitter, 50)
+
+  def timeLineNodePressed(self, timeLineNode):
+    node = timeLineNode.node()
+    self.attributes.fill(node)
+    self.mainwindow.emit(SIGNAL("previewUpdate"), node)
+    self.emit(SIGNAL("nodePressed"), node)
+    self.updateStatus()
 
   def nodePressed(self, node):
     self.attributes.fill(node)
@@ -305,7 +310,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     else:
       self.navigation.rootpathchanged(rootpath)
       self.treeview.expandToNode(rootpath)
-    self.currentView().model.changeList(rootpath, recursive, selected)
+      self.currentView().model.changeList(rootpath, recursive, selected)
 
   def updateStatus(self):
     if self.filter.isChecked():
@@ -360,7 +365,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
 
   def nodetreeclicked(self, node, button, rec=False):
     QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-    self.currentView().model.changeList(node, rec)
+    self.currentView().model.changeList(node, rec) #XXX not on timeline ?
     #self.currentView().model.refresh(self.model().currentRow())
     self.currentView().refreshVisible()
     self.applyFilter()
@@ -392,7 +397,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def bookmark(self):
     self.bookManager.launch()
 
-  def currentView(self):
+  def currentView(self): #XXX timeline to check ?
     if not self.search.isChecked():
       return self.browserview
     else:

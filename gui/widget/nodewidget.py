@@ -18,9 +18,9 @@ from PyQt4.QtGui import *
 
 from dff.api.vfs.libvfs import VFS
 
-from dff.api.gui.view.node_list import NodeListView
-from dff.api.gui.view.node_table import NodeTableView
-from dff.api.gui.model.node_list import NodeListModel
+from dff.api.gui.view.node_list import NodeListView, TimeLineNodeListView
+from dff.api.gui.view.node_table import NodeTableView, TimeLineNodeTableView
+from dff.api.gui.model.node_list import NodeListModel, TimeLineNodeListModel
 
 from dff.api.gui.model.status import ViewStatusModel, NodeStatusModel
 from dff.api.gui.widget.status import StatusWidget, StatusBarWidget
@@ -42,7 +42,7 @@ class NodeWidget(QWidget):
         self.filtermode = filtermode
         # setup model and views
         self.viewid = TABLEVIEW_ID
-        self.model = NodeListModel(selection=selectionManager)
+        self.setModel(selectionManager)
         self.__statuswidget = StatusBarWidget()
         QApplication.instance().mainWindow.status.addWidget(self.__statuswidget)
         self.__viewstatus = StatusWidget()
@@ -53,8 +53,8 @@ class NodeWidget(QWidget):
         self.__statuswidget.addStatusWidget(self.__viewstatus, 20)
         self.__statuswidget.addStatusWidget(self.__linklabel, 60)
         self.__statuswidget.addStatusWidget(self.__nodestatus, 20)
-        self.tableview = NodeTableView(self)
-        self.listview = NodeListView(self)
+        self.setListView()
+        self.setTableView()
         self.tableview.setModel(self.model)
         self.tableview.setColumnWidth(0, 180)
         self.listview.setModel(self.model)
@@ -68,6 +68,15 @@ class NodeWidget(QWidget):
         self.createConnections()
         self.menuManager(selectionManager)
         self.connect(self.model, SIGNAL("dataChanged"), self.dataChanged)
+
+    def setListView(self):
+        self.listview = NodeListView(self)
+
+    def setTableView(self):
+        self.tableview = NodeTableView(self)
+
+    def setModel(self, selectionManager):
+        self.model = NodeListModel(selectionManager)
 
     def updateStatus(self):
         visible = True
@@ -229,3 +238,16 @@ class ScrollBar(QScrollBar):
 
     def moveTo(self, value):
         self.model.seek(value)
+
+class TimeLineNodeWidget(NodeWidget):
+  def __init__(self, selectionManager, tabmode=False, filtermode=False):
+    NodeWidget.__init__(self, selectionManager, tabmode, filtermode)
+
+  def setModel(self, selectionManager):
+    self.model = TimeLineNodeListModel(selectionManager)
+
+  def setListView(self):
+     self.listview = TimeLineNodeListView(self)
+
+  def setTableView(self):
+     self.tableview = TimeLineNodeTableView(self)
