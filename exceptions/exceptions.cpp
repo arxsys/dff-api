@@ -110,12 +110,10 @@ void	CrashHandler::setHandler()
 							   -1);
   #else
 	TCHAR tempPath[1024];
-	std::string spath;
 	std::wstring wpath;
 	
 	GetTempPath(1024, tempPath);
-	spath = std::string(tempPath);
-	wpath.assign(spath.begin(), spath.end());
+	wpath = std::wstring(tempPath);
 	this->__eh = new google_breakpad::ExceptionHandler(wpath,
 							   NULL,//DmpFilter, 
 							   dumpCallback,//DmpCallback 
