@@ -14,9 +14,28 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 
+set(vfs_src 
+   rc.cpp 
+   tags.cpp 
+   node.cpp 
+   vlink.cpp 
+   vfile.cpp 
+   vfs.cpp 
+   fso.cpp 
+   mfso.cpp 
+   filemapping.cpp 
+   fdmanager.cpp 
+   cache.cpp 
+   iostat.cpp 
+   rootnode.cpp)
+
+if (BFIO_FOUND)
+ set(vfs_src ${vfs_src} libbfio_wrapper.cpp)
+endif(BFIO_FOUND)
+
 dff_cpp_api(vfs 
   SWIG_FILE libvfs.i
-  CPP_FILES rc.cpp tags.cpp node.cpp vlink.cpp vfile.cpp vfs.cpp fso.cpp mfso.cpp filemapping.cpp fdmanager.cpp cache.cpp iostat.cpp rootnode.cpp
-  LINK_LIBRARIES datatype search exceptions types events
+  CPP_FILES ${vfs_src}
+  LINK_LIBRARIES datatype search exceptions types events bfio
   EXTRA_FILES vfs.py __init__.py iodevice.py extract.py
   )
