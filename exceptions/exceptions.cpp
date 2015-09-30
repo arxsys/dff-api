@@ -19,6 +19,12 @@
 #include <iostream>
 #include <string>
 
+#ifndef WIN32
+  #include "client/linux/handler/exception_handler.h"
+#else
+  #include "client/windows/handler/exception_handler.h"
+#endif
+
 #define ReportExecutable "CrashReporter"
 
 #ifndef WIN32
