@@ -17,6 +17,7 @@ import os
 from dff.api.devices.libdevices import Device, DeviceList
 
 DevicesLib = list
+LogicalLib = list
 if os.name == "posix":
   try :
     from dff.api.devices.libdevices import UDevices
@@ -28,7 +29,9 @@ if os.name == "posix":
 else:
   try :
     from dff.api.devices.libdevices import WMIDevices
+    from dff.api.devices.libdevices import LogicalDrives
     DevicesLib = WMIDevices
+    LogicalLib = LogicalDrives
   except ImportError:
     pass
 
@@ -36,6 +39,15 @@ class Devices():
   def __init__(self):
     if DevicesLib:
       self.__instance = DevicesLib()
+
+  def __getattr__(self, attr):
+        return getattr(self.__instance, attr)
+
+
+class Logical():
+  def __init__(self):
+    if LogicalLib:
+      self.__instance = LogicalLib()
 
   def __getattr__(self, attr):
         return getattr(self.__instance, attr)
