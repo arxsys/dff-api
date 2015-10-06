@@ -44,7 +44,7 @@ endif(BFIO_FOUND)
 dff_cpp_api(vfs 
   SWIG_FILE libvfs.i
   CPP_FILES ${vfs_src}
-  LINK_LIBRARIES datatype search exceptions types events ${BFIO_LIBRARY}
+  LINK_LIBRARIES search exceptions types events ${BFIO_LIBRARY}
   DEFINITIONS ${definitions}
   INCLUDE_DIRS ${BFIO_INCLUDE_DIR}
   EXTRA_FILES vfs.py __init__.py iodevice.py extract.py mimetree.py magichandler.py ${bfio_files}
