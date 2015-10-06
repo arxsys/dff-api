@@ -14,9 +14,40 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 
+set(vfs_src 
+   rc.cpp 
+   tags.cpp 
+   node.cpp 
+   vlink.cpp 
+   vfile.cpp 
+   vfs.cpp 
+   fso.cpp 
+   mfso.cpp 
+   filemapping.cpp 
+   fdmanager.cpp 
+   cache.cpp 
+   iostat.cpp 
+   rootnode.cpp)
+
+if (BFIO_FOUND)
+ set(vfs_src ${vfs_src} libbfio_wrapper.cpp)
+ if(WIN32)
+  set(definitions -DHAVE_INT8_T -D_LIBBFIO_TYPES_H_INTEGERS)
+  set(bfio_files ${BFIO_DYN_LIBRARIES})
+ endif()
+endif(BFIO_FOUND)
+
 dff_cpp_api(vfs 
   SWIG_FILE libvfs.i
+<<<<<<< HEAD
   CPP_FILES node.cpp rc.cpp tags.cpp vlink.cpp vfile.cpp vfs.cpp fso.cpp mfso.cpp filemapping.cpp fdmanager.cpp cache.cpp iostat.cpp rootnode.cpp datatype.cpp session.cpp configuration.cpp log.cpp
   LINK_LIBRARIES search exceptions types events destruct _destruct #pthread ?
   EXTRA_FILES vfs.py __init__.py iodevice.py extract.py mimetree.py magichandler.py
+=======
+  CPP_FILES ${vfs_src}
+  LINK_LIBRARIES datatype search exceptions types events ${BFIO_LIBRARY}
+  DEFINITIONS ${definitions}
+  INCLUDE_DIRS ${BFIO_INCLUDE_DIR}
+  EXTRA_FILES vfs.py __init__.py iodevice.py extract.py ${bfio_files}
+>>>>>>> origin/develop
   )

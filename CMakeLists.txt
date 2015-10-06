@@ -19,7 +19,6 @@ install_file(__init__.py)
 # compiled
 include_directories(destruct)
 add_subdirectory (destruct)
-add_subdirectory (session)
 
 include_directories("${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad")
 
@@ -41,7 +40,6 @@ endif (WIN32)
 # python only
 add_subdirectory (taskmanager)
 add_subdirectory (manager)
-#add_subdirectory (datatype)
 add_subdirectory (gui)
 add_subdirectory (devices)
 add_subdirectory (apswvfs)

@@ -19,6 +19,12 @@
 #include <iostream>
 #include <string>
 
+#ifndef WIN32
+  #include "client/linux/handler/exception_handler.h"
+#else
+  #include "client/windows/handler/exception_handler.h"
+#endif
+
 #define ReportExecutable "CrashReporter"
 
 #ifndef WIN32
@@ -110,12 +116,10 @@ void	CrashHandler::setHandler()
 							   -1);
   #else
 	TCHAR tempPath[1024];
-	std::string spath;
 	std::wstring wpath;
 	
 	GetTempPath(1024, tempPath);
-	spath = std::string(tempPath);
-	wpath.assign(spath.begin(), spath.end());
+	wpath = std::wstring(tempPath);
 	this->__eh = new google_breakpad::ExceptionHandler(wpath,
 							   NULL,//DmpFilter, 
 							   dumpCallback,//DmpCallback 

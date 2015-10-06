@@ -15,6 +15,7 @@
 
 #include "crashreporter.hpp"
 #include <string>
+#include <map>
 #include <iostream>
 
 
@@ -234,28 +235,28 @@ WindowsCrashReporter::~WindowsCrashReporter()
 
 std::wstring	stringToWstring(std::string input)
 {
-	std::wstring output;
-	
-	return output.assign(input.begin(), input.end());
+  std::wstring	output;
+  
+  return output.assign(input.begin(), input.end());
 }
 
 
 bool	WindowsCrashReporter::sendReport() throw (std::string)
 {
-	std::map<std::wstring, std::wstring> params;
-	std::wstring   rcode;
-	bool	success;
-	
-	params[L"comments_"] = stringToWstring(this->comment());
-	params[L"email"] = stringToWstring(this->email());
-	params[L"ver"] = stringToWstring(this->version());
-	params[L"prod"] = L"DFF";
-	success = google_breakpad::HTTPUpload::SendRequest(stringToWstring(this->postAddress()),
-				params, stringToWstring(this->minidumpPath()), L"upload_file_minidump", NULL, &rcode,
-				&this->_httpStatusCode);
-	if (success)
-		this->_httpResponseBody = std::string(rcode.begin(), rcode.end());
-	return success;
+  std::map<std::wstring, std::wstring>	params;
+  std::wstring				rcode;
+  bool					success;
+  
+  params[L"comments_"] = stringToWstring(this->comment());
+  params[L"email"] = stringToWstring(this->email());
+  params[L"ver"] = stringToWstring(this->version());
+  params[L"prod"] = L"DFF";
+  success = google_breakpad::HTTPUpload::SendRequest(stringToWstring(this->postAddress()),
+						     params, stringToWstring(this->minidumpPath()), L"upload_file_minidump", NULL, &rcode,
+						     &this->_httpStatusCode);
+  if (success)
+    this->_httpResponseBody = std::string(rcode.begin(), rcode.end());
+  return success;
 }  
 
 

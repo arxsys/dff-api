@@ -21,12 +21,11 @@
 #include <string>
 #include "export.hpp"
 
-#ifndef WIN32
-  #include "client/linux/handler/exception_handler.h"
-#else
-  #include "client/windows/handler/exception_handler.h"
-#endif
 
+namespace google_breakpad
+{
+  class ExceptionHandler;
+};
 
 class CrashHandler
 {
@@ -34,11 +33,11 @@ private:
   std::string				__version;
   google_breakpad::ExceptionHandler	*__eh;
 public:
-  CrashHandler();
-  ~CrashHandler();
-  void	setVersion(std::string);
-  void	setHandler();
-  void	unsetHandler();
+  EXPORT CrashHandler();
+  EXPORT ~CrashHandler();
+  EXPORT void	setVersion(std::string);
+  EXPORT void	setHandler();
+  EXPORT void	unsetHandler();
 };
 
 class envError
