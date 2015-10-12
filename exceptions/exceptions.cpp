@@ -35,9 +35,8 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
                          void* context,
                          bool succeeded)
 {
-  pid_t	pid;
-
-  std::cout << "Dumping to " << descriptor.path() << std::endl;
+  pid_t		pid;
+  char**	cargs;
 
   pid = fork();
   if (pid == -1)
@@ -47,7 +46,8 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
     }
   else if (pid == 0)
     {
-      execl("dff/api/exceptions/reporter/CrashReporter", "CrashReporter", "-p", descriptor.path(), "-v", (char*)context, NULL);
+      cargs = (char**)context;
+      execl("dff/api/exceptions/reporter/CrashReporter", "CrashReporter", "-p", descriptor.path(), "-v", cargs[0], "-s", cargs[1], NULL);
       exit(1);
     }
   return succeeded;
@@ -63,15 +63,20 @@ bool	dumpCallback(const wchar_t* _dump_dir, const wchar_t* _minidump_id, void* c
 {
   STARTUPINFO		si;
   PROCESS_INFORMATION	pi;
+  char**		cargs;
   
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
   ZeroMemory(&pi, sizeof(pi));
+  cargs = (char**)context;
   std::wstring args(L"CrashReporer -p ");
   args += std::wstring(_dump_dir);
   args += std::wstring(_minidump_id);
-  args += std::wstring(L".dmp -v ");
-  args += std::wstring((char*)context, (char*)context+strlen((char*)context));
+  args += std::wstring(L".dmp");
+  args += std::wstring("-v ");
+  args += std::wstring(cargs[0], strlen(cargs[0]));
+  args += std::wstring("-s ");
+  args += std::wstring(cargs[1], strlen(cargs[1]));
   if (!CreateProcessW(L"dff\\api\\exceptions\\reporter\\CrashReporter.exe", 
 		      (LPWSTR)args.c_str(),
 		      NULL, NULL, FALSE, 0, NULL, NULL, (LPSTARTUPINFOW)&si, &pi))
@@ -88,13 +93,19 @@ bool	dumpCallback(const wchar_t* _dump_dir, const wchar_t* _minidump_id, void* c
 #endif
 
 
-CrashHandler::CrashHandler() : __version(""), __eh(NULL)
+CrashHandler::CrashHandler() : __silent(false), __version(""), __eh(NULL)
 {
 }
 
+
 CrashHandler::~CrashHandler()
 {
+}
 
+
+void	CrashHandler::setSilentReport(bool silent)
+{
+  this->__silent = silent;
 }
 
 
@@ -106,12 +117,35 @@ void	CrashHandler::setVersion(std::string version)
 
 void	CrashHandler::setHandler()
 {
+  std::string	args;
+  char**	cargs;
+
+  cargs = NULL;
+  args = " -v " + this->__version + " -s ";
+  if ((cargs = (char**)calloc(2, sizeof(char*))) != NULL)
+    {
+      if ((cargs[0] = (char*)calloc(this->__version.size()+1, sizeof(char))) != NULL)
+	memcpy(cargs[0], this->__version.c_str(), this->__version.size());
+      else
+	return; //XXX No handler set
+      if ((cargs[1] = (char*)calloc(2, sizeof(char))) != NULL)
+	{
+	  if (this->__silent)
+	    *(cargs[1]) = '1';
+	  else
+	    *(cargs[1]) = '0';
+	}
+      else
+	return; //XXX No handler set
+    }
+  else
+    return; //XXX No handler set
   #ifndef WIN32
 	google_breakpad::MinidumpDescriptor descriptor("/tmp");
 	this->__eh = new google_breakpad::ExceptionHandler(descriptor, 
 							   NULL,//DmpFilter, 
-							   dumpCallback, 
-							   (void*)this->__version.c_str(), 
+							   dumpCallback,
+							   (void*)cargs, 
 							   true,
 							   -1);
   #else
@@ -123,7 +157,7 @@ void	CrashHandler::setHandler()
 	this->__eh = new google_breakpad::ExceptionHandler(wpath,
 							   NULL,//DmpFilter, 
 							   dumpCallback,//DmpCallback 
-  							   (void*)this->__version.c_str(), 
+  							   (void*)cargs, 
 							   true);
   #endif
 }

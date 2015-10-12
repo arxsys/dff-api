@@ -46,6 +46,7 @@ public:
   void		process(std::string minidumpPath) throw (std::string);
   void		process(char* minidumpPath) throw (std::string);
   void		print();
+  std::string	minidumpPath();
   std::string	details();
   std::string	processorArchitecture();
   std::string	cpuInformation();
