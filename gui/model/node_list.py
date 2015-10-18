@@ -66,7 +66,7 @@ class NodeListModel(QAbstractItemModel):
            self.emit(SIGNAL("dataChanged"), modelIndex, modelIndex)
          index += 1
 
-  def __removeNode(self, node):
+  def _removeNode(self, node):
     children = node.children()
     for child in children:
       self._removeNode(child)
@@ -179,7 +179,7 @@ class NodeListModel(QAbstractItemModel):
       self.select(0)
       self.emit(SIGNAL("changeList"))
 
-  def __fillRecursiveList(self, nodes):
+  def _fillRecursiveList(self, nodes):
     for node in nodes:
       self._list.append(node)
       if node.hasChildren():
@@ -660,7 +660,7 @@ class TimeLineNodeListModel(NodeListModel):
            self.emit(SIGNAL("dataChanged"), modelIndex, modelIndex)
          index += 1
 
-  def __removeNode(self, node):
+  def _removeNode(self, node):
     children = node.children()
     for child in children:
       self._removeNode(child)

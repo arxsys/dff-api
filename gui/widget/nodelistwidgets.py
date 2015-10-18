@@ -12,6 +12,8 @@
 # Author(s):
 #  Jeremy MOUNIER <jmo@digital-forensic.org>
 
+import time
+
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -181,9 +183,11 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
 
   def showTimeLine(self): 
      if self.timeLineButton.isChecked():
+       t = time.time()
        currentList = self.model().list()
        timeLine = TimeLine(currentList)
        sortedList = timeLine.sort()
+       print str(time.time() - t)
        self.viewpan.setCurrentWidget(self.timeLineView)
        self.model().updateList(sortedList)
      else:
@@ -193,7 +197,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
           self.viewpan.setCurrentWidget(self.filerview)
        else:
           self.viewpan.setCurrentWidget(self.browserview)
-        
 
   def factorminus(self):
     value = self.factorSlider.value() - 1
@@ -310,7 +313,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     else:
       self.navigation.rootpathchanged(rootpath)
       self.treeview.expandToNode(rootpath)
-      self.currentView().model.changeList(rootpath, recursive, selected)
+    self.currentView().model.changeList(rootpath, recursive, selected)
 
   def updateStatus(self):
     if self.filter.isChecked():

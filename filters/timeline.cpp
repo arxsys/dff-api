@@ -37,9 +37,12 @@ TimeLineNode::~TimeLineNode()
 {
 }
  
-bool    TimeLineNode::operator<(const TimeLineNode& rhs)
+bool    TimeLineNode::compare(TimeLineNode* a, TimeLineNode* b)
 {
-  return (this->__timeAttribute < rhs.__timeAttribute);
+  if (a && b)
+    return (a->__timeAttribute < b->__timeAttribute);
+  else
+    return false;
 }
  
 Node*   TimeLineNode::node(void) const
@@ -80,7 +83,7 @@ std::vector<TimeLineNode*>    TimeLine::sort(void)
     }
   }
 
-  std::sort(this->__sorted.begin(), this->__sorted.end());
+  std::sort(this->__sorted.begin(), this->__sorted.end(), TimeLineNode::compare);
 
   return (this->__sorted);
 }

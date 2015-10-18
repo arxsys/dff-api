@@ -29,7 +29,7 @@ public:
   TimeLineNode(const TimeLineNode& copy);
   ~TimeLineNode();
  
-  bool operator<(const TimeLineNode& rhs);
+  static bool            compare(TimeLineNode* a, TimeLineNode* b);
 
   Node*                 node(void) const;
   vtime                 attribute(void) const;
