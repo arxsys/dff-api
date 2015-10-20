@@ -53,6 +53,23 @@ FILTER_RESULT = 3
 TREE_VIEW = 0
 SEARCH_PAN = 1
 
+class TimeLiner(QObject):
+  def __init__(self):
+    QObject.__init__(self)
+    self.connect(self, SIGNAL("compute"), self.computeNodeList)
+
+  def setNodesList(self, nodesList):
+    self.sortedList = None
+    self.nodesList = nodesList 
+
+  def computeNodeList(self, nodesList):
+    print 'sorting node'
+    timeLine = TimeLine(nodesList)
+    sortedList = timeLine.sort()
+    self.emit(SIGNAL("timeLineFinished"), sortedList) 
+    print 'node sorted'
+
+
 class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def __init__(self, parent=None, mode=ADVANCED):
     EventHandler.__init__(self)
@@ -83,6 +100,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.VFS.connection(self)
     self.connect(self, SIGNAL("refreshList"), self.refreshList)
     self.bookManager = BookmarkManager(self.model())
+    self.timeLineThread = QThread()
 
   def __del__(self):
     self.VFS.deconnection(self)
@@ -181,15 +199,23 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.infostack.hide()
     self.updateStatus()
 
+  def setTimeLine(self, sortedNodes):
+     print 'SETTING TIMELINE'
+     self.viewpan.setCurrentWidget(self.timeLineView)
+     self.model().updateList(sortedNodes)
+
   def showTimeLine(self): 
      if self.timeLineButton.isChecked():
-       t = time.time()
        currentList = self.model().list()
-       timeLine = TimeLine(currentList)
-       sortedList = timeLine.sort()
-       print str(time.time() - t)
-       self.viewpan.setCurrentWidget(self.timeLineView)
-       self.model().updateList(sortedList)
+       timeLiner = TimeLiner()
+       timeLiner.moveToThread(self.timeLineThread)
+       self.connect(self.timeLineThread, SIGNAL("finished"), timeLiner.deleteLater)
+       self.connect(self, SIGNAL("launchTimeLine"), timeLiner.computeNodeList)
+       self.connect(timeLiner, SIGNAL("timeLineFinished"), self.setTimeLine)
+       print 'starting thread'
+       self.timeLineThread.start()
+       print 'emiting '
+       self.emit(SIGNAL("launchTimeLine"), currentList)
      else:
        if self.search.isChecked():
          self.viewpan.setCurrentWidget(self.searchview) 
