@@ -56,19 +56,15 @@ SEARCH_PAN = 1
 class TimeLiner(QObject):
   def __init__(self):
     QObject.__init__(self)
-    self.connect(self, SIGNAL("compute"), self.computeNodeList)
 
   def setNodesList(self, nodesList):
     self.sortedList = None
     self.nodesList = nodesList 
 
   def computeNodeList(self, nodesList):
-    print 'sorting node'
     timeLine = TimeLine(nodesList)
     sortedList = timeLine.sort()
     self.emit(SIGNAL("timeLineFinished"), sortedList) 
-    print 'node sorted'
-
 
 class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def __init__(self, parent=None, mode=ADVANCED):
@@ -207,14 +203,12 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def showTimeLine(self): 
      if self.timeLineButton.isChecked():
        currentList = self.model().list()
-       timeLiner = TimeLiner()
-       timeLiner.moveToThread(self.timeLineThread)
-       self.connect(self.timeLineThread, SIGNAL("finished"), timeLiner.deleteLater)
-       self.connect(self, SIGNAL("launchTimeLine"), timeLiner.computeNodeList)
-       self.connect(timeLiner, SIGNAL("timeLineFinished"), self.setTimeLine)
-       print 'starting thread'
+       self.timeLiner = TimeLiner()
+       self.timeLiner.moveToThread(self.timeLineThread)
+       self.connect(self.timeLineThread, SIGNAL("finished"), self.timeLiner.deleteLater)
+       self.connect(self, SIGNAL("launchTimeLine"), self.timeLiner.computeNodeList)
+       self.connect(self.timeLiner, SIGNAL("timeLineFinished"), self.setTimeLine)
        self.timeLineThread.start()
-       print 'emiting '
        self.emit(SIGNAL("launchTimeLine"), currentList)
      else:
        if self.search.isChecked():
