@@ -13,32 +13,8 @@
 #  Frederic Baguelin <fba@digital-forensic.org>
 #  Solal Jacob <sja@digital-forensic.org>
 
-
-add_subdirectory(breakpad)
-add_subdirectory(reporter)
-
-if (WIN32)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/breakpad.lib")
-elseif (UNIX)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/libbreakpad.a")
-endif(WIN32)
-
 dff_cpp_api(exceptions
   CPP_FILES exceptions.cpp
   SWIG_FILE libexceptions.i
   EXTRA_FILES __init__.py
-  LINK_LIBRARIES ${libbreakpad}
-  INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad"
   )
-
-add_dependencies(exceptions breakpad)
-
-if (WIN32)
-  add_definitions(-DUNICODE -D_UNICODE)
-  add_custom_target(patchexceptions ALL
-    DEPENDS ${SWIG_MODULE_libexceptions_REAL_NAME}
-    COMMENT "Patching libexceptions.py"
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/patch.py
-    ${CMAKE_CURRENT_BINARY_DIR}/libexceptions.py
-    )
-endif(WIN32)

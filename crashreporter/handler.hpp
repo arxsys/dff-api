@@ -14,15 +14,31 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
-#include "exceptions.hpp"
 
+#ifndef __HANDLER_HH__
+#define __HANDLER_HH__
 
-envError::envError(std::string emsg)
+#include <string>
+#include "export.hpp"
+
+namespace google_breakpad
 {
-  error = emsg;
-}
+  class ExceptionHandler;
+};
 
-vfsError::vfsError(std::string emsg)
+class CrashHandler
 {
-    error = emsg;
-}
+private:
+  bool					__silent;
+  std::string				__version;
+  google_breakpad::ExceptionHandler	*__eh;
+public:
+  EXPORT CrashHandler();
+  EXPORT ~CrashHandler();
+  EXPORT void	setSilentReport(bool);
+  EXPORT void	setVersion(std::string);
+  EXPORT void	setHandler();
+  EXPORT void	unsetHandler();
+};
+
+#endif 

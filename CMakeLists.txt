@@ -18,9 +18,12 @@ install_file(__init__.py)
 
 # compiled
 
-include_directories("${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad")
-
 add_subdirectory (exceptions)
+
+STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
+if(LINUX OR WIN32)
+  add_subdirectory (crashreporter)
+endif(LINUX OR WIN32)
 add_subdirectory (events)
 add_subdirectory (loader)
 add_subdirectory (module)

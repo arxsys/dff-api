@@ -14,15 +14,27 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
-#include "exceptions.hpp"
+#include "pyrun.swg"
 
+%module(package="dff.api.crashreporter", directors="1") libcrashreporter
 
-envError::envError(std::string emsg)
-{
-  error = emsg;
-}
+%{
+#include "export.hpp"
+#include "handler.hpp"
+%}
 
-vfsError::vfsError(std::string emsg)
-{
-    error = emsg;
-}
+%include "std_string.i"
+%include "std_list.i"
+%include "std_set.i"
+%include "std_map.i"
+%include "std_vector.i"
+%include "std_except.i"
+#ifndef WIN32
+%include "stdint.i"
+#else
+%include "wstdint.i"
+#endif
+%include "windows.i"
+
+%include "../include/export.hpp"
+%include "handler.hpp"
