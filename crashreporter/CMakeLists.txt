@@ -21,9 +21,9 @@ STRING (REGEX MATCH "Linux" PROJECT_OS_LINUX ${CMAKE_SYSTEM_NAME})
 
 if (WIN32)
   add_definitions(-DUNICODE -D_UNICODE)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/breakpad.lib")
+  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/crashreporter/breakpad/breakpad.lib")
 elseif (UNIX)
-  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/libbreakpad.a")
+  set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/crashreporter/breakpad/libbreakpad.a")
 endif(WIN32)
 
 dff_cpp_api(crashreporter
@@ -31,7 +31,7 @@ dff_cpp_api(crashreporter
   SWIG_FILE libcrashreporter.i
   EXTRA_FILES __init__.py
   LINK_LIBRARIES ${libbreakpad}
-  INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad"
+  INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dff/api/crashreporter/breakpad"
   )
 
 add_dependencies(crashreporter breakpad)
