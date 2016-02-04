@@ -17,8 +17,6 @@ namespace Destruct
   class DStream;
 }
 
-//move destruct/debug
-//nove destruct/protocol/?
 class Debug
 {
 public:
@@ -78,7 +76,7 @@ private:
   Destruct::DStructs&                           __destruct;
 };
 
-class DFS : public Destruct::DCppObject<DFS> //singleton ?
+class DFS : public Destruct::DCppObject<DFS> 
 {
 public:
                                                    DFS(Destruct::DStruct* dstruct, Destruct::DValue const& args);
@@ -100,7 +98,7 @@ public:
   {
     static Destruct::DAttribute  attributes[] = 
     {
-     //VERSION attribute ?
+      //version attribute ?
       Destruct::DAttribute(Destruct::DType::DObjectType, "dstructs"),
       Destruct::DAttribute(Destruct::DType::DObjectType, "caseInformations"),
       Destruct::DAttribute(Destruct::DType::DNoneType, "save", Destruct::DType::DUnicodeStringType),

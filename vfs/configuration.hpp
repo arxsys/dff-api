@@ -5,13 +5,11 @@
 #include "protocol/dcppmutable.hpp"
 #include "protocol/dmutableobject.hpp"
 #include "protocol/dmutablestruct.hpp"
-//#include "protocol/dstream.hpp"
-//#include "protocol/dserialize.hpp"
 
 using namespace Destruct;
 
 /**
- *  CaseInformations is a singleton so we can handle only one case !
+ *  CaseInformations Singleton 
  */
 class CaseInformations : public DCppMutable<CaseInformations>
 {
@@ -19,10 +17,12 @@ public:
   CaseInformations(Destruct::DMutableStruct* dstruct, DValue const& args) : DCppMutable<CaseInformations>(dstruct, args)
   {
     this->init();
+    this->caseItems = DStructs::instance().find("DVectorObject")->newObject();
   }
 
-  RealValue<DUnicodeString>    casePath, caseFileName, caseInformation; 
-  RealValue<DFunctionObject*> _caseFilePath;
+  RealValue<DUnicodeString>    casePath, caseFileName, caseInformation;
+  RealValue<DObject*>          caseItems;
+  RealValue<DFunctionObject*>  _caseFilePath;
 
   DUnicodeString        caseFilePath(void)
   {
@@ -34,7 +34,7 @@ public:
    */
   static size_t ownAttributeCount()
   {
-    return (4);
+    return (5);
   }
 
   static DAttribute* ownAttributeBegin()
@@ -45,7 +45,7 @@ public:
       DAttribute(DType::DUnicodeStringType, "caseName"),
       DAttribute(DType::DUnicodeStringType, "caseInformation"),
       DAttribute(DType::DUnicodeStringType, "caseFilePath", DType::DNoneType),
-      //CaseItem ... ?
+      DAttribute(DType::DObjectType, "caseItems"),
     };
     return (attributes);
   }
@@ -58,6 +58,7 @@ public:
       DPointer<CaseInformations>(&CaseInformations::caseFileName),
       DPointer<CaseInformations>(&CaseInformations::caseInformation),
       DPointer<CaseInformations>(&CaseInformations::_caseFilePath, &CaseInformations::caseFilePath),
+      DPointer<CaseInformations>(&CaseInformations::caseItems),
     };
     return (memberPointer);
   }

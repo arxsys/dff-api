@@ -2,7 +2,6 @@
 #include "dstructs.hpp"
 #include "dsimpleobject.hpp"
 #include "protocol/dstream.hpp"
-//#include "protocol/dserialize.hpp"
 #include "protocol/dmutableobject.hpp"
 #include "dattribute.hpp"
 #include "dstruct.hpp"
@@ -18,7 +17,7 @@
 #include "configuration.hpp"
 
 /**
- *  SessionLoader (temp for DLoader/DSerializer)
+ *  SessionLoader
  */
 SessionLoader::SessionLoader(DStruct* dstruct, DValue const& args) : DCppObject(dstruct, args) , __destruct(Destruct::DStructs::instance())
 {
@@ -68,7 +67,6 @@ Destruct::DObject* SessionLoader::load(Destruct::DValue filePath)
     Destruct::DObject* session = deserializer->call("DObject").get<DObject*>();
     deserializer->destroy();
     dstream->destroy();
-    std::cout << "return loaded session ref " << session->refCount() << std::endl;
 
     return (session);
   } 
@@ -99,18 +97,10 @@ DFS::DFS(Destruct::DStruct* dstruct, Destruct::DValue const& args) : Destruct::D
 
 DFS::~DFS()
 {
-  std::cout << "~DFS()" << std::endl;
 }
 
-//load incremental
 /*
-  loadDStruct
-  Object* nodeTree dserialize
-  OBject* dataTree dserialize
-  Object* modules dserialize
-  Object* report dserialize
 */
-
 void    DFS::save(Destruct::DValue const& filePath) 
 {
   Destruct::DMutableObject* arg = static_cast<Destruct::DMutableObject*>(this->__destruct.generate("DMutable"));
@@ -118,11 +108,9 @@ void    DFS::save(Destruct::DValue const& filePath)
   arg->setValueAttribute(Destruct::DType::DInt8Type, "input",  Destruct::RealValue<DInt8>(Destruct::DStream::Output));
   DObject* dstream = this->__destruct.generate("DStream", Destruct::RealValue<Destruct::DObject*>(arg));
   arg->destroy();
-  //Destruct::DSerialize* serializer = Destruct::DSerializers::to("Binary");
   Destruct::DObject* serializer = this->__destruct.generate("SerializeBinary", RealValue<DObject*>(dstream)); 
 
-
-  //serialize each object rather than all object tree to use less memory ? (save incremental ?)
+  //implement incremental save ?
   this->__saveDStruct();
   this->nodeTree = this->__toDNodeTree(this->__vfs.root); 
   this->dataType = this->__dataTypeManager->save();
@@ -131,7 +119,6 @@ void    DFS::save(Destruct::DValue const& filePath)
   serializer->call("DObject", RealValue<DObject*>(this));
   serializer->destroy();
   dstream->destroy();
-  //std::cout << "DFS::Save(" << filePath.asUnicodeString() << ") finish"  << std::endl;
 }
 
 void    DFS::__saveDStruct(void) const
@@ -142,7 +129,7 @@ void    DFS::__saveDStruct(void) const
     Destruct::DStruct* dstruct = this->__destruct.find(index);
     if (dstruct->name().find("ArgumentsTest") != std::string::npos)
     {
-      dstructs->call("push", RealValue<DStruct*>(dstruct)); //if object is none it doesn't throw anything want call is called that;s strange  must return function didn't exist 
+      dstructs->call("push", RealValue<DStruct*>(dstruct)); //if object is none it doesn't throw anything 
     }
   }
 }
@@ -176,7 +163,7 @@ Destruct::DObject*    DFS::__toDNodeTree(Node* node) const
   tagList->destroy();
  
   Destruct::DObject*  nodeDataType = this->__dataTypeManager->nodeDataType(node); 
-  dnode->setValue("dataTypes",  Destruct::RealValue<Destruct::DObject*>(nodeDataType)); //XXX //remplace By DataTypeId (pour la place) ??
+  dnode->setValue("dataTypes",  Destruct::RealValue<Destruct::DObject*>(nodeDataType)); //remplace By DataTypeId ? 
   nodeDataType->destroy();  
  
   std::vector<Node *> children = node->children();
@@ -238,7 +225,6 @@ void    DFS::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* n
   //push dataType of node in node dataTypes
   this->__dataTypeManager->loadNodeDataTypes(node, dnode->getValue("dataTypes"));
 
-
   //set Node tags
   Destruct::DObject* tagList = dnode->getValue("tags").get<Destruct::DObject*>();
   DUInt64 tagCount = tagList->call("size").get<DUInt64>();
@@ -255,7 +241,7 @@ void    DFS::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* n
   std::vector<Node* >::const_iterator cnode = nodes.begin(); 
   for (; cnode != nodes.end(); cnode++)
   {
-    //if (*cnode)->name() not already in nodeMap checker les doublons ...(en plus la c le dernier qui est mis ...)
+    //if (*cnode)->name() not already in nodeMap check for double ...(last is put in ...)
     nodeMap[(*cnode)->name()] = (*cnode);
   }
 
