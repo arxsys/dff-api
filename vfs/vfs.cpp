@@ -28,7 +28,7 @@
 #include "dsimpleobject.hpp"
 #include "datatype.hpp"
 
-#include "session.hpp"
+//#include "session.hpp"
 #include "log.hpp"
 
 /**
@@ -79,7 +79,7 @@ void    VFS::__declare(void)
   //XXX c lui qui devrait load c celui qu igere les ession enfin bon ..
 
 
-  SessionLoader::declare();
+  //SessionLoader::declare(); XXX load by destruct
 }
 
 
