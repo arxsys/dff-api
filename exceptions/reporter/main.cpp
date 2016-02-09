@@ -116,9 +116,9 @@ void			sendDump(int argc, char* argv[], char* version, char* path)
 	  QMessageBox::information(QDesktopWidget().screen(), "Crash Reporter", QObject::tr(msg.c_str()));
 	}
     }
+  delete cinfo;
   if (ret == CrashDialog::Exit)
   {
-    delete cinfo;
     exit(1);
   }
 }
