@@ -621,6 +621,7 @@ void		CrashDumpInfo::__setCrashReason()
                   break;
                 case MD_EXCEPTION_CODE_MAC_PPC_ALTIVEC_ASSIST:
                   reason.append("EXC_PPC_ALTIVECASSIST");
+                  break;
                 default:
                   reason.append(flags_string);
                   break;

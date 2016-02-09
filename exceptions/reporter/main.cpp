@@ -81,6 +81,7 @@ void			sendDump(int argc, char* argv[], char* version, char* path)
   catch (std::string err)
     {
       std::cout << err << std::endl;
+      delete cinfo;
       exit(1);
     }
   QApplication app(argc, argv, true);
@@ -116,6 +117,9 @@ void			sendDump(int argc, char* argv[], char* version, char* path)
 	}
     }
   if (ret == CrashDialog::Exit)
+  {
+    delete cinfo;
     exit(1);
+  }
 }
 
