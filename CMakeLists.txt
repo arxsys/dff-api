@@ -33,9 +33,9 @@ add_subdirectory (search)
 add_subdirectory (filters)
 add_subdirectory (tree)
 
-if (WIN32)
+if (LINUX OR WIN32)
   add_subdirectory (magic)
-endif (WIN32)
+endif (LINUX OR WIN32)
 
 # python only
 add_subdirectory (taskmanager)

@@ -20,13 +20,10 @@ import struct
 class MimeTree():
     def __init__(self):
         self.mimetypes = {}
-        if os.name == "nt":
-            if hasattr(sys, "frozen"):
-                self.mgc = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "resources/magic.mgc"))
-            else:
-                self.mgc = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
+        if hasattr(sys, "frozen"):
+            self.mgc = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "resources/magic.mgc"))
         else:
-            self.mgc = "/usr/share/misc/magic.mgc"
+            self.mgc = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
         try:
             self.mgcfile = open(self.mgc, 'rb')
         except:
@@ -48,18 +45,10 @@ class MimeTree():
             version, = struct.unpack(">I", buff[4:8])
         else:
             version, = struct.unpack("<I", buff[4:8])
-        print "Working with magic version", version
-        # default == version <= 7
-        self.__magic_size = 232
-        self.__desc_offset = 64
+        self.__magic_size = 312
+        self.__desc_offset = 96
         self.__desc_size = 64
-        self.__mime_size = 64
-        if version == 8:
-            self.__desc_offset = 96
-        else:
-            self.__magic_size = 248
-            self.__desc_offset = 96
-            self.__mime_size = 80
+        self.__mime_size = 80
         self.__mime_offset = self.__desc_offset + self.__desc_size
         self.nmagic = (self.mgcsize / (self.__magic_size)) - 1
         self.populate(buff)
@@ -73,14 +62,16 @@ class MimeTree():
 
 
     def populate(self, buff):
+        tcount = 0
         bpos = self.__magic_size
+        descriptions = []
         for i in xrange(0, self.nmagic):
             desc, = struct.unpack(str(self.__desc_size) + "s",
                                   buff[bpos+self.__desc_offset:bpos+self.__desc_offset+self.__desc_size])
-            mime, = struct.unpack(str(self.__mime_size) + "s",
-                                  buff[bpos+self.__mime_offset:bpos+self.__mime_offset+self.__mime_size])
-            if len(mime) and mime[0] != '\0':
-                smime = mime.split("/", 1)
+            if len(desc) and desc[0] != '\0':
+                desc = desc.replace('\0', '').strip()
+                descriptions.append(desc)
+                smime = desc.split("/", 1)
                 if len(smime) == 2:
                     key = smime[0]
                     val = smime[1]
@@ -89,3 +80,5 @@ class MimeTree():
                     if val not in self.mimetypes[key]:
                         self.mimetypes[key].append(val)
             bpos += self.__magic_size
+
+m = MimeTree()

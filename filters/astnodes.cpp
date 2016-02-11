@@ -29,6 +29,7 @@ KEYWORD(time, time, AttributeFactory::Timestamp, QueryFlags::Advanced)
 KEYWORD(year, year, AttributeFactory::Timestamp, QueryFlags::Advanced)
 KEYWORD(magic, type.magic, AttributeFactory::Named, QueryFlags::DataType)
 KEYWORD(mime, type.magic mime, AttributeFactory::Named, QueryFlags::DataType)
+KEYWORD(type, type, AttributeFactory::Named, QueryFlags::DataType)
 KEYWORD(size, filesize, AttributeFactory::Named, QueryFlags::Primitive)
 KEYWORD(deleted, deleted, AttributeFactory::Named, QueryFlags::Primitive)
 KEYWORD(folder, folder, AttributeFactory::Named, QueryFlags::Primitive)
@@ -114,10 +115,7 @@ void		InterpreterContext::setCurrentNode(Node* node)
 	    this->__attributes["module"] = new Variant(std::string("unknown"));
 	}
       if ((this->__qflags & QueryFlags::DataType) == QueryFlags::DataType)
-	{
-	  attr = this->__cnode->dataType();
-	  this->__attributes["type"] = new Variant(attr);
-	}
+	this->__attributes["type"] = new Variant(this->__cnode->dataType());
       if ((this->__qflags & QueryFlags::Advanced) == QueryFlags::Advanced)
 	{
 	  if ((fsobj = this->__cnode->fsobj()) != NULL)

@@ -58,7 +58,7 @@ public :
   EXPORT AttributesHandlers&            attributesHandlers(void);
   EXPORT bool				registerAttributes(AttributesHandler*);
 
-  EXPORT Attributes			dataType(void); 
+  EXPORT const std::string		dataType(void); 
   EXPORT Attributes			attributes(void);
   EXPORT Attributes			attributesByType(uint8_t type);
   EXPORT std::list< Variant_p >		attributesByName(std::string name, attributeNameType tname=RELATIVE_ATTR_NAME);

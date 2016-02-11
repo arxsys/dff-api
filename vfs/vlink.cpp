@@ -135,7 +135,7 @@ AttributesHandlers&	VLink::attributesHandlers(void)
 }
 
 
-Attributes	VLink::dataType(void)
+const std::string	VLink::dataType(void)
 {
   return this->__linkedNode->dataType();
 }

@@ -5,6 +5,8 @@ Python bindings for libmagic
 
 import ctypes
 
+import os
+
 from ctypes import *
 from ctypes.util import find_library
 import sys, os
@@ -14,13 +16,14 @@ def _init():
     Loads the shared library through ctypes and returns a library
     L{ctypes.CDLL} instance 
     """
-    if hasattr(sys, 'frozen'):
-        os.environ['PATH'] = os.path.join(os.path.dirname(sys.executable), "resources") + ";" + os.environ['PATH']
-        ctypes.cdll.LoadLibrary('libgnurx-0.dll')
-        return ctypes.cdll.LoadLibrary('libmagic-1.dll')
+    if os.name == "posix":
+        return ctypes.cdll.LoadLibrary('dff/api/magic/libcmagic.so')
     else:
-        ctypes.cdll.LoadLibrary('dff/api/magic/libgnurx-0.dll')
-        return ctypes.cdll.LoadLibrary('dff/api/magic/libmagic-1.dll')
+        if hasattr(sys, 'frozen'):
+            os.environ['PATH'] = os.path.join(os.path.dirname(sys.executable), "resources") + ";" + os.environ['PATH']
+            return ctypes.cdll.LoadLibrary('libcmagic.dll')
+        else:
+            return ctypes.cdll.LoadLibrary('dff/api/magic/cmagic.dll')
 
 _libraries = {}
 _libraries['magic'] = _init()
@@ -66,13 +69,13 @@ _close = _libraries['magic'].magic_close
 _close.restype = None
 _close.argtypes = [magic_t]
 
-_file = _libraries['magic'].magic_file
-_file.restype = c_char_p
-_file.argtypes = [magic_t, c_char_p]
+#_file = _libraries['magic'].magic_file
+#_file.restype = c_char_p
+#_file.argtypes = [magic_t, c_char_p]
 
-_descriptor = _libraries['magic'].magic_descriptor
-_descriptor.restype = c_char_p
-_descriptor.argtypes = [magic_t, c_int]
+#_descriptor = _libraries['magic'].magic_descriptor
+#_descriptor.restype = c_char_p
+#_descriptor.argtypes = [magic_t, c_int]
 
 _buffer = _libraries['magic'].magic_buffer
 _buffer.restype = c_char_p
