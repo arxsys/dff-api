@@ -21,7 +21,13 @@
 #include "variant.hpp"
 #include "node.hpp"
 
-TimeLineNode::TimeLineNode(void) : __node(NULL)
+#include <ctime>
+#include <iostream>
+
+namespace DFF
+{
+
+TimeLineNode::TimeLineNode(void) : __node(NULL), __timeAttribute(0)
 {
 }
 
@@ -60,7 +66,6 @@ const std::string TimeLineNode::attributeName(void) const
   return (this->__attributeName);
 }
 
-
 /**
  *  TimeLiner
  */
@@ -68,8 +73,17 @@ TimeLine::TimeLine(std::vector<Node*> nodes) : __nodes(nodes)
 {
 }
 
+TimeLine::~TimeLine()
+{
+  this->clear();
+}
+
 std::vector<TimeLineNode*>    TimeLine::sort(void)
 {
+  std::cout << "TimeLine::sort() " << std::endl;
+  std::cout << "attributeByType on " <<  this->__nodes.size() << " Nodes" << std::endl; 
+
+  std::clock_t    start = std::clock();
   std::vector<Node*>::iterator node = this->__nodes.begin();
   for (; node != this->__nodes.end(); ++node)
   {
@@ -82,8 +96,12 @@ std::vector<TimeLineNode*>    TimeLine::sort(void)
         this->__sorted.push_back(new TimeLineNode(*node, attribute->first, *time));
     }
   }
+  std::cout << "take " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl; 
 
+  std::cout << "sorting " << this->__sorted.size() << " Nodes " << std::endl;
+  start = std::clock();
   std::sort(this->__sorted.begin(), this->__sorted.end(), TimeLineNode::compare);
+  std::cout << "take " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl; 
 
   return (this->__sorted);
 }
@@ -91,5 +109,10 @@ std::vector<TimeLineNode*>    TimeLine::sort(void)
 void                    TimeLine::clear(void)
 {
   this->__nodes.clear();
+  std::vector<TimeLineNode*>::iterator timeLineNode = this->__sorted.begin();
+  for(; timeLineNode != this->__sorted.end(); ++timeLineNode)
+    delete (*timeLineNode);
   this->__sorted.clear();
+}
+
 }

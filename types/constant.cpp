@@ -17,6 +17,9 @@
 
 #include "constant.hpp"
 
+namespace DFF
+{
+
 Constant::Constant(std::string name, uint8_t type, std::string description)
 {
   this->__name = name;
@@ -59,4 +62,6 @@ void			Constant::addValues(std::list< Variant_p > values)
 std::list< Variant_p >		Constant::values()
 {
   return this->__values;
+}
+
 }

@@ -18,6 +18,8 @@
 #include "scanner.hpp"
 #include <iostream>
 
+namespace DFF
+{
 
 Filter::Filter(std::string fname) 
 {
@@ -383,4 +385,6 @@ bool			Filter::__eval(Node* node)
   if (vptr != NULL)
     delete vptr;
   return ret;
+}
+
 }

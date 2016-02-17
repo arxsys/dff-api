@@ -35,16 +35,18 @@
 #include <map>
 #include <typeinfo>
 
-#include "path.hpp"
-#include "vtime.hpp"
 #include "rc.hpp"
+
+namespace DFF
+{
 
 class VLink;
 class Node;
 class Path;
+class vtime;
 class Argument;
 
-#define Variant_p	RCPtr< Variant >
+#define Variant_p	DFF::RCPtr< DFF::Variant > //typedef 
 
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
 
@@ -112,7 +114,7 @@ public:
   EXPORT Variant(int64_t ull);
   EXPORT Variant(uint64_t ll);
   EXPORT Variant(bool b);
-  EXPORT Variant(vtime *vt) throw (std::string);
+  EXPORT Variant(DFF::vtime *vt) throw (std::string);
   EXPORT Variant(Node* node) throw (std::string);
   EXPORT Variant(Path* path) throw (std::string);
   EXPORT Variant(Argument* argument) throw (std::string);
@@ -418,4 +420,5 @@ union Data
 
 };
 
+}
 #endif

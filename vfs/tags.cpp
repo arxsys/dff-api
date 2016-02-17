@@ -18,6 +18,9 @@
 #include "node.hpp"
 #include "tags.hpp"
 
+namespace DFF
+{
+
 Color::Color() : r(0), g(0), b(0)
 {
 }
@@ -235,4 +238,6 @@ Tag_p			TagsManager::tag(std::string name)
       return (*it); 
 
   throw envError("Tag not found");
+}
+
 }

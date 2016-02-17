@@ -39,6 +39,8 @@
 #include "export.hpp"
 #include "exceptions.hpp"
 
+namespace DFF
+{
 
 class Node;
 class fso;
@@ -86,4 +88,5 @@ public:
   EXPORT Node*		        getNodeById(uint64_t id);
 };
 
+}
 #endif

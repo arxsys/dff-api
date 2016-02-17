@@ -15,6 +15,11 @@
  */
 
 #include "fso.hpp"
+#include "node.hpp"
+#include "vfs.hpp"
+
+namespace DFF
+{
 
 fso::fso(std::string name)
 {
@@ -118,4 +123,6 @@ bool		fso::unmap(Node* node)
    if (uid != 0 && this->__nodes.erase(node->uid()) != 0)
     return (false);
   return (true);
+}
+
 }

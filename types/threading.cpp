@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-namespace dff
+namespace DFF 
 {
   Mutex::Mutex()
   {

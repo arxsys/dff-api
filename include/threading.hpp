@@ -38,7 +38,7 @@
   #define mutex_destroy(var)	pthread_mutex_destroy(var)
 #endif
 
-namespace dff
+namespace DFF 
 {
   class Mutex
   {
@@ -163,6 +163,6 @@ namespace dff
     mutable Mutex		__mutex;
     std::vector< value >	internals;
   };
-};
+}
 
 #endif

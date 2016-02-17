@@ -30,6 +30,9 @@
 #include "export.hpp"
 #include <vector>
 
+namespace DFF
+{
+
 typedef struct
 {
 public:
@@ -72,4 +75,5 @@ public:
   EXPORT std::vector<chunk *>		chunks(void);
 };
 
+}
 #endif

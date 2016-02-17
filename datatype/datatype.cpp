@@ -20,6 +20,9 @@
 #include "config.hpp"
 #include "confmanager.hpp"
 
+namespace DFF
+{
+
 /**
  *  Type
  */ 
@@ -266,5 +269,7 @@ DataTypeHandler::DataTypeHandler(std::string handlerName)
 
 DataTypeHandler::~DataTypeHandler()
 {
+
+}
 
 }

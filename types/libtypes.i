@@ -22,6 +22,7 @@
 %feature("docstring");
 
 %{
+
 #include <sys/stat.h>
 #include <datetime.h>
 #include "export.hpp"
@@ -60,22 +61,22 @@
 
 %import "../exceptions/libexceptions.i"
 
-%inline %{              
-  static bool std_list_Sl_RCPtr_Sl_Variant_Sg__Sg__operator_Se__Se_(std::list< Variant_p > *self,PyObject *obj);
-  static bool std_map_Sl_std_string_Sc_RCPtr_Sl_Variant_Sg__Sg__operator_Se__Se_(std::map< std::string, Variant_p > *self,PyObject *obj);
+%inline %{   
+ static bool std_list_Sl_DFF_RCPtr_Sl_DFF_Variant_Sg__Sg__operator_Se__Se_(std::list< Variant_p > *self,PyObject *obj);
+  static bool std_map_Sl_std_string_Sc_DFF_RCPtr_Sl_DFF_Variant_Sg__Sg__operator_Se__Se_(std::map< std::string, Variant_p > *self,PyObject *obj);
   static int SWIG_AsVal_std_string(PyObject*, std::string*);
   %}
 
-%ignore Variant::operator==(T val);
-%ignore Variant::operator!=(T val);
-%ignore Variant::operator>(T val);
-%ignore Variant::operator>=(T val);
-%ignore Variant::operator<(T val);
-%ignore Variant::operator<=(T val);
+%ignore DFF::Variant::operator==(T val);
+%ignore DFF::Variant::operator!=(T val);
+%ignore DFF::Variant::operator>(T val);
+%ignore DFF::Variant::operator>=(T val);
+%ignore DFF::Variant::operator<(T val);
+%ignore DFF::Variant::operator<=(T val);
 
 /* let SWIG handle reference counting for all RCObj derived classes */
-%refobject  RCObj "$this->addref();"
-%unrefobject RCObj "$this->delref();"
+%refobject  DFF::RCObj "$this->addref();"
+%unrefobject DFF::RCObj "$this->delref();"
 
 
 %include "../include/rc.hpp"
@@ -88,26 +89,23 @@
 %include "../include/vtime.hpp"
 %include "../include/confmanager.hpp"
 
-%extend_smart_pointer( Variant_p  );
+%extend_smart_pointer( Variant_p );
 %template(RCVariant) Variant_p;
 
 namespace std
 {
-  %template(MapString)       map<string, string>;
+  %template(MapString)       std::map<string, string>;
   %template(ListString)      std::list<std::string>;
-  %template(ArgumentList)    std::list<Argument*>;
-  %template(ConfigList)      std::list<Config*>;
-  %template(ConstantList)    std::list<Constant*>;
+  %template(ArgumentList)    std::list<DFF::Argument*>;
+  %template(ConfigList)      std::list<DFF::Config*>;
+  %template(ConstantList)    std::list<DFF::Constant*>;
   %template(VList)	     std::list< Variant_p >;
   %template(VMap)	     std::map<std::string, Variant_p >;
-  %template(MapVtime)        map<string, vtime* >;
-  %template(MapConstant)     map<std::string, Constant*>;
-  %template(MapArgument)     map<std::string, Argument*>;
-  %template(MapInt)          map<string, unsigned int>;
+  %template(MapVtime)        std::map<std::string, DFF::vtime*>;
+  %template(MapConstant)     std::map<std::string, DFF::Constant*>;
+  %template(MapArgument)     std::map<std::string, DFF::Argument*>;
+  %template(MapInt)          std::map<string, unsigned int>;
 };
-
-%traits_swigtype(vtime);
-%fragment(SWIG_Traits_frag(vtime));
 
 
 
@@ -118,6 +116,11 @@ namespace std
 /*   $3->addref(); */
 /* } */
 
+namespace DFF
+{
+
+%traits_swigtype(DFF::vtime);
+%fragment(SWIG_Traits_frag(DFF::vtime));
 
 %template(__Char) Variant::value<char>;
 %template(__Int16) Variant::value<int16_t>;
@@ -128,10 +131,10 @@ namespace std
 %template(__UInt64) Variant::value<uint64_t>;
 %template(__Bool) Variant::value<bool>;
 %template(__CArray) Variant::value<char *>;
-%template(__Node) Variant::value<Node*>;
-%template(__Path) Variant::value<Path*>;
-%template(__VTime) Variant::value<vtime*>;
-%template(__VLink) Variant::value<VLink*>;
+%template(__Node) Variant::value<DFF::Node*>;
+%template(__Path) Variant::value<DFF::Path*>;
+#%template(__VTime) Variant::value<DFF::vtime*>;
+%template(__VLink) Variant::value<DFF::VLink*>;
 %template(__String) Variant::value<std::string>;
 %template(__VList) Variant::value< std::list< Variant_p > >;
 %template(__VMap) Variant::value< std::map<std::string, Variant_p > >;
@@ -146,7 +149,7 @@ namespace std
     Py_ssize_t  i;
     PyObject*   item;
     std::list< Variant_p > vlist;
-    Variant*            v;
+    DFF::Variant*            v;
     uint8_t             itype;
 
     SWIG_PYTHON_THREAD_BEGIN_BLOCK;
@@ -165,8 +168,8 @@ namespace std
             while ((i != lsize) && err.empty())
               {
                 item = PyList_GetItem(obj, i);
-                if ((v = new_Variant__SWIG_20(item, itype)) == NULL)
-                  err = "Constant < " + self->name() + "  >\n provided list of values must be of type < " + typeId::Get()->typeToName(itype) + " >";
+                if ((v = new_DFF_Variant__SWIG_20(item, itype)) == NULL)
+                  err = "Constant < " + self->name() + "  >\n provided list of values must be of type < " + DFF::typeId::Get()->typeToName(itype) + " >";
                 else
                   vlist.push_back( Variant_p(v) );
                 i++;
@@ -212,7 +215,7 @@ namespace std
     }
     if ((min_obj = PyDict_GetItemString(obj, "minimum")) != NULL)
       {
-        if (self->inputType() != Argument::List)
+        if (self->inputType() != DFF::Argument::List)
         {
           SWIG_PYTHON_THREAD_END_BLOCK;
           throw(std::string("minimum must not be defined when argument does not need list of parameters"));
@@ -242,7 +245,7 @@ namespace std
 
     if ((max_obj = PyDict_GetItemString(obj, "maximum")) != NULL)
       {
-        if (self->inputType() != Argument::List)
+        if (self->inputType() != DFF::Argument::List)
         {
           SWIG_PYTHON_THREAD_END_BLOCK;
           throw(std::string("maximum must not be defined when argument does not need list of parameters"));
@@ -278,7 +281,7 @@ namespace std
     predef_obj = PyDict_GetItemString(obj, "predefined");    
     if (predef_obj == NULL)
       {
-        if (*ptype == Parameter::NotEditable)
+        if (*ptype == DFF::Parameter::NotEditable)
         {
           SWIG_PYTHON_THREAD_END_BLOCK;
           throw(std::string("not editable parameters must have < predefined > field"));
@@ -291,7 +294,7 @@ namespace std
           SWIG_PYTHON_THREAD_END_BLOCK;
           throw(std::string("< predefined > field of parameters must be a list"));
         }
-        if (*ptype == Parameter::NotEditable)
+        if (*ptype == DFF::Parameter::NotEditable)
           {
             lsize = PyList_Size(predef_obj);
             if (*min > lsize)
@@ -326,14 +329,14 @@ namespace std
     PyObject*   item;
     Py_ssize_t  lsize;
     Py_ssize_t  i;
-    Variant*    v;
+    DFF::Variant*    v;
     std::string err;
-    std::list< Variant_p > vlist;
+    std::list< Variant_p  > vlist;
 
     SWIG_PYTHON_THREAD_BEGIN_BLOCK;
     try
       {
-       predef_obj = Argument_validateParams(self, obj, &ptype, &min, &max);
+       predef_obj = DFF_Argument_validateParams(self, obj, &ptype, &min, &max);
         if (predef_obj != NULL)
         {
             itype = self->type();
@@ -342,9 +345,9 @@ namespace std
             while ((i != lsize) && err.empty())
             {
                 item = PyList_GetItem(predef_obj, i);
-                //Maybe change this call with _wrap_new_Variant to not depend on swig overload method generation (at the moment it s SWIG_18 but could change if new Variant ctor implemented...). Then use Swig_ConvertPtr to get Variant from the returned PyObject.
-                if ((v = new_Variant__SWIG_20(item, itype)) == NULL)
-                  err = "Argument < " + self->name() + "  >\n predefined parameters must be of type < " + typeId::Get()->typeToName(self->type()) + " >";
+                //Maybe change this call with _wrap_new_Variant to not depend on swig overload method generation (at the moment it s SWIG_18 but could change if new DFF::Variant ctor implemented...). Then use Swig_ConvertPtr to get Variant from the returned PyObject.
+                if ((v = new_DFF_Variant__SWIG_20(item, itype)) == NULL)
+                  err = "Argument < " + self->name() + "  >\n predefined parameters must be of type < " + DFF::typeId::Get()->typeToName(self->type()) + " >";
                 else
                   vlist.push_back( Variant_p(v) );
                 i++;
@@ -381,7 +384,7 @@ namespace std
     found = false;
     for (it = params.begin(); it != params.end(); it++)
       {
-        if (Variant_operator_Se__Se___SWIG_1(it->get(), obj))
+        if (DFF_Variant_operator_Se__Se___SWIG_1(it->get(), obj))
           {
             found = true;
             break;
@@ -391,24 +394,24 @@ namespace std
     return found;
   }
 
-  Variant*      generateSingleInput(PyObject* obj, Argument* arg) throw (std::string)
+  DFF::Variant*      generateSingleInput(PyObject* obj, DFF::Argument* arg) throw (std::string)
   {
-    Variant*    v = NULL;
+    DFF::Variant*    v = NULL;
     
     SWIG_PYTHON_THREAD_BEGIN_BLOCK;
     if ((arg != NULL) && (obj != NULL))
       {
-        if ((arg->parametersType() == Parameter::NotEditable) && (!Config_matchNotEditable(self, arg->parameters(), obj)))
+        if ((arg->parametersType() == DFF::Parameter::NotEditable) && (!DFF_Config_matchNotEditable(self, arg->parameters(), obj)))
 	  {
 	    SWIG_PYTHON_THREAD_END_BLOCK;
 	    throw(std::string("Argument < " + arg->name() + " >\npredefined parameters are immutable and those provided do not correspond to available ones"));
 	  }
-        if ((v = new_Variant__SWIG_20(obj, arg->type())) == NULL)
+        if ((v = new_DFF_Variant__SWIG_20(obj, arg->type())) == NULL)
           {
 	    SWIG_PYTHON_THREAD_END_BLOCK;
 	    throw(std::string("Argument < " + arg->name() + " >\nparameter is not compatible"));
 	  }
-	if ((v->type() == typeId::String) && (v->toString().empty()))
+	if ((v->type() == DFF::typeId::String) && (v->toString().empty()))
 	  {
 	    delete v;
 	    SWIG_PYTHON_THREAD_END_BLOCK;
@@ -424,10 +427,10 @@ namespace std
     return v;
   }
 
-  Variant*      generateListInput(PyObject* obj, Argument* arg) throw (std::string)
+  DFF::Variant*      generateListInput(PyObject* obj, DFF::Argument* arg) throw (std::string)
   {
     std::list< Variant_p > vlist;
-    Variant*            v = NULL;
+    DFF::Variant*       v = NULL;
     Py_ssize_t          lsize;
     Py_ssize_t          i;
     PyObject*           item;
@@ -464,7 +467,7 @@ namespace std
                 while ((i != lsize) && err.empty())
                   {
                     item = PyList_GetItem(obj, i);
-                    v = Config_generateSingleInput(self, item, arg);
+                    v = DFF_Config_generateSingleInput(self, item, arg);
                     vlist.push_back( Variant_p(v) );
                     i++;
                   }
@@ -478,7 +481,7 @@ namespace std
           {
             try
               {
-                v = Config_generateSingleInput(self, obj, arg);
+                v = DFF_Config_generateSingleInput(self, obj, arg);
                 vlist.push_back( Variant_p(v) );
               }
             catch(std::string e)
@@ -495,17 +498,17 @@ namespace std
         SWIG_PYTHON_THREAD_END_BLOCK;
         throw(err);
       }
-    v = new Variant(vlist);
+    v = new DFF::Variant(vlist);
     SWIG_PYTHON_THREAD_END_BLOCK;
     return v;
   }
     
 //XXX
-  std::map<std::string, Variant_p >       generate(PyObject* obj) throw (std::string)
+std::map<std::string, Variant_p >       generate(PyObject* obj) throw (std::string)
     {
       std::map<std::string, Variant_p >   res;
-      std::list<Argument*>              args;
-      std::list<Argument*>::iterator    argit;
+      std::list<DFF::Argument*>              args;
+      std::list<DFF::Argument*>::iterator    argit;
      
       PyObject*                         itemval;
       std::string                       argname;
@@ -528,7 +531,7 @@ namespace std
               itemval = PyDict_GetItemString(obj, argname.c_str());
               if (itemval == NULL)
                 {
-                  if (rtype == Argument::Required)
+                  if (rtype == DFF::Argument::Required)
                     err = "Argument < " + argname + " >\n this argument is required";
                 }
               else
@@ -536,13 +539,13 @@ namespace std
                   //std::cout << "current argument: " <<  argname << " argument type " << (*argit)->type() << " -- provided parameter type " << obj->ob_type->tp_name << std::endl;
                   try
                     {
-                      Variant * v = NULL;
-                      if (itype == Argument::Empty)
-                        v = new_Variant__SWIG_20(itemval, typeId::Bool);
-                      else if (itype == Argument::Single)
-                        v = Config_generateSingleInput(self, itemval, *argit);
-                      else if (itype == Argument::List)
-                        v = Config_generateListInput(self, itemval, *argit);
+                      DFF::Variant * v = NULL;
+                      if (itype == DFF::Argument::Empty)
+                        v = new_DFF_Variant__SWIG_20(itemval, DFF::typeId::Bool);
+                      else if (itype == DFF::Argument::Single)
+                        v = DFF_Config_generateSingleInput(self, itemval, *argit);
+                      else if (itype == DFF::Argument::List)
+                        v = DFF_Config_generateListInput(self, itemval, *argit);
                       if (v != NULL)
                         res[argname] = Variant_p(v);
                       else
@@ -570,7 +573,7 @@ namespace std
   void  addConstant(PyObject* obj) throw(std::string)
   {
     uint32_t    pydictsize;
-    Constant*   constant;
+    DFF::Constant*   constant;
     PyObject*   name_obj = 0;
     PyObject*   type_obj = 0;
     PyObject*   values_obj = 0;
@@ -629,8 +632,8 @@ namespace std
         }
         try
           {
-            constant = new Constant(name, type, description);
-            Constant_addValues__SWIG_1(constant, values_obj);
+            constant = new DFF::Constant(name, type, description);
+            DFF_Constant_addValues__SWIG_1(constant, values_obj);
             self->addConstant(constant);
           }
         catch (std::string e)
@@ -647,7 +650,7 @@ namespace std
   void  addArgument(PyObject* obj) throw(std::string)
   {
     uint32_t    pydictsize;
-    Argument*   arg;
+    DFF::Argument*   arg;
     PyObject*   name_obj = 0;
     PyObject*   input_obj = 0;
     PyObject*   param_obj = 0;
@@ -704,7 +707,7 @@ namespace std
         }
         param_obj = PyDict_GetItemString(obj, "parameters");
         
-        if (input == Argument::Empty)
+        if (input == DFF::Argument::Empty)
           {
             if (param_obj != NULL)
             {
@@ -713,15 +716,15 @@ namespace std
             }
             else
               {
-                arg = new Argument(name, input, description);
+                arg = new DFF::Argument(name, input, description);
                 self->addArgument(arg);
               }
           }
         else if ((
-                  ((input & 0x0300) == Argument::List) || ((input & 0x0300) == Argument::Single))
-                 && (((input & 0x0c00) == Argument::Optional) || ((input & 0x0c00) == Argument::Required)))
+                  ((input & 0x0300) == DFF::Argument::List) || ((input & 0x0300) == DFF::Argument::Single))
+                 && (((input & 0x0c00) == DFF::Argument::Optional) || ((input & 0x0c00) == DFF::Argument::Required)))
           {
-            arg = new Argument(name, input, description);
+            arg = new DFF::Argument(name, input, description);
             if (param_obj != NULL)
               {
                 if (!PyDict_Check(param_obj))
@@ -734,7 +737,7 @@ namespace std
                   {
                     try
                       {
-                        Argument_addParameters__SWIG_3(arg, param_obj);
+                        DFF_Argument_addParameters__SWIG_3(arg, param_obj);
                         self->addArgument(arg);
                       }
                     catch (std::string e)
@@ -757,6 +760,952 @@ namespace std
     SWIG_PYTHON_THREAD_END_BLOCK;
   }
 };
+
+%extend Variant
+{
+
+/*   Variant(PyObject* obj) throw (std::string) */
+/*     {  */
+/*       Variant*  v = NULL; */
+/*       std::string      err = ""; */
+
+/*       if (obj == NULL) */
+/*         throw(std::string("Provided PyObject is NULL")); */
+
+/*       if (obj == Py_None) */
+/*         throw(std::string("Provided PyObject cannot be None")); */
+
+/*       SWIG_PYTHON_THREAD_BEGIN_BLOCK; */
+/*       if (PyLong_Check(obj) || PyInt_Check(obj)) */
+/*       {         */
+/* 	int16_t		s; */
+/* 	uint16_t	us; */
+/* 	int32_t		i; */
+/* 	uint32_t	ui; */
+/* 	int64_t		ll; */
+/* 	uint64_t	ull; */
+
+/* 	if (SWIG_IsOK(SWIG_AsVal_short(obj, &s))) */
+/* 	  v = new DFF::Variant(s);	 */
+/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_short(obj, &us))) */
+/* 	  v = new DFF::Variant(us); */
+/* 	else if (SWIG_IsOK(SWIG_AsVal_int(obj, &i))) */
+/* 	  v = new DFF::Variant(i); */
+/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_int(obj, &ui))) */
+/* 	  v = new DFF::Variant(ui); */
+/* #ifdef SWIGWORDSIZE64 */
+/* 	else if (SWIG_IsOK(SWIG_AsVal_long(obj, &ll))) */
+/* #else */
+/* 	else if (SWIG_IsOK(SWIG_AsVal_long_SS_long(obj, &ll))) */
+/* #endif */
+/* 	  v = new DFF::Variant(ll); */
+/* #ifdef SWIGWORDSIZE64 */
+/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_long(obj, &ull))) */
+/* #else */
+/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_long_SS_long(obj, &ull))) */
+/* #endif */
+/* 	  v = new DFF::Variant(ull); */
+/* 	else */
+/* 	  err = "error while converting integer"; */
+/*       } */
+/*       else if (PyBool_Check(obj)) */
+/*         { */
+/*           bool  b; */
+/*           if (SWIG_IsOK(SWIG_AsVal_bool(obj, &b))) */
+/* 	    v = new DFF::Variant(b); */
+/* 	  else */
+/* 	    err = "Error while converting boolean"; */
+/*         } */
+/*       else if (PyString_Check(obj)) */
+/*         { */
+/*           std::string   str; */
+
+/*           if (SWIG_IsOK(SWIG_AsVal_std_string(obj, &str))) */
+/* 	    v = new DFF::Variant(str); */
+/* 	  else */
+/* 	    err = "Error while converting string"; */
+/*         } */
+/*       else if (strncmp("Node", obj->ob_type->tp_name, 4) == 0) */
+/*         { */
+/* 	  void*	vptr; */
+/* 	  Node*	node; */
+	  
+/* 	  if (SWIG_IsOK(SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_Node, 0))) */
+/* 	    { */
+/* 	      node = reinterpret_cast< Node * >(vptr); */
+/* 	      v = new DFF::Variant(node); */
+/* 	    } */
+/* 	  else */
+/* 	    err = "Error while converting Node"; */
+/*         } */
+/*       else if (strncmp("VLink", obj->ob_type->tp_name, 5) == 0) */
+/*         { */
+/* 	  void*	vptr; */
+/* 	  VLink*	node;	   */
+/* 	  if (SWIG_IsOK(SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_VLink, 0))) */
+/* 	    { */
+/* 	      node = reinterpret_cast< VLink * >(vptr); */
+/* 	      v = new DFF::Variant((Node*)node); */
+/* 	    } */
+/* 	  else */
+/* 	    err = "Error while converting VLink"; */
+/*         } */
+/*       else if (strncmp("Path", obj->ob_type->tp_name, 4) == 0) */
+/*         { */
+/* 	  void*     vptr; */
+/* 	  Path*     path; */
+	  
+/* 	  if (SWIG_IsOK(SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_Path, 0))) */
+/* 	    { */
+/* 	      path = reinterpret_cast< Path * >(vptr); */
+/* 	      v = new DFF::Variant(path); */
+/* 	    } */
+/* 	  else */
+/* 	    err = "Error while converting Path"; */
+/*         } */
+/*       else if (PyList_Check(obj)) */
+/*         { */
+/*           Py_ssize_t            size = PyList_Size(obj); */
+/*           Py_ssize_t            it; */
+/*           PyObject*             item = NULL; */
+/*           std::list<Variant_p > vlist; */
+/*           Variant*              vitem = NULL; */
+
+/*           for (it = 0; it != size; it++) */
+/*             { */
+/*               item = PyList_GetItem(obj, it); */
+/* 	      try */
+/* 		{ */
+/* 		  vitem = new_Variant__SWIG_19(item); */
+/* 		  vlist.push_back(Variant_p(vitem)); */
+/* 		} */
+/* 	      catch (std::string e) */
+/* 		{ */
+/* 		  err = e; */
+/* 		  break; */
+/* 		} */
+/* 	    } */
+/*           if (!err.empty()) */
+/*             vlist.erase(vlist.begin(), vlist.end()); */
+/*           else */
+/* 	    v = new DFF::Variant(vlist); */
+/*         } */
+/*       else if (PyDict_Check(obj)) */
+/*         { */
+/*           std::map<std::string, Variant_p >  vmap; */
+/*           Variant*              vitem = NULL; */
+/* 	  std::string		strkey; */
+/* 	  PyObject *key, *value; */
+/* 	  Py_ssize_t pos = 0; */
+
+/* 	  while (PyDict_Next(obj, &pos, &key, &value))  */
+/* 	    { */
+/* 	      if (!PyString_Check(key)) */
+/* 		{ */
+/* 		  err = "Keys must be of type string"; */
+/* 		  break; */
+/* 		} */
+/* 	      else if (SWIG_IsOK(SWIG_AsVal_std_string(key, &strkey))) */
+/* 		{ */
+/* 		  try */
+/* 		    { */
+/* 		      vitem = new_Variant__SWIG_19(value);		  */
+/* 		      vmap[strkey] = Variant_p(vitem); */
+/* 		    } */
+/* 		  catch (std::string e) */
+/* 		    { */
+/* 		      err = e; */
+/* 		      break; */
+/* 		    } */
+/* 		} */
+/* 	      else */
+/* 		{ */
+/* 		  err = "Error while converting string"; */
+/* 		  break; */
+/* 		} */
+/* 	    } */
+/* 	  if (!err.empty()) */
+/* 	    vmap.clear(); */
+/* 	  else */
+/* 	    v = new DFF::Variant(vmap); */
+/*         } */
+/*       SWIG_PYTHON_THREAD_END_BLOCK; */
+/*       if (!err.empty()) */
+/* 	throw(std::string(err)); */
+/*       return v; */
+/*     } */
+
+    Variant(PyObject* obj, uint8_t type) throw(std::string)
+    {
+      DFF::Variant*  v = NULL;
+      bool      err = true;
+      int       ecode;
+
+      if (obj == NULL)
+        throw(std::string("Provided PyObject is NULL"));
+
+      if (obj == Py_None)
+        throw(std::string("Provided PyObject cannot be None"));
+
+      //std::cout << "Variant::Variant(PyObject*, uint8_t) -- PyObject type " << obj->ob_type->tp_name << std::endl;
+
+      SWIG_PYTHON_THREAD_BEGIN_BLOCK;
+      if (PyLong_Check(obj) || PyInt_Check(obj))
+      {
+          if (type == uint8_t(DFF::typeId::Bool))
+          {
+              bool      b;
+              int ecode = SWIG_AsVal_bool(obj, &b);
+              if (SWIG_IsOK(ecode))
+                {
+                  v = new DFF::Variant(b);
+                  err = false;
+                }
+            }
+          else if (type == uint8_t(DFF::typeId::Int16))
+            {
+              int16_t   s;
+              ecode = SWIG_AsVal_short(obj, &s);
+              if (SWIG_IsOK(ecode))
+                {
+                  v = new DFF::Variant(s);
+                  err = false;
+                }
+            }
+          else if (type == uint8_t(DFF::typeId::UInt16))
+            {
+              uint16_t  us;
+              int ecode = SWIG_AsVal_unsigned_SS_short(obj, &us);
+              if (SWIG_IsOK(ecode))
+                {
+                  v = new DFF::Variant(us);
+                  err = false;
+                }
+            }
+          else if (type == uint8_t(DFF::typeId::Int32))
+            {
+              int32_t   i;
+              int ecode = SWIG_AsVal_int(obj, &i);
+              if (SWIG_IsOK(ecode))
+                {
+                  v = new DFF::Variant(i);
+                  err = false;
+                }
+            }
+          else if (type == uint8_t(DFF::typeId::UInt32))
+            {
+              uint32_t ui;
+              int ecode = SWIG_AsVal_unsigned_SS_int(obj, &ui);
+              if (SWIG_IsOK(ecode))
+                {
+                  v = new DFF::Variant(ui);
+                  err = false;
+                }
+            }
+          else if (type == uint8_t(DFF::typeId::Int64))
+            {
+              int64_t   ll;
+#ifdef SWIGWORDSIZE64
+              int ecode = SWIG_AsVal_long(obj, &ll);
+#else
+              int ecode = SWIG_AsVal_long_SS_long(obj, &ll);
+#endif
+              if (SWIG_IsOK(ecode))
+                {
+                  v = new DFF::Variant(ll);
+                  err = false;
+                }
+            }
+          else if (type == uint8_t(DFF::typeId::UInt64))
+            {
+              uint64_t  ull;
+#ifdef SWIGWORDSIZE64
+              int ecode = SWIG_AsVal_unsigned_SS_long(obj, &ull);
+#else
+              int ecode = SWIG_AsVal_unsigned_SS_long_SS_long(obj, &ull);
+#endif
+              if (SWIG_IsOK(ecode))
+                {
+                  v = new DFF::Variant(ull);
+                  err = false;
+                }
+            }
+        }
+      else if (PyBool_Check(obj))
+        {
+          bool  b;
+          int ecode = SWIG_AsVal_bool(obj, &b);
+          if (SWIG_IsOK(ecode))
+            {
+              v = new DFF::Variant(b);
+              err = false;
+            }
+        }
+      else if (PyString_Check(obj))
+        {
+          std::string   str;
+
+          ecode = SWIG_AsVal_std_string(obj, &str);
+          if (SWIG_IsOK(ecode))
+            {
+              if (type == DFF::typeId::String)
+                {
+                  v = new DFF::Variant(str);
+                  err = false;
+                }
+              else if (type == DFF::typeId::CArray)
+                {
+                  v = new DFF::Variant((char*)str.c_str());
+                  err = false;
+                }
+              else if (type == DFF::typeId::Char)
+                {
+                  char  c;
+                  if ((str.size() == 1) || (str.size() == 0))
+                    {
+                      c = *(str.c_str());
+                      v = new DFF::Variant(c);
+                      err = false;
+                    }
+                }
+              else if (type == DFF::typeId::Path)
+                {
+                  DFF::Path*           p;
+                  p = new DFF::Path(str);
+                  v = new DFF::Variant(p);
+                  err = false;
+                }
+              else if (type == DFF::typeId::Int16)
+                {
+                  int16_t               s;
+                  std::istringstream    conv(str);
+                  if (conv >> s)
+                    {
+                      v = new DFF::Variant(s);
+                      err = false;
+                    }
+                }
+              else if (type == DFF::typeId::UInt16)
+                {
+                  uint16_t              us;
+                  std::istringstream    conv(str);
+                  if (conv >> us)
+                    {
+                      v = new DFF::Variant(us);
+                      err = false;
+                    }
+                }
+              else if (type == DFF::typeId::Int32)
+                {
+                  int32_t               i;
+                  std::istringstream    conv(str);
+                  if (conv >> i)
+                    {
+                      v = new DFF::Variant(i);
+                      err = false;
+                    }
+                }
+              else if (type == DFF::typeId::UInt32)
+                {
+                  int32_t               ui;
+                  std::istringstream    conv(str);
+                  if (conv >> ui)
+                    {
+                      v = new DFF::Variant(ui);
+                      err = false;
+                    }
+                }
+              else if (type == DFF::typeId::Int64)
+                {
+                  int64_t               ll;
+                  std::istringstream    conv(str);
+                  if (conv >> ll)
+                    {
+                v = new DFF::Variant(ll);
+                      err = false;
+                    }
+                }
+              else if (type == DFF::typeId::UInt64)
+                {
+                  uint64_t              ull;
+                  std::istringstream    conv(str);
+                  if (conv >> ull)
+                    {
+                      v = new DFF::Variant(ull);
+                      err = false;
+                    }
+                }
+            }
+        }
+      else if (strncmp("Node", obj->ob_type->tp_name, 4) == 0)
+        {
+          if (type == DFF::typeId::Node)
+	    {
+	      void*	vptr;
+	      DFF::Node*	node;
+	      int res = SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_DFF__Node, 0);
+	      if (SWIG_IsOK(res))
+		{
+		  node = reinterpret_cast< DFF::Node * >(vptr);
+		  v = new DFF::Variant(node);
+		  err = false;
+		}
+            }
+        }
+      else if (strncmp("VLink", obj->ob_type->tp_name, 5) == 0)
+        {
+          if (type == DFF::typeId::Node)
+	    {
+	      void*	vptr;
+	      DFF::VLink*	node;
+	      int res = SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_DFF__VLink, 0);
+	      if (SWIG_IsOK(res))
+		{
+		  node = reinterpret_cast< DFF::VLink * >(vptr);
+		  v = new DFF::Variant(node);
+		  err = false;
+		}
+            }
+        }
+      else if (strncmp("Path", obj->ob_type->tp_name, 4) == 0)
+        {
+          if (type == DFF::typeId::Path)
+            {
+              void*     vptr;
+              DFF::Path*     path;
+              int res = SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_DFF__Path, 0);
+              if (SWIG_IsOK(res))
+                {
+                  path = reinterpret_cast< DFF::Path * >(vptr);
+                  v = new DFF::Variant(path);
+                  err = false;
+                }
+            }
+        }
+      else if (PyList_Check(obj) && type == DFF::typeId::List)
+        {
+          Py_ssize_t            size = PyList_Size(obj);
+          Py_ssize_t            it;
+          PyObject*             item = NULL;
+          std::list< Variant_p >  vlist;
+          DFF::Variant*              vitem = NULL;
+          bool                  lbreak = false;
+
+          for (it = 0; it != size; it++)
+            {
+              item = PyList_GetItem(obj, it);
+              if ((vitem = new_DFF_Variant__SWIG_20(item, type)) == NULL)
+              {
+                 lbreak = true;
+                 break;
+              }
+              vlist.push_back(Variant_p(vitem));
+            }
+          if (lbreak)
+            vlist.erase(vlist.begin(), vlist.end());
+          else
+            {
+              v = new DFF::Variant(vlist);
+              err = false;
+            }
+        }
+      /* else if (PyDict_Check(obj) && type == DFF::typeId::Map) */
+      /*   { */
+      /*     PyObject*             item = NULL; */
+      /*     std::map<std::string, Variant *>  vmap; */
+      /*     Variant*              vitem = NULL; */
+      /*     bool                  lbreak = false; */
+      /* 	  char*			strkey; */
+
+      /* 	  PyObject *key, *value; */
+      /* 	  Py_ssize_t pos = 0; */
+
+      /* 	  while (PyDict_Next(obj, &pos, &key, &value))  */
+      /* 	    { */
+      /* 	      if (!PyString_Check(key)) */
+      /* 		err  */
+      /* 	      strkey */
+      /* 	      Py_DECREF(o); */
+      /* 	    } */
+      /*   } */
+      if (err)
+        {
+          SWIG_PYTHON_THREAD_END_BLOCK;
+          throw(std::string("Cannot create Variant, Provided PyObject and requested type are not compatible"));
+        }
+      SWIG_PYTHON_THREAD_END_BLOCK;
+      return v;
+    }
+
+  bool  operator==(PyObject* obj)
+  {
+    DFF::Variant*    v = NULL;
+    uint8_t     type;
+
+    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
+    type = self->type();
+
+    if (obj == NULL)
+      {
+        //printf("    !!! obj is NULL !!!\n");
+        SWIG_PYTHON_THREAD_END_BLOCK;
+        return false;
+      }    
+    if (obj->ob_type == NULL)
+      {
+        //printf("    !!! obj->ob_type is NULL !!!\n");
+        SWIG_PYTHON_THREAD_END_BLOCK;
+        return false;
+      }
+    if (obj->ob_type->tp_name == NULL)
+      {
+        //printf("    !!! obj->ob_type->tp_name is NULL !!!\n");
+        SWIG_PYTHON_THREAD_END_BLOCK;
+        return false;
+      } 
+    if (strncmp("Variant", obj->ob_type->tp_name, 7) == 0)
+      {
+        //printf("Variant::operator==(PyObject* obj) ---> obj == Variant\n");
+        void* argp1 = 0;
+        DFF::Variant *arg1 = (DFF::Variant *) 0 ;
+        int res1 = SWIG_ConvertPtr(obj, &argp1, SWIGTYPE_p_DFF__Variant, 0 | 0);
+        if (SWIG_IsOK(res1))
+        {
+            arg1 = reinterpret_cast< DFF::Variant * >(argp1);
+            SWIG_PYTHON_THREAD_END_BLOCK;
+            return self->operator==(arg1);
+        }
+        else
+        {
+          SWIG_PYTHON_THREAD_END_BLOCK;
+          return false;
+        }
+      }
+    else if (((strncmp("VList", obj->ob_type->tp_name, 5) == 0) || PyList_Check(obj)) && (type == DFF::typeId::List))
+      {
+        //printf("Variant::operator==(PyObject* obj) ---> obj == VList\n");
+        std::list< Variant_p > selflist;
+        selflist = self->value<std::list< Variant_p > >();
+        SWIG_PYTHON_THREAD_END_BLOCK;
+	return std_list_Sl_DFF_RCPtr_Sl_DFF_Variant_Sg__Sg__operator_Se__Se_(&selflist, obj);
+      }
+    else if (((strncmp("VMap", obj->ob_type->tp_name, 4) == 0) || PyDict_Check(obj)) && (type == DFF::typeId::Map))
+      {
+        //printf("Variant::operator==(PyObject* obj) ---> obj == VMap\n");
+        std::map<std::string, Variant_p > selfmap;
+        selfmap = self->value<std::map<std::string, Variant_p > >();
+        SWIG_PYTHON_THREAD_END_BLOCK;
+	return std_map_Sl_std_string_Sc_DFF_RCPtr_Sl_DFF_Variant_Sg__Sg__operator_Se__Se_(&selfmap, obj);
+      }
+    else if (PyLong_Check(obj) || PyInt_Check(obj))
+      {
+        //printf("Variant::operator==(PyObject* obj) ---> obj == PyLong_Check || PyInt_Check provided\n");
+        if (type == uint8_t(DFF::typeId::Int16))
+          {
+            int16_t     v;
+            int ecode = SWIG_AsVal_short(obj, &v);
+            if (SWIG_IsOK(ecode))
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return self->operator==<int16_t>(v);
+            }
+            else
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return false;
+            }
+          }
+        else if (type == uint8_t(DFF::typeId::UInt16))
+          {
+            uint16_t    v;
+            int ecode = SWIG_AsVal_unsigned_SS_short(obj, &v);
+            if (SWIG_IsOK(ecode))
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return self->operator==<uint16_t>(v); 
+            }
+            else
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return false;
+            }
+          }
+        else if (type == uint8_t(DFF::typeId::Int32))
+          {
+            int32_t     v;
+            int ecode = SWIG_AsVal_int(obj, &v);
+            if (SWIG_IsOK(ecode))
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return self->operator==<int32_t>(v); 
+            }
+            else
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return false;
+            }
+          }
+        else if (type == uint8_t(DFF::typeId::UInt32))
+          {
+            uint32_t	v;
+            int ecode = SWIG_AsVal_unsigned_SS_int(obj, &v);
+            if (SWIG_IsOK(ecode))
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return self->operator==<uint32_t>(v);
+            }
+            else
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return false;
+            }
+          }
+        else if (type == uint8_t(DFF::typeId::Int64))
+          {
+            int64_t	v;
+#ifdef SWIGWORDSIZE64
+            int ecode = SWIG_AsVal_long(obj, &v);
+#else
+            int ecode = SWIG_AsVal_long_SS_long(obj, &v);
+#endif
+            if (SWIG_IsOK(ecode))
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return self->operator==<int64_t>(v);
+            } 
+            else
+            {    
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return false;
+            }
+          }
+        else if (type == uint8_t(DFF::typeId::UInt64))
+          {
+            uint64_t    v;
+#ifdef SWIGWORDSIZE64
+            int ecode = SWIG_AsVal_unsigned_SS_long(obj, &v);
+#else
+            int ecode = SWIG_AsVal_unsigned_SS_long_SS_long(obj, &v);
+#endif
+            if (SWIG_IsOK(ecode))
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return self->operator==<uint64_t>(v);
+            }
+            else
+            {
+              SWIG_PYTHON_THREAD_END_BLOCK;
+              return false;
+            }
+          }
+        else
+        {
+          SWIG_PYTHON_THREAD_END_BLOCK;
+          return false;
+        }
+      }
+    else if (PyBool_Check(obj) && (type == DFF::typeId::Bool))
+      {
+          bool  b;
+          int ecode = SWIG_AsVal_bool(obj, &b);
+          if (SWIG_IsOK(ecode))
+          {
+            SWIG_PYTHON_THREAD_END_BLOCK;
+            return self->operator==<bool>(v);
+          }
+          else
+          {
+            SWIG_PYTHON_THREAD_END_BLOCK;
+            return false;
+          }
+      }
+    else if ((PyString_Check(obj)) && (type == DFF::typeId::String))
+      {
+        char*           cstr;
+        
+        if ((cstr = PyString_AsString(obj)) != NULL)
+        {
+          SWIG_PYTHON_THREAD_END_BLOCK;
+          return self->operator==<std::string>(cstr);
+        }
+        else
+        {
+          SWIG_PYTHON_THREAD_END_BLOCK;
+          return false;
+        }
+      }
+    else
+    {    
+      SWIG_PYTHON_THREAD_END_BLOCK;
+      return false;
+    }
+  }
+
+
+  bool  operator!=(PyObject* obj)
+  {
+    return (!DFF_Variant_operator_Se__Se___SWIG_1(self, obj));
+  }
+
+  bool  operator>(PyObject* obj)
+  {
+    uint8_t     type;
+
+    type = self->type();
+
+    if (obj == NULL)
+      {
+        //printf("    !!! obj is NULL !!!\n");
+        return false;
+      }    
+    if (obj->ob_type == NULL)
+      {
+        //printf("    !!! obj->ob_type is NULL !!!\n");
+        return false;
+      }
+    if (obj->ob_type->tp_name == NULL)
+      {
+        //printf("    !!! obj->ob_type->tp_name is NULL !!!\n");
+        return false;
+      }
+    if (strncmp("Variant", obj->ob_type->tp_name, 7) == 0)
+      {
+        //printf("Variant::operator>(PyObject* obj) ---> obj == Variant\n");
+        void* argp1 = 0;
+        DFF::Variant *arg1 = (DFF::Variant *) 0 ;
+        int res1 = SWIG_ConvertPtr(obj, &argp1, SWIGTYPE_p_DFF__Variant, 0 | 0);
+        if (SWIG_IsOK(res1))
+          {
+            arg1 = reinterpret_cast< DFF::Variant * >(argp1);
+            return self->operator>(arg1);
+          }
+        else
+          return false;
+      }
+    else if (PyLong_Check(obj) || PyInt_Check(obj))
+      {
+        //printf("Variant::operator>(PyObject* obj) ---> obj == PyLong_Check || PyInt_Check provided\n");
+        if (type == uint8_t(DFF::typeId::Int16))
+          {
+            int16_t     v;
+            int ecode = SWIG_AsVal_short(obj, &v);
+            if (SWIG_IsOK(ecode))
+              return self->operator><int16_t>(v);
+            else
+              return false;
+          }
+        else if (type == uint8_t(DFF::typeId::UInt16))
+          {
+            uint16_t    v;
+            int ecode = SWIG_AsVal_unsigned_SS_short(obj, &v);
+            if (SWIG_IsOK(ecode))
+              return self->operator><uint16_t>(v); 
+            else
+              return false;
+          }
+        else if (type == uint8_t(DFF::typeId::Int32))
+          {
+            int32_t     v;
+            int ecode = SWIG_AsVal_int(obj, &v);
+            if (SWIG_IsOK(ecode))
+              return self->operator><int32_t>(v); 
+            else
+              return false;
+          }
+        else if (type == uint8_t(DFF::typeId::UInt32))
+          {
+            uint32_t    v;
+            int ecode = SWIG_AsVal_unsigned_SS_int(obj, &v);
+            if (SWIG_IsOK(ecode))
+              return self->operator><uint32_t>(v);
+            else
+              return false;
+          }
+        else if (type == uint8_t(DFF::typeId::Int64))
+          {
+            int64_t     v;
+#ifdef SWIGWORDSIZE64
+            int ecode = SWIG_AsVal_long(obj, &v);
+#else
+            int ecode = SWIG_AsVal_long_SS_long(obj, &v);
+#endif
+            if (SWIG_IsOK(ecode))
+              return self->operator><int64_t>(v);
+            else
+              return false;
+          }
+        else if (type == uint8_t(DFF::typeId::UInt64))
+          {
+            uint64_t    v;
+#ifdef SWIGWORDSIZE64
+            int ecode = SWIG_AsVal_unsigned_SS_long(obj, &v);
+#else
+            int ecode = SWIG_AsVal_unsigned_SS_long_SS_long(obj, &v);
+#endif
+            if (SWIG_IsOK(ecode))
+              return self->operator><uint64_t>(v);
+            else
+              return false;
+          }
+        else
+          return false;
+      }
+    else if ((PyString_Check(obj)) && (type == DFF::typeId::String))
+      {
+        char*           cstr;
+
+        //printf("Variant::operator>(PyObject* obj) ---> obj == PyLong_Check || PyInt_Check provided\n");
+        if ((cstr = PyString_AsString(obj)) != NULL)
+          return self->operator><std::string>(cstr);
+        else
+          return false;
+      }
+    else
+      return false;
+  }
+
+
+  bool  operator<(PyObject* obj)
+  {
+    if (DFF_Variant_operator_Se__Se___SWIG_1(self, obj))
+      return false;
+    else
+      return (!DFF_Variant_operator_Sg___SWIG_1(self, obj));
+  }
+
+  bool  operator>=(PyObject* obj)
+  {
+    if (DFF_Variant_operator_Sg___SWIG_1(self, obj) || DFF_Variant_operator_Se__Se___SWIG_1(self, obj))
+      return true;
+    else
+      return false;
+  }
+
+  bool  operator<=(PyObject* obj)
+  {
+    if (DFF_Variant_operator_Sl___SWIG_1(self, obj) || DFF_Variant_operator_Se__Se___SWIG_1(self, obj))
+      return true;
+    else
+      return false;    
+  }
+
+  %pythoncode
+  %{
+    funcMapper = {typeId.Char: "_Variant__Char",
+                  typeId.Int16: "_Variant__Int16",
+                  typeId.UInt16: "_Variant__UInt16",
+                  typeId.Int32: "_Variant__Int32",
+                  typeId.UInt32: "_Variant__UInt32",
+                  typeId.Int64: "_Variant__Int64",
+                  typeId.UInt64: "_Variant__UInt64",
+                  typeId.Bool: "_Variant__Bool",
+                  typeId.String: "_Variant__String",
+                  typeId.CArray: "_Variant__CArray",
+                  typeId.Node: "_Variant__Node",
+                  typeId.Path: "_Variant__Path",
+                  typeId.VTime: "_Variant__VTime",
+                  typeId.List: "_Variant__VList",
+                  typeId.Map: "_Variant__VMap",
+                  typeId.VLink: "_Variant__VLink"}
+
+    def __str__(self):
+        if self.type() == typeId.Node:
+           return self.value().absolute()
+        elif self.type() == typeId.VTime:
+           return self.value()
+        else:
+           return self.toString()
+
+
+    def value(self):
+       try:
+         valType = self.type()
+         if valType in self.funcMapper.keys():
+            func = getattr(self, Variant.funcMapper[valType])
+            if func != None:
+              val = func()
+              return val
+            else:
+              return None
+         else:
+           return None
+       except :
+         return None
+  %}
+};
+
+%extend vtime
+{
+  PyObject* DFF::vtime::toPyDateTime(void)
+  {
+    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
+    PyDateTime_IMPORT;
+
+    PyObject* pyTuple = Py_BuildValue("(d)", (double)self->epochTime());
+    PyObject* dateTime = PyDateTime_FromTimestamp(pyTuple);
+    Py_DECREF(pyTuple);
+    SWIG_PYTHON_THREAD_END_BLOCK;
+    return (dateTime);
+  }
+
+  %pythoncode
+  %{
+      def __str__(self):
+        return self.toString()
+  %}
+};
+
+}
+
+%extend Variant_p 
+{
+  %pythoncode
+  %{
+
+    funcMapper = {typeId.Char: "_RCVariant__Char",
+		  typeId.Int16: "_RCVariant__Int16",
+		  typeId.UInt16: "_RCVariant__UInt16",
+		  typeId.Int32: "_RCVariant__Int32",
+		  typeId.UInt32: "_RCVariant__UInt32",
+		  typeId.Int64: "_RCVariant__Int64",
+		  typeId.UInt64: "_RCVariant__UInt64",
+		  typeId.Bool: "_RCVariant__Bool",
+		  typeId.String: "_RCVariant__String",
+		  typeId.CArray: "_RCVariant__CArray",
+		  typeId.Node: "_RCVariant__Node",
+		  typeId.Path: "_RCVariant__Path",
+		  typeId.VTime: "_RCVariant__VTime",
+		  typeId.List: "_RCVariant__VList",
+		  typeId.Map: "_RCVariant__VMap",
+                  typeId.VLink: "_RCVariant__VLink"}
+
+    def __str__(self):
+        if self.type() == typeId.Node:
+           return self.value().absolute()
+        elif self.type() == typeId.VTime:
+           return self.value()
+        else:
+           return self.toString()
+
+
+    def value(self):
+       try:
+         valType = self.type()
+         if valType in self.funcMapper.keys():
+            func = getattr(self, RCVariant.funcMapper[valType])
+            if func != None:
+                val = func()
+                return val
+            else:
+                return None
+         else:
+            return None
+       except :
+        return None
+  %}
+};
+
+
 
 %extend std::map<std::string, Variant_p >
 {
@@ -784,7 +1733,7 @@ namespace std
       {
 	counter++;
 	str += "'" + mit->first + "': ";
-	if (mit->second->type() == typeId::String || mit->second->type() == typeId::CArray || mit->second->type() == typeId::Path)
+	if (mit->second->type() == DFF::typeId::String || mit->second->type() == DFF::typeId::CArray || mit->second->type() == DFF::typeId::Path)
 	  str += "'" + mit->second->toString() + "'";
 	else
 	  str += mit->second->toString();
@@ -799,22 +1748,22 @@ namespace std
     return cstr;
   }
 
-  void __setitem__(std::map< std::string,RCPtr< Variant > >::key_type const &key, std::map<std::string, Variant_p > &vmap)
+  void __setitem__(std::map< std::string, Variant_p >::key_type const &key, std::map<std::string, Variant_p > &vmap)
     {
-      Variant*	vptr;
+      DFF::Variant*	vptr;
 
-      if ((vptr = new Variant(vmap)) != NULL)
-	self->insert(std::pair<std::string, RCPtr< Variant > >(key, Variant_p(vptr)));
+      if ((vptr = new DFF::Variant(vmap)) != NULL)
+	self->insert(std::pair<std::string, DFF::RCPtr< DFF::Variant > >(key, Variant_p(vptr)));
       return;
     }
 
 
-  void __setitem__(std::map< std::string,RCPtr< Variant > >::key_type const &key, std::list< Variant_p > &vlist)
+  void __setitem__(std::map< std::string, Variant_p >::key_type const &key, std::list< Variant_p > &vlist)
     {
-      Variant*	vptr;
+      DFF::Variant*	vptr;
 
-      if ((vptr = new Variant(vlist)) != NULL)
-	self->insert(std::pair<std::string, RCPtr< Variant > >(key, Variant_p(vptr)));
+      if ((vptr = new DFF::Variant(vlist)) != NULL)
+	self->insert(std::pair<std::string, DFF::RCPtr< DFF::Variant > >(key, Variant_p(vptr)));
       return;
     }
 
@@ -833,7 +1782,7 @@ namespace std
               {
                 if ((value = PyDict_GetItemString(obj, it->first.c_str())) != NULL)
                   {
-                    if (!Variant_operator_Se__Se___SWIG_1(it->second.get(), value))
+                    if (!DFF_Variant_operator_Se__Se___SWIG_1(it->second.get(), value))
 		      {
                       SWIG_PYTHON_THREAD_END_BLOCK;
                       return false;
@@ -918,7 +1867,7 @@ namespace std
     for (lit = self->begin(); lit != self->end(); lit++)
       {
 	counter++;
-	if ((*lit)->type() == typeId::String || (*lit)->type() == typeId::CArray || (*lit)->type() == typeId::Path)
+	if ((*lit)->type() == DFF::typeId::String || (*lit)->type() == DFF::typeId::CArray || (*lit)->type() == DFF::typeId::Path)
 	  str += "'" + (*lit)->toString() + "'";
 	else
 	  str += (*lit)->toString();	
@@ -935,9 +1884,9 @@ namespace std
 
   void	append(std::list< Variant_p > other)
   {
-    Variant*	vptr;
+    DFF::Variant*	vptr;
 
-    if ((vptr = new Variant(other)) != NULL)      
+    if ((vptr = new DFF::Variant(other)) != NULL)      
       self->push_back(Variant_p(vptr));
     return;
   }
@@ -945,9 +1894,9 @@ namespace std
 
   void	append(std::map< std::string, Variant_p > other)
   {
-    Variant*	vptr;
+    DFF::Variant*	vptr;
 
-    if ((vptr = new Variant(other)) != NULL)      
+    if ((vptr = new DFF::Variant(other)) != NULL)      
       self->push_back(Variant_p(vptr));
     return;
   }
@@ -967,7 +1916,7 @@ namespace std
             for (it = self->begin(), i = 0; it != self->end(); it++, i++)
               {
                 item = PyList_GetItem(obj, i);
-                if (!Variant_operator_Se__Se___SWIG_1(it->get(), item))
+                if (!DFF_Variant_operator_Se__Se___SWIG_1(it->get(), item))
                 {
                   SWIG_PYTHON_THREAD_END_BLOCK;
                   return false;
@@ -1022,949 +1971,5 @@ namespace std
     }
     SWIG_PYTHON_THREAD_END_BLOCK;
     return false;
-  }
-};
-
-
-%extend Variant
-{
-
-/*   Variant(PyObject* obj) throw (std::string) */
-/*     {  */
-/*       Variant*  v = NULL; */
-/*       std::string      err = ""; */
-
-/*       if (obj == NULL) */
-/*         throw(std::string("Provided PyObject is NULL")); */
-
-/*       if (obj == Py_None) */
-/*         throw(std::string("Provided PyObject cannot be None")); */
-
-/*       SWIG_PYTHON_THREAD_BEGIN_BLOCK; */
-/*       if (PyLong_Check(obj) || PyInt_Check(obj)) */
-/*       {         */
-/* 	int16_t		s; */
-/* 	uint16_t	us; */
-/* 	int32_t		i; */
-/* 	uint32_t	ui; */
-/* 	int64_t		ll; */
-/* 	uint64_t	ull; */
-
-/* 	if (SWIG_IsOK(SWIG_AsVal_short(obj, &s))) */
-/* 	  v = new Variant(s);	 */
-/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_short(obj, &us))) */
-/* 	  v = new Variant(us); */
-/* 	else if (SWIG_IsOK(SWIG_AsVal_int(obj, &i))) */
-/* 	  v = new Variant(i); */
-/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_int(obj, &ui))) */
-/* 	  v = new Variant(ui); */
-/* #ifdef SWIGWORDSIZE64 */
-/* 	else if (SWIG_IsOK(SWIG_AsVal_long(obj, &ll))) */
-/* #else */
-/* 	else if (SWIG_IsOK(SWIG_AsVal_long_SS_long(obj, &ll))) */
-/* #endif */
-/* 	  v = new Variant(ll); */
-/* #ifdef SWIGWORDSIZE64 */
-/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_long(obj, &ull))) */
-/* #else */
-/* 	else if (SWIG_IsOK(SWIG_AsVal_unsigned_SS_long_SS_long(obj, &ull))) */
-/* #endif */
-/* 	  v = new Variant(ull); */
-/* 	else */
-/* 	  err = "error while converting integer"; */
-/*       } */
-/*       else if (PyBool_Check(obj)) */
-/*         { */
-/*           bool  b; */
-/*           if (SWIG_IsOK(SWIG_AsVal_bool(obj, &b))) */
-/* 	    v = new Variant(b); */
-/* 	  else */
-/* 	    err = "Error while converting boolean"; */
-/*         } */
-/*       else if (PyString_Check(obj)) */
-/*         { */
-/*           std::string   str; */
-
-/*           if (SWIG_IsOK(SWIG_AsVal_std_string(obj, &str))) */
-/* 	    v = new Variant(str); */
-/* 	  else */
-/* 	    err = "Error while converting string"; */
-/*         } */
-/*       else if (strncmp("Node", obj->ob_type->tp_name, 4) == 0) */
-/*         { */
-/* 	  void*	vptr; */
-/* 	  Node*	node; */
-	  
-/* 	  if (SWIG_IsOK(SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_Node, 0))) */
-/* 	    { */
-/* 	      node = reinterpret_cast< Node * >(vptr); */
-/* 	      v = new Variant(node); */
-/* 	    } */
-/* 	  else */
-/* 	    err = "Error while converting Node"; */
-/*         } */
-/*       else if (strncmp("VLink", obj->ob_type->tp_name, 5) == 0) */
-/*         { */
-/* 	  void*	vptr; */
-/* 	  VLink*	node;	   */
-/* 	  if (SWIG_IsOK(SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_VLink, 0))) */
-/* 	    { */
-/* 	      node = reinterpret_cast< VLink * >(vptr); */
-/* 	      v = new Variant((Node*)node); */
-/* 	    } */
-/* 	  else */
-/* 	    err = "Error while converting VLink"; */
-/*         } */
-/*       else if (strncmp("Path", obj->ob_type->tp_name, 4) == 0) */
-/*         { */
-/* 	  void*     vptr; */
-/* 	  Path*     path; */
-	  
-/* 	  if (SWIG_IsOK(SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_Path, 0))) */
-/* 	    { */
-/* 	      path = reinterpret_cast< Path * >(vptr); */
-/* 	      v = new Variant(path); */
-/* 	    } */
-/* 	  else */
-/* 	    err = "Error while converting Path"; */
-/*         } */
-/*       else if (PyList_Check(obj)) */
-/*         { */
-/*           Py_ssize_t            size = PyList_Size(obj); */
-/*           Py_ssize_t            it; */
-/*           PyObject*             item = NULL; */
-/*           std::list<Variant_p > vlist; */
-/*           Variant*              vitem = NULL; */
-
-/*           for (it = 0; it != size; it++) */
-/*             { */
-/*               item = PyList_GetItem(obj, it); */
-/* 	      try */
-/* 		{ */
-/* 		  vitem = new_Variant__SWIG_19(item); */
-/* 		  vlist.push_back(Variant_p(vitem)); */
-/* 		} */
-/* 	      catch (std::string e) */
-/* 		{ */
-/* 		  err = e; */
-/* 		  break; */
-/* 		} */
-/* 	    } */
-/*           if (!err.empty()) */
-/*             vlist.erase(vlist.begin(), vlist.end()); */
-/*           else */
-/* 	    v = new Variant(vlist); */
-/*         } */
-/*       else if (PyDict_Check(obj)) */
-/*         { */
-/*           std::map<std::string, Variant_p >  vmap; */
-/*           Variant*              vitem = NULL; */
-/* 	  std::string		strkey; */
-/* 	  PyObject *key, *value; */
-/* 	  Py_ssize_t pos = 0; */
-
-/* 	  while (PyDict_Next(obj, &pos, &key, &value))  */
-/* 	    { */
-/* 	      if (!PyString_Check(key)) */
-/* 		{ */
-/* 		  err = "Keys must be of type string"; */
-/* 		  break; */
-/* 		} */
-/* 	      else if (SWIG_IsOK(SWIG_AsVal_std_string(key, &strkey))) */
-/* 		{ */
-/* 		  try */
-/* 		    { */
-/* 		      vitem = new_Variant__SWIG_19(value);		  */
-/* 		      vmap[strkey] = Variant_p(vitem); */
-/* 		    } */
-/* 		  catch (std::string e) */
-/* 		    { */
-/* 		      err = e; */
-/* 		      break; */
-/* 		    } */
-/* 		} */
-/* 	      else */
-/* 		{ */
-/* 		  err = "Error while converting string"; */
-/* 		  break; */
-/* 		} */
-/* 	    } */
-/* 	  if (!err.empty()) */
-/* 	    vmap.clear(); */
-/* 	  else */
-/* 	    v = new Variant(vmap); */
-/*         } */
-/*       SWIG_PYTHON_THREAD_END_BLOCK; */
-/*       if (!err.empty()) */
-/* 	throw(std::string(err)); */
-/*       return v; */
-/*     } */
-
-  Variant(PyObject* obj, uint8_t type) throw(std::string)
-    {
-      Variant*  v = NULL;
-      bool      err = true;
-      int       ecode;
-
-      if (obj == NULL)
-        throw(std::string("Provided PyObject is NULL"));
-
-      if (obj == Py_None)
-        throw(std::string("Provided PyObject cannot be None"));
-
-      //std::cout << "Variant::Variant(PyObject*, uint8_t) -- PyObject type " << obj->ob_type->tp_name << std::endl;
-
-      SWIG_PYTHON_THREAD_BEGIN_BLOCK;
-      if (PyLong_Check(obj) || PyInt_Check(obj))
-      {
-          if (type == uint8_t(typeId::Bool))
-          {
-              bool      b;
-              int ecode = SWIG_AsVal_bool(obj, &b);
-              if (SWIG_IsOK(ecode))
-                {
-                  v = new Variant(b);
-                  err = false;
-                }
-            }
-          else if (type == uint8_t(typeId::Int16))
-            {
-              int16_t   s;
-              ecode = SWIG_AsVal_short(obj, &s);
-              if (SWIG_IsOK(ecode))
-                {
-                  v = new Variant(s);
-                  err = false;
-                }
-            }
-          else if (type == uint8_t(typeId::UInt16))
-            {
-              uint16_t  us;
-              int ecode = SWIG_AsVal_unsigned_SS_short(obj, &us);
-              if (SWIG_IsOK(ecode))
-                {
-                  v = new Variant(us);
-                  err = false;
-                }
-            }
-          else if (type == uint8_t(typeId::Int32))
-            {
-              int32_t   i;
-              int ecode = SWIG_AsVal_int(obj, &i);
-              if (SWIG_IsOK(ecode))
-                {
-                  v = new Variant(i);
-                  err = false;
-                }
-            }
-          else if (type == uint8_t(typeId::UInt32))
-            {
-              uint32_t ui;
-              int ecode = SWIG_AsVal_unsigned_SS_int(obj, &ui);
-              if (SWIG_IsOK(ecode))
-                {
-                  v = new Variant(ui);
-                  err = false;
-                }
-            }
-          else if (type == uint8_t(typeId::Int64))
-            {
-              int64_t   ll;
-#ifdef SWIGWORDSIZE64
-              int ecode = SWIG_AsVal_long(obj, &ll);
-#else
-              int ecode = SWIG_AsVal_long_SS_long(obj, &ll);
-#endif
-              if (SWIG_IsOK(ecode))
-                {
-                  v = new Variant(ll);
-                  err = false;
-                }
-            }
-          else if (type == uint8_t(typeId::UInt64))
-            {
-              uint64_t  ull;
-#ifdef SWIGWORDSIZE64
-              int ecode = SWIG_AsVal_unsigned_SS_long(obj, &ull);
-#else
-              int ecode = SWIG_AsVal_unsigned_SS_long_SS_long(obj, &ull);
-#endif
-              if (SWIG_IsOK(ecode))
-                {
-                  v = new Variant(ull);
-                  err = false;
-                }
-            }
-        }
-      else if (PyBool_Check(obj))
-        {
-          bool  b;
-          int ecode = SWIG_AsVal_bool(obj, &b);
-          if (SWIG_IsOK(ecode))
-            {
-              v = new Variant(b);
-              err = false;
-            }
-        }
-      else if (PyString_Check(obj))
-        {
-          std::string   str;
-
-          ecode = SWIG_AsVal_std_string(obj, &str);
-          if (SWIG_IsOK(ecode))
-            {
-              if (type == typeId::String)
-                {
-                  v = new Variant(str);
-                  err = false;
-                }
-              else if (type == typeId::CArray)
-                {
-                  v = new Variant((char*)str.c_str());
-                  err = false;
-                }
-              else if (type == typeId::Char)
-                {
-                  char  c;
-                  if ((str.size() == 1) || (str.size() == 0))
-                    {
-                      c = *(str.c_str());
-                      v = new Variant(c);
-                      err = false;
-                    }
-                }
-              else if (type == typeId::Path)
-                {
-                  Path*           p;
-                  p = new Path(str);
-                  v = new Variant(p);
-                  err = false;
-                }
-              else if (type == typeId::Int16)
-                {
-                  int16_t               s;
-                  std::istringstream    conv(str);
-                  if (conv >> s)
-                    {
-                      v = new Variant(s);
-                      err = false;
-                    }
-                }
-              else if (type == typeId::UInt16)
-                {
-                  uint16_t              us;
-                  std::istringstream    conv(str);
-                  if (conv >> us)
-                    {
-                      v = new Variant(us);
-                      err = false;
-                    }
-                }
-              else if (type == typeId::Int32)
-                {
-                  int32_t               i;
-                  std::istringstream    conv(str);
-                  if (conv >> i)
-                    {
-                      v = new Variant(i);
-                      err = false;
-                    }
-                }
-              else if (type == typeId::UInt32)
-                {
-                  int32_t               ui;
-                  std::istringstream    conv(str);
-                  if (conv >> ui)
-                    {
-                      v = new Variant(ui);
-                      err = false;
-                    }
-                }
-              else if (type == typeId::Int64)
-                {
-                  int64_t               ll;
-                  std::istringstream    conv(str);
-                  if (conv >> ll)
-                    {
-                v = new Variant(ll);
-                      err = false;
-                    }
-                }
-              else if (type == typeId::UInt64)
-                {
-                  uint64_t              ull;
-                  std::istringstream    conv(str);
-                  if (conv >> ull)
-                    {
-                      v = new Variant(ull);
-                      err = false;
-                    }
-                }
-            }
-        }
-      else if (strncmp("Node", obj->ob_type->tp_name, 4) == 0)
-        {
-          if (type == typeId::Node)
-	    {
-	      void*	vptr;
-	      Node*	node;
-	      int res = SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_Node, 0);
-	      if (SWIG_IsOK(res))
-		{
-		  node = reinterpret_cast< Node * >(vptr);
-		  v = new Variant(node);
-		  err = false;
-		}
-            }
-        }
-      else if (strncmp("VLink", obj->ob_type->tp_name, 5) == 0)
-        {
-          if (type == typeId::Node)
-	    {
-	      void*	vptr;
-	      VLink*	node;
-	      int res = SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_VLink, 0);
-	      if (SWIG_IsOK(res))
-		{
-		  node = reinterpret_cast< VLink * >(vptr);
-		  v = new Variant(node);
-		  err = false;
-		}
-            }
-        }
-      else if (strncmp("Path", obj->ob_type->tp_name, 4) == 0)
-        {
-          if (type == typeId::Path)
-            {
-              void*     vptr;
-              Path*     path;
-              int res = SWIG_ConvertPtr(obj, &vptr, SWIGTYPE_p_Path, 0);
-              if (SWIG_IsOK(res))
-                {
-                  path = reinterpret_cast< Path * >(vptr);
-                  v = new Variant(path);
-                  err = false;
-                }
-            }
-        }
-      else if (PyList_Check(obj) && type == typeId::List)
-        {
-          Py_ssize_t            size = PyList_Size(obj);
-          Py_ssize_t            it;
-          PyObject*             item = NULL;
-          std::list< Variant_p >  vlist;
-          Variant*              vitem = NULL;
-          bool                  lbreak = false;
-
-          for (it = 0; it != size; it++)
-            {
-              item = PyList_GetItem(obj, it);
-              if ((vitem = new_Variant__SWIG_20(item, type)) == NULL)
-              {
-                 lbreak = true;
-                 break;
-              }
-              vlist.push_back(Variant_p(vitem));
-            }
-          if (lbreak)
-            vlist.erase(vlist.begin(), vlist.end());
-          else
-            {
-              v = new Variant(vlist);
-              err = false;
-            }
-        }
-      /* else if (PyDict_Check(obj) && type == typeId::Map) */
-      /*   { */
-      /*     PyObject*             item = NULL; */
-      /*     std::map<std::string, Variant *>  vmap; */
-      /*     Variant*              vitem = NULL; */
-      /*     bool                  lbreak = false; */
-      /* 	  char*			strkey; */
-
-      /* 	  PyObject *key, *value; */
-      /* 	  Py_ssize_t pos = 0; */
-
-      /* 	  while (PyDict_Next(obj, &pos, &key, &value))  */
-      /* 	    { */
-      /* 	      if (!PyString_Check(key)) */
-      /* 		err  */
-      /* 	      strkey */
-      /* 	      Py_DECREF(o); */
-      /* 	    } */
-      /*   } */
-      if (err)
-        {
-          SWIG_PYTHON_THREAD_END_BLOCK;
-          throw(std::string("Cannot create Variant, Provided PyObject and requested type are not compatible"));
-        }
-      SWIG_PYTHON_THREAD_END_BLOCK;
-      return v;
-    }
-
-  bool  operator==(PyObject* obj)
-  {
-    Variant*    v = NULL;
-    uint8_t     type;
-
-    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
-    type = self->type();
-
-    if (obj == NULL)
-      {
-        //printf("    !!! obj is NULL !!!\n");
-        SWIG_PYTHON_THREAD_END_BLOCK;
-        return false;
-      }    
-    if (obj->ob_type == NULL)
-      {
-        //printf("    !!! obj->ob_type is NULL !!!\n");
-        SWIG_PYTHON_THREAD_END_BLOCK;
-        return false;
-      }
-    if (obj->ob_type->tp_name == NULL)
-      {
-        //printf("    !!! obj->ob_type->tp_name is NULL !!!\n");
-        SWIG_PYTHON_THREAD_END_BLOCK;
-        return false;
-      } 
-    if (strncmp("Variant", obj->ob_type->tp_name, 7) == 0)
-      {
-        //printf("Variant::operator==(PyObject* obj) ---> obj == Variant\n");
-        void* argp1 = 0;
-        Variant *arg1 = (Variant *) 0 ;
-        int res1 = SWIG_ConvertPtr(obj, &argp1, SWIGTYPE_p_Variant, 0 | 0);
-        if (SWIG_IsOK(res1))
-        {
-            arg1 = reinterpret_cast< Variant * >(argp1);
-            SWIG_PYTHON_THREAD_END_BLOCK;
-            return self->operator==(arg1);
-        }
-        else
-        {
-          SWIG_PYTHON_THREAD_END_BLOCK;
-          return false;
-        }
-      }
-    else if (((strncmp("VList", obj->ob_type->tp_name, 5) == 0) || PyList_Check(obj)) && (type == typeId::List))
-      {
-        //printf("Variant::operator==(PyObject* obj) ---> obj == VList\n");
-        std::list< Variant_p > selflist;
-        selflist = self->value<std::list< Variant_p > >();
-        SWIG_PYTHON_THREAD_END_BLOCK;
-	return std_list_Sl_RCPtr_Sl_Variant_Sg__Sg__operator_Se__Se_(&selflist, obj);
-      }
-    else if (((strncmp("VMap", obj->ob_type->tp_name, 4) == 0) || PyDict_Check(obj)) && (type == typeId::Map))
-      {
-        //printf("Variant::operator==(PyObject* obj) ---> obj == VMap\n");
-        std::map<std::string, Variant_p > selfmap;
-        selfmap = self->value<std::map<std::string, Variant_p > >();
-        SWIG_PYTHON_THREAD_END_BLOCK;
-	return std_map_Sl_std_string_Sc_RCPtr_Sl_Variant_Sg__Sg__operator_Se__Se_(&selfmap, obj);
-      }
-    else if (PyLong_Check(obj) || PyInt_Check(obj))
-      {
-        //printf("Variant::operator==(PyObject* obj) ---> obj == PyLong_Check || PyInt_Check provided\n");
-        if (type == uint8_t(typeId::Int16))
-          {
-            int16_t     v;
-            int ecode = SWIG_AsVal_short(obj, &v);
-            if (SWIG_IsOK(ecode))
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return self->operator==<int16_t>(v);
-            }
-            else
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return false;
-            }
-          }
-        else if (type == uint8_t(typeId::UInt16))
-          {
-            uint16_t    v;
-            int ecode = SWIG_AsVal_unsigned_SS_short(obj, &v);
-            if (SWIG_IsOK(ecode))
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return self->operator==<uint16_t>(v); 
-            }
-            else
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return false;
-            }
-          }
-        else if (type == uint8_t(typeId::Int32))
-          {
-            int32_t     v;
-            int ecode = SWIG_AsVal_int(obj, &v);
-            if (SWIG_IsOK(ecode))
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return self->operator==<int32_t>(v); 
-            }
-            else
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return false;
-            }
-          }
-        else if (type == uint8_t(typeId::UInt32))
-          {
-            uint32_t	v;
-            int ecode = SWIG_AsVal_unsigned_SS_int(obj, &v);
-            if (SWIG_IsOK(ecode))
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return self->operator==<uint32_t>(v);
-            }
-            else
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return false;
-            }
-          }
-        else if (type == uint8_t(typeId::Int64))
-          {
-            int64_t	v;
-#ifdef SWIGWORDSIZE64
-            int ecode = SWIG_AsVal_long(obj, &v);
-#else
-            int ecode = SWIG_AsVal_long_SS_long(obj, &v);
-#endif
-            if (SWIG_IsOK(ecode))
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return self->operator==<int64_t>(v);
-            } 
-            else
-            {    
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return false;
-            }
-          }
-        else if (type == uint8_t(typeId::UInt64))
-          {
-            uint64_t    v;
-#ifdef SWIGWORDSIZE64
-            int ecode = SWIG_AsVal_unsigned_SS_long(obj, &v);
-#else
-            int ecode = SWIG_AsVal_unsigned_SS_long_SS_long(obj, &v);
-#endif
-            if (SWIG_IsOK(ecode))
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return self->operator==<uint64_t>(v);
-            }
-            else
-            {
-              SWIG_PYTHON_THREAD_END_BLOCK;
-              return false;
-            }
-          }
-        else
-        {
-          SWIG_PYTHON_THREAD_END_BLOCK;
-          return false;
-        }
-      }
-    else if (PyBool_Check(obj) && (type == typeId::Bool))
-      {
-          bool  b;
-          int ecode = SWIG_AsVal_bool(obj, &b);
-          if (SWIG_IsOK(ecode))
-          {
-            SWIG_PYTHON_THREAD_END_BLOCK;
-            return self->operator==<bool>(v);
-          }
-          else
-          {
-            SWIG_PYTHON_THREAD_END_BLOCK;
-            return false;
-          }
-      }
-    else if ((PyString_Check(obj)) && (type == typeId::String))
-      {
-        char*           cstr;
-        
-        if ((cstr = PyString_AsString(obj)) != NULL)
-        {
-          SWIG_PYTHON_THREAD_END_BLOCK;
-          return self->operator==<std::string>(cstr);
-        }
-        else
-        {
-          SWIG_PYTHON_THREAD_END_BLOCK;
-          return false;
-        }
-      }
-    else
-    {    
-      SWIG_PYTHON_THREAD_END_BLOCK;
-      return false;
-    }
-  }
-
-
-  bool  operator!=(PyObject* obj)
-  {
-    return (!Variant_operator_Se__Se___SWIG_1(self, obj));
-  }
-
-  bool  operator>(PyObject* obj)
-  {
-    uint8_t     type;
-
-    type = self->type();
-
-    if (obj == NULL)
-      {
-        //printf("    !!! obj is NULL !!!\n");
-        return false;
-      }    
-    if (obj->ob_type == NULL)
-      {
-        //printf("    !!! obj->ob_type is NULL !!!\n");
-        return false;
-      }
-    if (obj->ob_type->tp_name == NULL)
-      {
-        //printf("    !!! obj->ob_type->tp_name is NULL !!!\n");
-        return false;
-      }
-    if (strncmp("Variant", obj->ob_type->tp_name, 7) == 0)
-      {
-        //printf("Variant::operator>(PyObject* obj) ---> obj == Variant\n");
-        void* argp1 = 0;
-        Variant *arg1 = (Variant *) 0 ;
-        int res1 = SWIG_ConvertPtr(obj, &argp1, SWIGTYPE_p_Variant, 0 | 0);
-        if (SWIG_IsOK(res1))
-          {
-            arg1 = reinterpret_cast< Variant * >(argp1);
-            return self->operator>(arg1);
-          }
-        else
-          return false;
-      }
-    else if (PyLong_Check(obj) || PyInt_Check(obj))
-      {
-        //printf("Variant::operator>(PyObject* obj) ---> obj == PyLong_Check || PyInt_Check provided\n");
-        if (type == uint8_t(typeId::Int16))
-          {
-            int16_t     v;
-            int ecode = SWIG_AsVal_short(obj, &v);
-            if (SWIG_IsOK(ecode))
-              return self->operator><int16_t>(v);
-            else
-              return false;
-          }
-        else if (type == uint8_t(typeId::UInt16))
-          {
-            uint16_t    v;
-            int ecode = SWIG_AsVal_unsigned_SS_short(obj, &v);
-            if (SWIG_IsOK(ecode))
-              return self->operator><uint16_t>(v); 
-            else
-              return false;
-          }
-        else if (type == uint8_t(typeId::Int32))
-          {
-            int32_t     v;
-            int ecode = SWIG_AsVal_int(obj, &v);
-            if (SWIG_IsOK(ecode))
-              return self->operator><int32_t>(v); 
-            else
-              return false;
-          }
-        else if (type == uint8_t(typeId::UInt32))
-          {
-            uint32_t    v;
-            int ecode = SWIG_AsVal_unsigned_SS_int(obj, &v);
-            if (SWIG_IsOK(ecode))
-              return self->operator><uint32_t>(v);
-            else
-              return false;
-          }
-        else if (type == uint8_t(typeId::Int64))
-          {
-            int64_t     v;
-#ifdef SWIGWORDSIZE64
-            int ecode = SWIG_AsVal_long(obj, &v);
-#else
-            int ecode = SWIG_AsVal_long_SS_long(obj, &v);
-#endif
-            if (SWIG_IsOK(ecode))
-              return self->operator><int64_t>(v);
-            else
-              return false;
-          }
-        else if (type == uint8_t(typeId::UInt64))
-          {
-            uint64_t    v;
-#ifdef SWIGWORDSIZE64
-            int ecode = SWIG_AsVal_unsigned_SS_long(obj, &v);
-#else
-            int ecode = SWIG_AsVal_unsigned_SS_long_SS_long(obj, &v);
-#endif
-            if (SWIG_IsOK(ecode))
-              return self->operator><uint64_t>(v);
-            else
-              return false;
-          }
-        else
-          return false;
-      }
-    else if ((PyString_Check(obj)) && (type == typeId::String))
-      {
-        char*           cstr;
-
-        //printf("Variant::operator>(PyObject* obj) ---> obj == PyLong_Check || PyInt_Check provided\n");
-        if ((cstr = PyString_AsString(obj)) != NULL)
-          return self->operator><std::string>(cstr);
-        else
-          return false;
-      }
-    else
-      return false;
-  }
-
-
-  bool  operator<(PyObject* obj)
-  {
-    if (Variant_operator_Se__Se___SWIG_1(self, obj))
-      return false;
-    else
-      return (!Variant_operator_Sg___SWIG_1(self, obj));
-  }
-
-  bool  operator>=(PyObject* obj)
-  {
-    if (Variant_operator_Sg___SWIG_1(self, obj) || Variant_operator_Se__Se___SWIG_1(self, obj))
-      return true;
-    else
-      return false;
-  }
-
-  bool  operator<=(PyObject* obj)
-  {
-    if (Variant_operator_Sl___SWIG_1(self, obj) || Variant_operator_Se__Se___SWIG_1(self, obj))
-      return true;
-    else
-      return false;    
-  }
-
-};
-
-%extend Variant
-{
-  %pythoncode
-  %{
-
-    funcMapper = {typeId.Char: "_Variant__Char",
-		  typeId.Int16: "_Variant__Int16",
-		  typeId.UInt16: "_Variant__UInt16",
-		  typeId.Int32: "_Variant__Int32",
-		  typeId.UInt32: "_Variant__UInt32",
-		  typeId.Int64: "_Variant__Int64",
-		  typeId.UInt64: "_Variant__UInt64",
-		  typeId.Bool: "_Variant__Bool",
-		  typeId.String: "_Variant__String",
-		  typeId.CArray: "_Variant__CArray",
-		  typeId.Node: "_Variant__Node",
-		  typeId.Path: "_Variant__Path",
-		  typeId.VTime: "_Variant__VTime",
-		  typeId.List: "_Variant__VList",
-		  typeId.Map: "_Variant__VMap",
-                  typeId.VLink: "_Variant__VLink"}
-
-    def __str__(self):
-        if self.type() == typeId.Node:
-           return self.value().absolute()
-        elif self.type() == typeId.VTime:
-           return self.value()
-        else:
-           return self.toString()
-
-
-    def value(self):
-       try:
-         valType = self.type()
-         if valType in self.funcMapper.keys():
-            func = getattr(self, Variant.funcMapper[valType])
-            if func != None:
-              val = func()
-              return val
-            else:
-              return None
-         else:
-           return None
-       except :
-         return None
-  %}
-};
-
-
-%extend Variant_p
-{
-  %pythoncode
-  %{
-
-    funcMapper = {typeId.Char: "_RCVariant__Char",
-		  typeId.Int16: "_RCVariant__Int16",
-		  typeId.UInt16: "_RCVariant__UInt16",
-		  typeId.Int32: "_RCVariant__Int32",
-		  typeId.UInt32: "_RCVariant__UInt32",
-		  typeId.Int64: "_RCVariant__Int64",
-		  typeId.UInt64: "_RCVariant__UInt64",
-		  typeId.Bool: "_RCVariant__Bool",
-		  typeId.String: "_RCVariant__String",
-		  typeId.CArray: "_RCVariant__CArray",
-		  typeId.Node: "_RCVariant__Node",
-		  typeId.Path: "_RCVariant__Path",
-		  typeId.VTime: "_RCVariant__VTime",
-		  typeId.List: "_RCVariant__VList",
-		  typeId.Map: "_RCVariant__VMap",
-                  typeId.VLink: "_RCVariant__VLink"}
-
-    def __str__(self):
-        if self.type() == typeId.Node:
-           return self.value().absolute()
-        elif self.type() == typeId.VTime:
-           return self.value()
-        else:
-           return self.toString()
-
-
-    def value(self):
-       try:
-         valType = self.type()
-         if valType in self.funcMapper.keys():
-            func = getattr(self, RCVariant.funcMapper[valType])
-            if func != None:
-                val = func()
-                return val
-            else:
-                return None
-         else:
-            return None
-       except :
-        return None
-  %}
-};
-
-
-%extend vtime
-{
-  PyObject* vtime::get_time(void)
-  {
-    SWIG_PYTHON_THREAD_BEGIN_BLOCK;
-    PyDateTime_IMPORT;
-    SWIG_PYTHON_THREAD_END_BLOCK;
-    PyObject* v;
-
-    v = PyDateTime_FromDateAndTime(self->year, self->month, self->day, 
-    self->hour, self->minute, self->second, self->usecond);
-    return (v);
   }
 };

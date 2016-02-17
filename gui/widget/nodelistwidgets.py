@@ -62,7 +62,9 @@ class TimeLiner(QObject):
     self.nodesList = nodesList 
 
   def computeNodeList(self, nodesList):
+    print 'creating time line in python'
     timeLine = TimeLine(nodesList)
+    print 'sorting the timeline'
     sortedList = timeLine.sort()
     self.emit(SIGNAL("timeLineFinished"), sortedList) 
 
@@ -196,7 +198,6 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.updateStatus()
 
   def setTimeLine(self, sortedNodes):
-     print 'SETTING TIMELINE'
      self.viewpan.setCurrentWidget(self.timeLineView)
      self.model().updateList(sortedNodes)
 

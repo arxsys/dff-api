@@ -18,12 +18,12 @@
 
 %module(package="dff.api.datatype", directors="1") libdatatype
 
-%feature("director") DataTypeHandler;
+%feature("director") DFF::DataTypeHandler;
 
-%ignore dff::vector;
-%ignore dff::map;
-%ignore dff::Mutex;
-%ignore dff::ScopedMutex;
+%ignore DFF::vector;
+%ignore DFF::map;
+%ignore DFF::Mutex;
+%ignore DFF::ScopedMutex;
 
 #ifndef WIN32
 %include "stdint.i"
@@ -35,8 +35,8 @@
 %include "std_map.i"
 %include "windows.i"
 
-%feature("ref") RCObj "$this->addref();"
-%feature("unref") RCObj "$this->delref();"
+%feature("ref") DFF::RCObj "$this->addref();"
+%feature("unref") DFF::RCObj "$this->delref();"
 
 
 %{
@@ -48,6 +48,6 @@
 
 namespace std
 {
-  %template(ListDataType)       list<DataTypeHandler*>;
+  %template(ListDataType)       list<DFF::DataTypeHandler*>;
   %template(MapDataType)        map<std::string, uint32_t>;
 }

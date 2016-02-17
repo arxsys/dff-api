@@ -33,9 +33,12 @@
 #include "variant.hpp"
 #include "threading.hpp"
 
+namespace DFF
+{
+
 class Node;
 class Constant;
-typedef std::map<std::string, RCPtr< class Variant > > Attributes;
+typedef std::map<std::string, DFF::RCPtr< class DFF::Variant > > Attributes;
 
 class DataTypeHandler
 {
@@ -102,4 +105,5 @@ public:
   EXPORT std::list<std::string>                 compatibleModules(Node* node);
 };
 
+}
 #endif

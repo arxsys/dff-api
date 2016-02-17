@@ -17,6 +17,9 @@
 
 #include "TwoThreeNode.hpp"
 
+namespace DFF
+{
+
 TwoThreeNode::TwoThreeNode(uint32_t val, TwoThreeNode * node)
 {
   this->__lval = val;
@@ -149,4 +152,6 @@ bool	TwoThreeNode::isLeaf()
 {
   return ((this->__lchild == NULL) && (this->__rchild == NULL)
 	  && (this->__mchild == NULL));
+}
+
 }

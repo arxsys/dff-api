@@ -20,6 +20,9 @@
 #include "device.hpp"
 #include <libudev.h>
 
+namespace DFF
+{
+
 class UDevice : public Device
 {
 private:
@@ -45,5 +48,5 @@ public:
   std::vector<Device* > deviceList;
 };
 
-
+}
 #endif

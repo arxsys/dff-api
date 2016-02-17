@@ -25,6 +25,7 @@
 #include "factory.hpp"
 #include "dictionnary.hpp"
 
+using namespace DFF;
 // forward declaration
 class Expression;
 class PatternContainer;
@@ -72,7 +73,7 @@ class InterpreterContext
 public :
   InterpreterContext();
   ~InterpreterContext();
-  void		setCurrentNode(Node* node);
+  void		setCurrentNode(DFF::Node* node);
   void		setQueryFlags(QueryFlags::Level qflags);
   std::list< Variant_p >	lookupByType(uint8_t type);
   std::list< Variant_p >	lookupByName(std::string name, attributeNameType tname);
@@ -80,7 +81,7 @@ public :
   void		clear();
 private:
   Attributes				__attributes;
-  Node*					__cnode;
+  DFF::Node*				__cnode;
   void					__lookupByName(Variant_p rcvar, std::string name, std::list< Variant_p >* result);
   void					__lookupByAbsoluteName(Variant_p rcvar, std::string name, std::list< Variant_p >* result);
   void					__lookupByType(Variant_p rcvar, uint8_t type, std::list< Variant_p >* result);

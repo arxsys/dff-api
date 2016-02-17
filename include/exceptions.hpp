@@ -21,12 +21,13 @@
 #include <string>
 #include "export.hpp"
 
-#ifndef WIN32
-  #include "client/linux/handler/exception_handler.h"
-#else
-  #include "client/windows/handler/exception_handler.h"
-#endif
+namespace google_breakpad
+{
+  class ExceptionHandler;
+}
 
+namespace DFF
+{
 
 class CrashHandler
 {
@@ -56,5 +57,5 @@ public:
  EXPORT vfsError(std::string msg);
 };
 
-
+}
 #endif 

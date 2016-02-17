@@ -26,6 +26,9 @@
 #include "../filters/astnodes.hpp"
 #include "../filters/scanner.hpp"
 
+namespace DFF
+{
+
 class Filter : public EventHandler
 {
 public:
@@ -71,4 +74,5 @@ private:
   bool			__stop;
 };
 
+}
 #endif

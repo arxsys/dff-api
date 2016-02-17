@@ -30,6 +30,9 @@
   #define UCHAR_MAX 255
 #endif
 
+namespace DFF
+{
+
 typedef struct	s_bmContext
 {
   unsigned char* bcs;
@@ -69,4 +72,5 @@ class BoyerMoore
   EXPORT virtual unsigned char		        getWildcard();
 };
 
+}
 #endif

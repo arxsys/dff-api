@@ -34,13 +34,18 @@
 #include "export.hpp"
 #include "rc.hpp"
 
+namespace DFF
+{
+
 class Constant;
 class FileMapping;
 class Variant;
 class Tag;
+class VFile;
+class fso;
 
-#define Variant_p	RCPtr< Variant >
-#define Tag_p		RCPtr< Tag >
+#define Variant_p	DFF::RCPtr< DFF::Variant > //typedef
+#define Tag_p		DFF::RCPtr< DFF::Tag >
 
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
 
@@ -91,7 +96,7 @@ protected:
   uint32_t				__childcount;
   std::string				__name;
   uint64_t				__size;
-  class fso*				__fsobj;
+  fso*				        __fsobj;
   uint64_t				__common_attributes;
   uint64_t				__uid;
   uint64_t				__tags;
@@ -139,7 +144,7 @@ public:
   EXPORT virtual bool				isVDir(void);
   EXPORT virtual bool				isDeleted(void);
 
-  EXPORT virtual class fso*			fsobj(void);
+  EXPORT virtual fso*    			fsobj(void);
 
   EXPORT Node*					parent(void);
 
@@ -150,7 +155,7 @@ public:
   EXPORT uint32_t				childCount(void);
   EXPORT uint64_t				totalChildrenCount(uint32_t depth=(uint32_t)-1);
 
-  EXPORT virtual class VFile*			open(void);
+  EXPORT virtual VFile*	                        open(void);
   EXPORT uint32_t				at(void);
   EXPORT uint64_t				uid(void);
 
@@ -180,4 +185,5 @@ public:
   EXPORT virtual std::vector<uint32_t>		tagsId(void);
 };
 
+}
 #endif

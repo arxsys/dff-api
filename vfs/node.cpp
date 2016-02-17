@@ -20,9 +20,11 @@
 #include "datatype.hpp"
 #include "tags.hpp"
 #include "confmanager.hpp"
+#include "vfs.hpp"
 #include "node.hpp"
 
-
+namespace DFF
+{
 /**
  *  This constructor should only be used by root Node as it doesn't generate UID
  */
@@ -935,4 +937,6 @@ bool AttributesHandlers::remove(std::string handlerName)
   }
 
   return (false);
+}
+
 }

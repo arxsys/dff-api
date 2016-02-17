@@ -20,7 +20,8 @@
 #include "rootnode.hpp"
 #include "vlink.hpp"
 
-
+namespace DFF
+{
 /**
  *  Return singleton instance of VFS
  */
@@ -301,4 +302,6 @@ bool  NodeManager::remove(uint64_t uid)
 bool  NodeManager::remove(Node* node)
 {
   return (this->remove(node->uid())); 
+}
+
 }

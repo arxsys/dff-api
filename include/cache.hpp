@@ -32,6 +32,9 @@
 #include "threading.hpp"
 #include "rc.hpp"
 
+namespace DFF
+{
+
 class Node;
 class VFile;
 class FileMapping;
@@ -203,4 +206,5 @@ public:
   EXPORT void                   remove(Node* node);
 };
 
+}
 #endif

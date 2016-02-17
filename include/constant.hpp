@@ -32,6 +32,9 @@
 #include "variant.hpp"
 #include "export.hpp"
 
+namespace DFF
+{
+
 class Constant
 {
 private:
@@ -51,4 +54,5 @@ public:
   EXPORT std::list< Variant_p >	values();
 };
 
+}
 #endif

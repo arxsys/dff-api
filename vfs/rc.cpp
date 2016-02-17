@@ -15,6 +15,9 @@
  */
 #include "rc.hpp"
 
+namespace DFF
+{
+
 RCObjBase::RCObjBase()
   : refCount(0)
 {
@@ -33,4 +36,6 @@ RCObjBase::RCObjBase(const RCObjBase&)
 RCObjBase& RCObjBase::operator=(const RCObjBase&)
 {
   return *this;
+}
+
 }

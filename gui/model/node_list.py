@@ -270,7 +270,7 @@ class NodeListModel(QAbstractItemModel):
           if val[0].type() == typeId.VTime:
             vtime = val[0].value()
             if vtime:
-              return QVariant(str(vtime.get_time()))
+              return QVariant(str(vtime))
           elif val[0].type() == typeId.String:
             return QVariant(QString.fromUtf8(val[0].value()))
           else:
@@ -608,22 +608,29 @@ class NodeListModel(QAbstractItemModel):
      try:
 	return cmp(x, y)
      except TypeError: 
-	if x == y == None:
+	if x == None and y == None:
 	  return 0
         elif x == None:
 	  return -1
 	elif y is None:
 	  return 1
+     except  ValueError:
+       if x is None and y is None:
+        return 0
+       elif x is None:
+         return -1
+       elif y is None:
+         return 1  
 
   def attributesByName(self, node, attrpath, ABSOLUTE_ATTR_NAME):
       val = node.attributesByName(attrpath, ABSOLUTE_ATTR_NAME)
       if len(val) == 1:
         if val[0].type() == typeId.VTime:
-            vtime = val[0].value()
-            if vtime:
-              return vtime.get_time()
+          #val[0].thisown = False
+          return vtime(val[0].value()) #must copy because or set variant this own to false because rc_variant store vtime*  that is deleted at function return
         else:
-            return val[0].value()
+          val = val[0].value()
+          return val
 
   def list(self):
     return self._list
@@ -707,7 +714,7 @@ class TimeLineNodeListModel(NodeListModel):
           return QVariant(QString.fromUtf8(node.name()))
 
       elif attrpath == "time":
-          return QVariant(QString.fromUtf8(str(timeLineNode.attribute().get_time())))
+          return QVariant(QString.fromUtf8(str(timeLineNode.attribute())))
       elif attrpath == "time attribute":
           return QVariant(QString.fromUtf8(timeLineNode.attributeName()))
 
@@ -754,7 +761,7 @@ class TimeLineNodeListModel(NodeListModel):
           if val[0].type() == typeId.VTime:
             vtime = val[0].value()
             if vtime:
-              return QVariant(str(vtime.get_time()))
+              return QVariant(str(vtime))
           elif val[0].type() == typeId.String:
             return QVariant(QString.fromUtf8(val[0].value()))
           else:

@@ -16,6 +16,9 @@
 
 #include "boyer_moore.hpp"
 
+namespace DFF
+{
+
 BoyerMoore::BoyerMoore() : needle(NULL), wildcard(0), needleSize(0), bcs(NULL), debug(false)
 {
 }
@@ -267,4 +270,6 @@ unsigned char	*BoyerMoore::getNeedle()
 unsigned char	BoyerMoore::getWildcard()
 {
   return this->wildcard;
+}
+
 }

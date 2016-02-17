@@ -34,6 +34,9 @@
 #endif
 #include <sstream>
 
+namespace DFF
+{
+
 class TwoThreeNode
 {
 public:
@@ -79,4 +82,5 @@ private:
   bool			__twonode;
 };
 
+}
 #endif

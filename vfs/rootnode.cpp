@@ -19,6 +19,9 @@
 #include "vlink.hpp"
 #include "fso.hpp"
 
+namespace DFF
+{
+
 VFSRootNode::VFSRootNode(std::string name) : Node()//: Node(name) register manually to avoid recursive lock
 {
   this->__name = name;
@@ -90,4 +93,6 @@ void ModulesRootNode::Event(event* e)
       }
     }
   }
+}
+
 }

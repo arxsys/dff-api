@@ -18,6 +18,9 @@
 
 #include "results.hpp"
 
+namespace DFF
+{
+
 Results::Results(std::string origin)
 {
 }
@@ -48,4 +51,6 @@ std::list<std::string>			Results::keys()
 
 std::list<Variant*>			Results::values()
 {
+}
+
 }

@@ -33,9 +33,9 @@
 #endif
 %include "windows.i"
 
-%feature("director") EventHandler;
+%feature("director") DFF::EventHandler;
 
-%feature("director:except") EventHandler
+%feature("director:except") DFF::EventHandler
 {
     if ($error != NULL)
     {      

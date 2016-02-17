@@ -29,6 +29,9 @@
 #include <string>
 #include <vector>
 
+namespace DFF
+{
+
 class TwoThreeTree
 {
 
@@ -60,4 +63,5 @@ private:
   void		__insert(uint64_t val, uint32_t lidx, uint32_t ridx);
 };
 
+}
 #endif

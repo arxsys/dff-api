@@ -17,6 +17,9 @@
 #include "node.hpp"
 #include "filemapping.hpp"
 
+namespace DFF
+{
+
 FileMapping::FileMapping(Node* node)
 {
   this->__node = node;
@@ -522,4 +525,6 @@ void			FileMapping::push(uint64_t offset, uint64_t size, class Node* origin, uin
 uint64_t	FileMapping::maxOffset()
 {
   return this->__maxOffset;
+}
+
 }

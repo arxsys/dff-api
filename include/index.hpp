@@ -24,6 +24,9 @@
 #include <CLucene/search/SearchHeader.h>
 #include "../include/node.hpp"
 
+namespace DFF
+{
+
 class	AttributeIndex : public AttributesHandler
 {
 public:
@@ -186,4 +189,5 @@ private:
   std::string	__location;
 };
 
+}
 #endif /* __INDEX_H__*/

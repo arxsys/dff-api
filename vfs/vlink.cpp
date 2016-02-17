@@ -19,6 +19,9 @@
 #include "vlink.hpp"
 #include "vfs.hpp"
 
+namespace DFF
+{
+
 VLink::VLink(Node* linkedNode, Node* parent, std::string newname) : Node()
 {
   if (!parent)
@@ -236,4 +239,7 @@ std::vector<uint32_t>	VLink::tagsId()
 }
 
 VLink::~VLink()
-{}
+{
+}
+
+}

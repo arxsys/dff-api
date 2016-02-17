@@ -19,10 +19,15 @@
 #include "string.h"
 #include <stdio.h>
 
+#include "vtime.hpp"
+#include "path.hpp"
+
 #ifdef WIN32
 #define snprintf _snprintf
 #endif
 
+namespace DFF
+{
 
 typeId*	typeId::Get()
 {
@@ -142,7 +147,7 @@ Variant::Variant(class Variant* orig) throw (std::string)
       if (this->_type == typeId::VTime)
 	{
 	  vtime*	vt = orig->value<vtime*>();
-	  this->__data.ptr = new vtime(vt->year, vt->month, vt->day, vt->hour, vt->minute, vt->second, vt->usecond);
+	  this->__data.ptr = new vtime(*vt);
 	}
       if (this->_type == typeId::Node)
 	this->__data.ptr = (void*)orig->value<class Node*>();
@@ -290,7 +295,7 @@ Variant::Variant(bool b)
   this->_type = typeId::Bool;
 }
 
-Variant::Variant(vtime *vt) throw (std::string)
+Variant::Variant(DFF::vtime *vt) throw (std::string)
 {
   if (vt != NULL)
     {
@@ -404,9 +409,7 @@ std::string	Variant::toString() throw (std::string)
   else if (this->_type == typeId::VTime && this->__data.ptr != NULL)
     {
       vtime* vt = (vtime*)this->__data.ptr;
-      char	dest[32];
-      snprintf(dest, 32, "'%.4d-%.2d-%.2dT%.2d:%.2d:%.2d:%.2d'", vt->year, vt->month, vt->day, vt->hour, vt->minute, vt->second, vt->usecond);
-      res << dest;
+      res << vt->toString(); 
     }
   else if (this->_type == typeId::List && this->__data.ptr != NULL)
     {
@@ -1015,7 +1018,9 @@ bool	Variant::operator==(Variant* v)
               
               mine = (vtime*)this->__data.ptr;
               other = v->value<vtime*>();
-              return (mine->operator==(other));
+              //TIME_FIX
+              std::cout << "variant == " << std::endl;
+              return (mine->operator==(*other));
             }
           else
             return false;
@@ -1165,7 +1170,7 @@ bool	Variant::operator>(Variant* v)
           
           mine = (vtime*)this->__data.ptr;
           other = v->value<vtime*>();
-          return (mine->operator>(other));
+          return (mine->operator>(*other)); //TIME_FIX //check for null pointer before deferencing ! do it every where !
         }
       else
         return false;
@@ -1195,4 +1200,6 @@ bool	Variant::operator<=(Variant* v)
     return true;
   else
     return false;
+}
+
 }

@@ -16,265 +16,304 @@
 
 #include "vtime.hpp"
 
-vtime::vtime() : year(0), month(0), day(0), hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
+#include <stdio.h>
+#include <string.h>
+
+/**
+  *  DateTime
+  */
+namespace DFF
+{
+
+int64_t  vtime::__globalTimeZoneOffset = 0;
+
+vtime::vtime(int64_t epochTime) : __epochTime(epochTime)
 {
 }
 
-vtime::vtime(int y, int mo, int d, int h, int mi, int s, int us) : year(y), month(mo), day(d), hour(h), minute(mi), second(s), usecond(us), wday(0), yday(0), dst(0)
+vtime::vtime(vtime const& copy) : __epochTime(copy.__epochTime)
 {
 }
 
-vtime::vtime(const vtime& copy) : year(copy.year), month(copy.month), day(copy.day), hour(copy.day), minute(copy.minute), second(copy.second), usecond(copy.usecond), wday(copy.wday), yday(copy.yday), dst(copy.dst)
+vtime::vtime(const std::string& dateTime) : __epochTime(0)
 {
+  struct tm    date;
+
+  memset(&date, 0, sizeof(struct tm));
+  if (sscanf(dateTime.c_str(), "%4d-%2d-%2d%*1c%2d:%2d:%2d", &date.tm_year, &date.tm_mon, &date.tm_mday, &date.tm_hour, &date.tm_min, &date.tm_sec) != 6)
+    throw std::string("Can't convert invalid date : " + dateTime + " to vtime");
+  date.tm_year -= 1900;
+  date.tm_mon -= 1;
+
+  this->epochTime(this->__timegm(&date));
 }
 
-vtime::vtime(uint16_t dos_time, uint16_t dos_date) : hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
+vtime::vtime(int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second) : __epochTime(0)
 {
-  this->day = (dos_date & 31);
-  this->month = ((dos_date >> 5) & 15);
-  this->year = ((dos_date >> 9) + 1980);
+  struct tm     dateTime;
 
-  if (dos_time != 0)
-  {
-    this->second = (dos_time & 31) * 2;
-    this->minute = ((dos_time >> 5) & 63);
-    this->hour = (dos_time >> 11);
-  }
-}
+  dateTime.tm_year = year - 1900; 
+  dateTime.tm_mon = month - 1;
+  dateTime.tm_mday = day;
+  dateTime.tm_hour = hour;
+  dateTime.tm_min = minute;
+  dateTime.tm_sec = second;
+  dateTime.tm_wday = 0;
+  dateTime.tm_yday = 0;
+  dateTime.tm_isdst = 0;
 
-vtime::vtime(uint64_t value, int type = 0) : year(0), month(0), day(0), hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
-{
-  if (value > 0)
-  {
-    if (type == TIME_MS_64)
-    {
-      value -= NANOSECS_1601_TO_1970;
-      value /= 10000000;
-    }
-    struct tm   date;
-    #ifdef WIN32
-    if (_gmtime64_s(&date, (__time64_t*)&value) == 0)
-    #else
-    if (gmtime_r((time_t *)&value, &date) != NULL)
-    #endif
-    {
-      this->year = date.tm_year + 1900;
-      this->month = date.tm_mon + 1;
-      this->day = date.tm_mday;
-      this->hour = date.tm_hour;
-      this->minute = date.tm_min;
-      this->second = date.tm_sec;
-      this->dst = date.tm_isdst;
-      this->wday = date.tm_wday;
-      this->yday = date.tm_yday;
-    }
-  }
-}
-
-vtime::vtime(std::string ts) : year(0), month(0), day(0), hour(0), minute(0), second(0), usecond(0), wday(0), yday(0), dst(0)
-{
-  size_t			midx;
-  std::string			date;
-  std::string			time;
-
-  if ((midx = ts.find("T")) != std::string::npos)
-  {
-    date = ts.substr(0, midx);
-    this->__setFromDate(date);
-    time = ts.substr(midx+1);
-    this->__setFromTime(time);
-  }
-  else if (ts.find(":") != std::string::npos && ts.find("-") == std::string::npos)
-    this->__setFromTime(ts);
-  else if (ts.find("-") != std::string::npos && ts.find(":") == std::string::npos)
-    this->__setFromDate(ts);
-}
-
-void	vtime::__setFromDate(std::string date)
-{
-  size_t	cpos;
-  size_t	opos;
-
-  cpos = date.find("-");
-  if (cpos != std::string::npos)
-    {
-      std::istringstream(date.substr(0, cpos)) >> this->year;
-      opos = cpos + 1;
-      cpos = date.find("-", opos);
-      if (cpos != std::string::npos)
-	{
-	  std::istringstream(date.substr(opos, cpos)) >> this->month;
-	  if (cpos < date.size())
-	    std::istringstream(date.substr(cpos+1)) >> this->day;
-	}
-      else if (opos < std::string::npos)
-	std::istringstream(date.substr(opos)) >> this->month;
-    }
-  else
-    std::istringstream(date.substr(0)) >> this->year;
-}
-
-void	vtime::__setFromTime(std::string time)
-{
-  size_t	cpos;
-  size_t	opos;
-
-  cpos = time.find(":");
-  if (cpos != std::string::npos)
-    {
-      std::istringstream(time.substr(0, cpos)) >> this->hour;
-      opos = cpos + 1;
-      cpos = time.find(":", opos);
-      if (cpos != std::string::npos)
-	{
-	  std::istringstream(time.substr(opos, cpos)) >> this->minute;
-	  if (cpos < time.size())
-	    std::istringstream(time.substr(cpos+1)) >> this->second;
-	}
-      else if (opos < std::string::npos)
-	std::istringstream(time.substr(opos)) >> this->minute;
-    }
-  else
-    std::istringstream(time.substr(0)) >> this->hour;
-}
-
-bool	vtime::operator==(vtime* v)
-{
-  if (v != NULL)
-    return ((this->year == v->year) && 
-	    (this->month == v->month) &&
-	    (this->day == v->day) &&
-	    (this->hour == v->hour) &&
-	    (this->minute == v->minute) &&
-	    (this->second == v->second) &&
-	    (this->usecond == v->usecond));
-  else
-    return false;
-}
-
-bool	vtime::operator!=(vtime* v)
-{
-  return !(this->operator==(v));
-}
-
-bool	vtime::operator>(vtime* v)
-{
-  if (v != NULL)
-    return ((this->year > v->year) || ((this->year == v->year) && ((this->month > v->month) || ((this->month == v->month) && ((this->day > v->day) || ((this->day == v->day) && ((this->hour > v->hour) || ((this->hour == v->hour) && ((this->minute > v->minute) || ((this->minute == v->minute) && ((this->second > v->second) || ((this->second == v->second) && (this->usecond > v->usecond)))))))))))));
-  else
-    return true;
-}
-
-bool	vtime::operator<(vtime* v)
-{
-  return !(this->operator>(v));
-}
-
-bool	vtime::operator>=(vtime* v)
-{
-  if (v != NULL)
-    return ((this->year > v->year) || ((this->year == v->year) && ((this->month > v->month) || ((this->month == v->month) && ((this->day > v->day) || ((this->day == v->day) && ((this->hour > v->hour) || ((this->hour == v->hour) && ((this->minute > v->minute) || ((this->minute == v->minute) && ((this->second > v->second) || ((this->second == v->second) && ((this->usecond > v->usecond) || (this->usecond == v->usecond))))))))))))));
-  else
-    return true;
-}
-
-bool	vtime::operator<=(vtime* v)
-{
-  return !(this->operator>=(v));
-}
-
-bool    vtime::operator<(const vtime& v)
-{
-  if (this->year != v.year)
-    return (this->year < v.year);
-  if (this->month != v.month)
-    return (this->month < v.month);
-  if (this->day != v.day)
-    return (this->day < v.day);
-  if (this->hour != v.hour)
-    return (this->hour < v.hour);
-  if (this->minute != v.minute)
-    return (this->minute < v.minute);
-  if (this->second != v.second)
-    return (this->second < v.second);
-  if (this->usecond != v.usecond)
-    return (this->usecond < v.usecond);
-  return true;
+  this->epochTime(this->__timegm(&dateTime));
 }
 
 vtime::~vtime()
 {
 }
 
-vtimeMS128::vtimeMS128(char *_time) : vtime()
+bool    vtime::operator==(const vtime& other) const
+{
+  return (this->__epochTime == other.__epochTime);
+}
+
+bool    vtime::operator!=(const vtime& other) const
+{
+  return (this->__epochTime != other.__epochTime);
+}
+
+bool    vtime::operator<(const vtime& other) const
+{
+  return (this->__epochTime < other.__epochTime);
+}
+
+bool    vtime::operator>(const vtime& other) const
+{
+  return (this->__epochTime > other.__epochTime);
+}
+
+bool    vtime::operator<=(const vtime& other) const
+{
+  return (this->__epochTime <= other.__epochTime);
+}
+
+bool    vtime::operator>=(const vtime& other) const
+{
+  return (this->__epochTime >= other.__epochTime);
+}
+
+const int vtime::__cumdays[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+
+int64_t vtime::__timegm(struct tm* t)
+{
+   register int64_t year = 1900 + t->tm_year + t->tm_mon / 12;
+   register int64_t result = (year - 1970) * 365 + this->__cumdays[t->tm_mon % 12];
+
+   result += (year - 1968) / 4;
+   result -= (year - 1900) / 100;
+   result += (year - 1600) / 400;
+   if ((year % 4) == 0 && ((year % 100) != 0 || (year % 400) == 0) && (t->tm_mon % 12) < 2)
+     result--;
+   result += t->tm_mday - 1;
+   result *= 24;
+   result += t->tm_hour;
+   result *= 60;
+   result += t->tm_min;
+   result *= 60;
+   result += t->tm_sec;
+   if (t->tm_isdst == 1)
+      result -= 3600;
+
+   return (result);
+}
+
+int64_t vtime::epochTime(void) const
+{
+  return (this->__epochTime + this->__globalTimeZoneOffset);
+}
+
+void    vtime::epochTime(int64_t epochTime)
+{
+  this->__epochTime = epochTime;
+}
+
+int32_t vtime::globalTimeZone(void) const
+{
+  return (this->__globalTimeZoneOffset);
+}
+
+void    vtime::globalTimeZone(int32_t timeZoneMinutesOffset)
+{
+  this->__globalTimeZoneOffset = timeZoneMinutesOffset;
+}
+
+int32_t vtime::year(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_year + 1900); 
+}
+
+int32_t  vtime::month(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_mon + 1); 
+}
+
+int32_t vtime::day(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_mday); 
+}
+
+int32_t vtime::hour(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_hour); 
+}
+
+int32_t vtime::minute(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_min); 
+}
+
+int32_t vtime::second(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_sec); 
+}
+
+int32_t vtime::dayOfWeek(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_wday); 
+}
+
+int32_t vtime::dayOfYear(void) const
+{
+  struct tm     date;
+  time_t time = this->epochTime();
+
+  return (gmtimex(&time, &date)->tm_yday); //CHECK NULL ! 
+}
+
+const std::string       vtime::toISOString(void) const
+{
+  struct tm     date;
+  char	        timeBuff[20];
+  time_t        time = this->epochTime();
+
+  memset(&date, 0, sizeof(struct tm));
+  if (gmtimex(&time, &date) != NULL)
+    if (strftime(timeBuff, 20, "%Y-%m-%dT%H:%M:%S", &date) == 19) //use TZ !!
+      return std::string(timeBuff);
+
+  throw std::string("vtime::toISOString() invalid time value");
+}
+
+const std::string       vtime::toString(void) const
+{
+  struct tm     date;
+  char	        timeBuff[20];
+  time_t        time = this->epochTime();
+
+  memset(&date, 0, sizeof(struct tm));
+  if (gmtimex(&time, &date) != NULL)
+    if (strftime(timeBuff, 20, "%Y-%m-%d %H:%M:%S", &date) == 19) //use TZ !!
+      return std::string(timeBuff);
+
+  throw std::string("vtime::toString() invalid time value");
+}
+
+/**
+ *  DosDateTime
+ */
+time_t const  DosDateTime::days_in_year[] = { 0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 0, 0, 0, };
+ 
+DosDateTime::DosDateTime(uint16_t time, uint16_t date) : vtime((int64_t)0) //, timeZoneset timezone conversion to convert to GMT
+{
+  int64_t day = std::max(1, date & 0x1f) - 1;
+  int64_t year  = date >> 9;
+  int64_t month = std::max(1, (date >> 5) & 0xf);
+  int64_t leap_day = (year + 3) / 4;
+
+  if (year > YEAR_2100)
+    leap_day--;
+  if (IS_LEAP_YEAR(year) && month > 2)
+    leap_day++;
+
+  register int second =  (time & 0x1f) << 1;
+  second += ((time >> 5) & 0x3f) * SECONDS_PER_MIN;
+  second += (time >> 11) * SECONDS_PER_HOUR;
+  second += (year * 365 + leap_day + days_in_year[month] + day + DAYS_DELTA) * SECONDS_PER_DAY;
+
+  this->epochTime(second);
+}
+
+/**
+ *  MS64DateTime
+ */
+MS64DateTime::MS64DateTime(uint64_t time) : vtime((int64_t)0) //uint64 or int64 //MSFileTime ? // Already in gmt
+{
+  if (time == 0)
+    return;
+  
+  time -= SECONDS_FROM_1601_TO_1970;
+  time /= 10000000;
+
+  this->epochTime(time);
+}
+
+/**
+ *  MS128DateTime
+ */
+MS128DateTime::MS128DateTime(char *_time) : vtime((int64_t)0) //vtimeMS128 //TIME_FIX //pass buffer directly ? better ?
 {
   if (_time == NULL)
     throw std::string("vtimeMS128, time is NULL");
-  
+
+  struct tm     dateTime;
   uint16_t* t = (uint16_t*)_time;
-  this->year = *t++;
-  this->month = *t++;
-  this->wday = *t++;
-  this->day = *t++;
 
-  this->hour = *t++;
-  this->minute = *t++;
-  this->second = *t++;
-  this->usecond = *t++;
+  dateTime.tm_year = *t++; //-1900 ?
+  dateTime.tm_mon = *t++;  // - 1?
+  dateTime.tm_wday = *t++;
+  dateTime.tm_mday = *t++;
+  dateTime.tm_hour = *t++;
+  dateTime.tm_min = *t++;
+  dateTime.tm_sec = *t++;
+  //dateTime->usecond = *t++;
+  dateTime.tm_yday = 0;
+  dateTime.tm_isdst = 0;
+
+  this->epochTime(this->__timegm(&dateTime));
 }
 
-
-HfsVtime::HfsVtime(uint32_t dtime) : vtime()
+/**
+ *  HFSDateTime
+ */
+HFSDateTime::HFSDateTime(uint32_t hfsTime) : vtime((int64_t)0)
 {
-  struct tm	date;
-  uint64_t	_dtime;
+  if (hfsTime <= SECONDS_FROM_1904_TO_1970)
+    return;
 
-  if (dtime > HFSP_1904_TO_1970)
-    {
-      _dtime = (uint64_t)dtime;
-      _dtime -= HFSP_1904_TO_1970;      
-#ifdef WIN32
-      if (_gmtime64_s(&date, (__time64_t*)&_dtime) == 0)
-#else
-	if (gmtime_r((time_t *)&_dtime, &date) != NULL)
-#endif
-	  {
-            this->year = date.tm_year + 1900;
-            this->month = date.tm_mon + 1;
-       	    this->day = date.tm_mday;
-	    this->hour = date.tm_hour;
-	    this->minute = date.tm_min;
-	    this->second = date.tm_sec;
-	    this->dst = date.tm_isdst;
-	    this->wday = date.tm_wday;
-	    this->yday = date.tm_yday;
-	    this->usecond = 0;
-	  }
-    }
+  register uint64_t     time;
+
+  time = (uint64_t)hfsTime;
+  time -= SECONDS_FROM_1904_TO_1970;
+
+  this->epochTime(time);
 }
 
-
-UnixVtime::UnixVtime(uint32_t dtime) : vtime()
-{
-  struct tm	date;
-  uint64_t	_dtime;
-
-  _dtime = (uint64_t)dtime;
-#ifdef WIN32
-  if (_gmtime64_s(&date, (__time64_t*)&_dtime) == 0)
-#else
-  if (gmtime_r((time_t *)&_dtime, &date) != NULL)
-#endif
-    {
-      this->year = date.tm_year + 1900;
-      this->month = date.tm_mon + 1;
-      this->day = date.tm_mday;
-      this->hour = date.tm_hour;
-      this->minute = date.tm_min;
-      this->second = date.tm_sec;
-      this->dst = date.tm_isdst;
-      this->wday = date.tm_wday;
-      this->yday = date.tm_yday;
-      this->usecond = 0;
-    }
 }

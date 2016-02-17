@@ -19,6 +19,9 @@
 
 #include "datatype.hpp"
 
+namespace DFF
+{
+
 class IOStat
 {
 public:
@@ -32,8 +35,9 @@ private:
   EXPORT	~IOStat() {}
   EXPORT IOStat(const IOStat&) {}
   EXPORT const IOStat&	operator=(const IOStat&);
-  dff::map<uint16_t, uint64_t >	__io;
-  dff::map<uint16_t, uint64_t >	__instances;
+  DFF::map<uint16_t, uint64_t >	__io;
+  DFF::map<uint16_t, uint64_t >	__instances;
 };
 
+}
 #endif

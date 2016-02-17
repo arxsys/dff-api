@@ -25,6 +25,9 @@
 #include <sys/types.h>
 #include "node.hpp"
 
+namespace DFF
+{
+
 class VLink : public Node
 {
 private :
@@ -81,4 +84,5 @@ public :
   EXPORT std::vector<uint32_t>		tagsId();
 };
 
+}
 #endif

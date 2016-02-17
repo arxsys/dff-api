@@ -15,7 +15,12 @@
  */
 
 #include "vfile.hpp"
+
 #include "iostat.hpp"
+#include "search.hpp"
+#include "node.hpp"
+#include "exceptions.hpp"
+#include "fso.hpp"
 
 #ifdef WITH_IOSTAT
 #define stat_instance() IOStat::getInstance().pushInstanceStats(this->__fsobj->uid())
@@ -24,6 +29,9 @@
 #define stat_instance()
 #define stat_read(readcount)
 #endif
+
+namespace DFF
+{
 
 VFile::VFile(int32_t fd, class fso *fsobj, class Node *node) : __fs(new FastSearch()), __fsobj(fsobj), __fd(fd), __node(node), __stop(false)
 {
@@ -890,4 +898,6 @@ std::vector<uint64_t>*	VFile::indexes(Search* sctx, uint64_t start, uint64_t end
   free(buffer);
   delete e;
   return (indexes);
+}
+
 }

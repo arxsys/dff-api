@@ -30,6 +30,9 @@
 #include <iomanip>
 #include <vector>
 
+namespace DFF
+{
+
 typedef struct 
 {
   enum
@@ -46,7 +49,7 @@ typedef struct
 typedef struct
 {
   uint32_t		type;
-  RCPtr< Variant >	value;
+  DFF::RCPtr< DFF::Variant >	value;
 }			event;
 
 class EventHandler
@@ -62,4 +65,5 @@ public:
   EXPORT bool				notify(event *e);
 };
 
+}
 #endif

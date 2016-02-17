@@ -16,11 +16,15 @@
 
 #include <sstream>
 
+#include "vtime.hpp"
 #include "vfile.hpp"
 #include "fso.hpp"
 #include "tags.hpp"
 #include "astnodes.hpp"
 #include "parser.hpp"
+#include "exceptions.hpp"
+
+using namespace DFF;
 
 static int __namedcreator__ = AttributeFactory::instance()->registerCreator(AttributeFactory::Named, NamedAttribute::create);
 static int __timestampcreator__ = AttributeFactory::instance()->registerCreator(AttributeFactory::Timestamp, TimestampAttribute::create);
@@ -81,7 +85,7 @@ void		InterpreterContext::setQueryFlags(QueryFlags::Level qflags)
   this->__qflags |= qflags;
 }
 
-void		InterpreterContext::setCurrentNode(Node* node)
+void		InterpreterContext::setCurrentNode(DFF::Node* node)
 {
   Attributes::iterator			it;
   Variant*				vptr;

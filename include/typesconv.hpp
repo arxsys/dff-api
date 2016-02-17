@@ -16,6 +16,9 @@
 
 #ifndef __TYPESCONV_HPP__
 
+namespace DFF
+{
+
 union s_ull
 {
   struct 
@@ -46,5 +49,6 @@ union s_ull
    (((x) & 0x0000ff00) <<  8) | (((x) & 0x000000ff) << 24))
 
 
+}
 
 #endif

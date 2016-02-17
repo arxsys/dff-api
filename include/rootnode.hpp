@@ -23,6 +23,9 @@
 #include "threading.hpp"
 #include "node.hpp"
 
+namespace DFF
+{
+
 class VFSRootNode : public Node
 {
 public:
@@ -42,4 +45,5 @@ public:
   EXPORT void           Event(event* e); 
 };
 
+}
 #endif

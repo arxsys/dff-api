@@ -49,6 +49,9 @@
 	#endif
 #endif
 
+namespace DFF
+{
+
 class FastSearch
 {
 public:
@@ -141,4 +144,5 @@ private:
   EXPORT int32_t			__acount(char* haystack, uint32_t hslen, int32_t maxcount);
 };
 
+}
 #endif

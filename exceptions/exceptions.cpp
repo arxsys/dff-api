@@ -19,11 +19,21 @@
 #include <iostream>
 #include <string>
 
+#ifndef WIN32
+  #include "client/linux/handler/exception_handler.h"
+#else
+  #include "client/windows/handler/exception_handler.h"
+#endif
+
+
 #define ReportExecutable "CrashReporter"
 
 #ifndef WIN32
 
 #include <unistd.h>
+
+namespace DFF
+{
 
 static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
                          void* context,
@@ -52,6 +62,9 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
 #include <windows.h>
 #include <stdio.h>
 #include <tchar.h>	
+
+namespace DFF
+{
 	
 bool	dumpCallback(const wchar_t* _dump_dir, const wchar_t* _minidump_id, void* context, EXCEPTION_POINTERS* exinfo, MDRawAssertionInfo* assertion, bool success)
 {
@@ -138,4 +151,6 @@ envError::envError(std::string emsg)
 vfsError::vfsError(std::string emsg)
 {
     error = emsg;
+}
+
 }

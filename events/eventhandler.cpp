@@ -16,6 +16,9 @@
 
 #include "eventhandler.hpp"
 
+namespace DFF
+{
+
 EventHandler::EventHandler()
 {
 }
@@ -55,4 +58,6 @@ bool    EventHandler::notify(event *e)
   for (it = this->watchers.begin(); it != this->watchers.end(); it++)
     (*it)->Event(e);
   return true;
+}
+
 }

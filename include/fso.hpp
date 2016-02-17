@@ -33,8 +33,9 @@
 #include <vector>
 
 #include "variant.hpp"
-#include "vfs.hpp"
-#include "node.hpp"
+
+namespace DFF
+{
 
 //typedef std::map<std::string, Variant_p > RunTimeArguments; 
 class Node;
@@ -78,4 +79,5 @@ public:
   EXPORT virtual bool                   unmap(Node* node);
 };
 
+}
 #endif

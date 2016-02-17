@@ -39,7 +39,8 @@
 #define BLOOM(mask, ch)     \
     ((mask &  (1UL << ((ch) & (BLOOM_WIDTH -1)))))
 
-
+namespace DFF
+{
 
 inline int32_t fastsearch(const unsigned char* s, int32_t n,
 			  const unsigned char* p, int32_t m,
@@ -493,4 +494,5 @@ inline int32_t cifastsearch(const unsigned char* s, int32_t n,
     return count;
 }
 
+}
 #endif

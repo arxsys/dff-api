@@ -21,6 +21,9 @@
 
 #include "node.hpp"
 
+namespace DFF
+{
+
 class TimeLineNode
 {
 public:
@@ -29,7 +32,7 @@ public:
   TimeLineNode(const TimeLineNode& copy);
   ~TimeLineNode();
  
-  static bool            compare(TimeLineNode* a, TimeLineNode* b);
+  static bool           compare(TimeLineNode* a, TimeLineNode* b);
 
   Node*                 node(void) const;
   vtime                 attribute(void) const;
@@ -44,7 +47,8 @@ class TimeLine
 {
 public:
   TimeLine(std::vector<Node*> nodes);
-  
+  ~TimeLine(); 
+ 
   std::vector<TimeLineNode*>   sort(void);
   void                         clear(void);
 private:
@@ -52,4 +56,5 @@ private:
   std::vector<TimeLineNode*>   __sorted;
 };
 
+}
 #endif

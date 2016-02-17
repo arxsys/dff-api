@@ -28,18 +28,20 @@
 #include "export.hpp"
 #include "exceptions.hpp"
 #include "filemapping.hpp"
-#include "vfile.hpp"
 
 #include <vector>
 #include <iostream>
 
-typedef struct
+namespace DFF
 {
-  Node*				node;
-  class Variant*		id;
-  uint64_t			offset;
-  VFile*			file;
-}				fdinfo;
+
+struct fdinfo
+{
+  class Node*		node;
+  class Variant*	id;
+  uint64_t		offset;
+  class VFile*	        file;
+};
 
 class FdManager
 {
@@ -55,4 +57,5 @@ public:
   EXPORT int32_t	push(fdinfo* fi);
 };
 
+}
 #endif

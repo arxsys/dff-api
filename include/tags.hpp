@@ -30,7 +30,10 @@
 #include "export.hpp"
 #include "rc.hpp"
 
-#define Tag_p   RCPtr< Tag >
+#define Tag_p   DFF::RCPtr< DFF::Tag >
+
+namespace DFF
+{
 
 class Node;
 
@@ -86,4 +89,5 @@ public:
   EXPORT bool				remove(std::string name);
 };
 
+}
 #endif
