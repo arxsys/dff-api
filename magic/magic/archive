@@ -499,7 +499,7 @@
 #0	string	JARCS JAR (ARJ Software, Inc.) archive data
 
 # ARJ archiver (jason@jarthur.Claremont.EDU)
-0	leshort		0xea60		achive/arj
+0	leshort		0xea60		archive/arj
 #!:mime	application/x-arj
 #>5	byte		x		\b, v%d,
 #>8	byte		&0x04		multi-volume,
