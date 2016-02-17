@@ -43,6 +43,7 @@
 #include "../include/device.hpp"
 #ifdef WIN32
 #include "../include/wmidev.hpp"
+#include "../include/logicaldrive.hpp"
 #elif HAVE_LIBUDEV_H
 #include "../include/udevice.hpp"
 #endif
@@ -51,6 +52,7 @@
 %include "../include/device.hpp"
 #ifdef WIN32
 %include "../include/wmidev.hpp"
+%include "../include/logicaldrive.hpp"
 #elif HAVE_LIBUDEV_H
 %include "../include/udevice.hpp"
 #endif
@@ -65,6 +67,21 @@ namespace DFF
 
 #ifdef WIN32
 %extend WMIDevices
+{
+%pythoncode
+%{
+def __iter__(self):
+  for dev in self.deviceList:
+        yield dev
+
+def __len__(self):
+  return len(self.deviceList)
+
+def __getitem__(self, c):
+  return self.deviceList[c]
+%}
+};
+%extend LogicalDrives
 {
 %pythoncode
 %{

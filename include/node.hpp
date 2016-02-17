@@ -162,7 +162,7 @@ public:
   EXPORT virtual AttributesHandlers&            attributesHandlers(void);
   EXPORT virtual bool				registerAttributes(AttributesHandler*);
 
-  EXPORT virtual Attributes			dataType(void); 
+  EXPORT virtual const std::string		dataType(void);
   EXPORT virtual Attributes			attributes(void);
   EXPORT virtual Attributes			attributesByType(uint8_t type);
   EXPORT virtual std::list< Variant_p >		attributesByName(std::string name, attributeNameType tname=RELATIVE_ATTR_NAME);

@@ -17,29 +17,29 @@ import os, sys
 if hasattr(sys, "frozen"):
    from dff.api.magic import magic
 else:
-    try:
-       import magic
-    except:
-       from dff.api.magic import magic
+#    try:
+#       import magic
+#    except:
+   from dff.api.magic import magic
 
 from dff.api.exceptions.libexceptions import vfsError 
 from dff.api.types.libtypes import Variant
 from dff.api.datatype.libdatatype import DataTypeHandler, DataTypeManager
 
-class MagicHandler(DataTypeHandler):
-  def __init__(self, name):
-     DataTypeHandler.__init__(self, name)
+class Magic(DataTypeHandler):
+  def __init__(self):
+     DataTypeHandler.__init__(self)
      self.__disown__()
      self.mgc_path = None
-     if os.name == "nt":
-       if hasattr(sys, "frozen"):
-          self.mgc_path = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "resources/magic.mgc"))
-       else:
-          self.mgc_path = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
+     if hasattr(sys, "frozen"):
+        self.mgc_path = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "resources/magic.mgc"))
+     else:
+        self.mgc_path = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
+
 
   def type(self, node):
     if node.size() > 0:
-      mime = magic.open(self.magic_type())
+      mime = magic.open(magic.MAGIC_NONE)
       if self.mgc_path:
         mime.load(self.mgc_path)
       else:
@@ -49,7 +49,8 @@ class MagicHandler(DataTypeHandler):
         f = node.open()
       except :
 	return self.empty(node)
-      try:	
+      try:
+        #cannot read less than 0x2000 because of vshadow signature starting @0x1e00
         buff = f.read(0x2000)
         filemime = mime.buffer(buff)
       finally:
@@ -59,34 +60,9 @@ class MagicHandler(DataTypeHandler):
         return filemime
       else:
 	return "data"
+    elif node.hasChildren():
+       return "directory"
     else:
-	return self.empty(node)
+       return "empty"
 
-class Magic(MagicHandler):
-    def __init__(self):
-       MagicHandler.__init__(self, "magic")
-
-    def magic_type(self):
-       return magic.MAGIC_CONTINUE
-
-    def empty(self, node):
-       if node.hasChildren():
-	 return "directory"
-       else:
-	 return "empty"
-
-class MagicMime(MagicHandler):
-   def __init__(self):
-      MagicHandler.__init__(self, "magic mime")
-      
-   def magic_type(self):
-      return magic.MAGIC_MIME
-
-   def empty(self, node):
-      if node.hasChildren():
-        return "application/x-directory; charset=binary"
-      else:
-        return "application/x-empty; charset=binary"
-
-magicMimeHandler = MagicMime()
 magicHandler = Magic()

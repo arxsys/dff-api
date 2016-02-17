@@ -43,47 +43,44 @@ typedef std::map<std::string, DFF::RCPtr< class DFF::Variant > > Attributes;
 class DataTypeHandler
 {
 public:
-  EXPORT			DataTypeHandler(std::string);
+  EXPORT			DataTypeHandler();
   EXPORT  virtual 		~DataTypeHandler();
   EXPORT  virtual std::string	type(Node* ) = 0;
-  std::string			name;
 }; 
 
 class Type
 {
 public:
-  EXPORT                           Type(DataTypeHandler* handler, const std::string name);
-  EXPORT                           ~Type();
-  EXPORT const std::string               handlerName(void) const;
-  EXPORT const std::string               name(void) const;
-  EXPORT const std::list<std::string>    compatibleModules(void) const; 
+  EXPORT				Type(const std::string name);
+  EXPORT				~Type();
+  EXPORT const std::string		name(void) const;
+  EXPORT const std::list<std::string>	compatibleModules(void) const; 
 private:
-  DataTypeHandler*                __handler;
-  const std::string               __name;
-  std::list<std::string>          __compatibleModules;
-  void		                  __compatibleModulesByType(const std::map<std::string, Constant*>& cmime, const std::string dtypes, std::list<std::string>& result);
+  const std::string			__name;
+  std::list<std::string>		__compatibleModules;
+  void					__compatibleModulesByType(const std::map<std::string, Constant*>& cmime, const std::string dtypes, std::list<std::string>& result);
 };
 
-class Types
-{
-public:
-  EXPORT        Types();
-  EXPORT        ~Types();
-  EXPORT const Type*   find(std::string typeName) const;
-  EXPORT const Type*   insert(DataTypeHandler*, std::string typeName);
-private:
-  std::map<const std::string, const Type* >    __types;
-};
+// class Types
+// {
+// public:
+//   EXPORT        Types();
+//   EXPORT        ~Types();
+//   EXPORT const Type*   find(std::string typeName) const;
+//   EXPORT const Type*   insert(std::string typeName);
+// private:
+//   std::map<const std::string, const Type* >    __types;
+// };
 
-class NodesTypes
-{
-public:
-  EXPORT NodesTypes();
-  EXPORT const std::vector<const Type* >               find(Node* node) const; 
-  EXPORT void                                          insert(Node* node, const Type* type);
-private:
-  std::map<Node*, std::vector<const Type* > >   __nodesTypes; //XXX dff:map //pour locker !
-};
+// class NodesTypes
+// {
+// public:
+//   EXPORT NodesTypes();
+//   EXPORT const std::vector<const Type* >               find(Node* node) const; 
+//   EXPORT void                                          insert(Node* node, const Type* type);
+// private:
+//   std::map<Node*, std::vector<const Type* > >   __nodesTypes; //XXX dff:map //pour locker !
+// };
 
 class DataTypeManager 
 {
@@ -93,15 +90,15 @@ private:
   EXPORT					~DataTypeManager();
   DataTypeManager&				operator=(DataTypeManager& copy);
                                                 mutex_def(__mutex);
-  EXPORT const std::vector<const Type*>         __type(Node* node);
-  std::list<DataTypeHandler*>			__handlers;
-  NodesTypes                                    __nodesTypes; //map of node , vector<type>
-  Types                                         __types;  //map of <string, Type*> 
+  //EXPORT const Type*				__type(Node* node);
+  DataTypeHandler*				__handler;
+  std::map<const std::string, const Type* >	__types;
+  std::map<Node*, const Type* >			__nodesType; 
   void		                                __compatibleModulesByExtension(const std::map<std::string, Constant*>& cextensions, std::string& ext, std::list<std::string>& result);
 public:
   EXPORT static DataTypeManager* 		Get();
   EXPORT bool					registerHandler(DataTypeHandler* dataTypeHandler);
-  EXPORT Attributes				type(Node* node);
+  EXPORT const std::string			type(Node* node);
   EXPORT std::list<std::string>                 compatibleModules(Node* node);
 };
 

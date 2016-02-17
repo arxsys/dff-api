@@ -318,11 +318,10 @@ std::string     Node::icon(void)
   }
 }
 
-Attributes	Node::dataType(void) 
+const std::string	Node::dataType(void) 
 {
   class DataTypeManager*	typeDB = DataTypeManager::Get();
-  Attributes types = typeDB->type(this);
-  return (types);
+  return typeDB->type(this);
 }
 
 Attributes	Node::_attributes(void)
@@ -420,15 +419,13 @@ Attributes	Node::dynamicAttributes(std::string name)
 Attributes	                Node::attributes()
 {
   Attributes			attr;
-  Attributes			dtypes;
   Attributes			nodeAttributes;
   Variant*			vptr;
   std::set<AttributesHandler*>::iterator handler;
   Attributes::iterator it;
   
 
-  dtypes = this->dataType();
-  if (!dtypes.empty() && ((vptr = new Variant(dtypes)) != NULL))
+  if ((vptr = new Variant(this->dataType())) != NULL)
     attr["type"] = Variant_p(vptr);
   
   if (this->__fsobj != NULL)

@@ -21,26 +21,8 @@
 #include <string>
 #include "export.hpp"
 
-namespace google_breakpad
-{
-  class ExceptionHandler;
-}
-
 namespace DFF
 {
-
-class CrashHandler
-{
-private:
-  std::string				__version;
-  google_breakpad::ExceptionHandler	*__eh;
-public:
-  EXPORT CrashHandler();
-  EXPORT ~CrashHandler();
-  EXPORT void	setVersion(std::string);
-  EXPORT void	setHandler();
-  EXPORT void	unsetHandler();
-};
 
 class envError
 {

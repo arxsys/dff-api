@@ -30,9 +30,11 @@ if (UNIX)
     EXTRA_FILES __init__.py devices.py dbushaldev.py
     )
 else (UNIX)
+  add_definitions(-DUNICODE -D_UNICODE)
   dff_cpp_api(devices
     SWIG_FILE libdevices.i
-    CPP_FILES device.cpp wmidev.cpp
+    CPP_FILES device.cpp logicaldrive.cpp wmidev.cpp
     EXTRA_FILES __init__.py devices.py
-    )  
+    #LINK_LIBRARIES Shlwapi
+    )
 endif(UNIX)

@@ -184,7 +184,7 @@ private:
                                 AttributeCache(const AttributeCache&);
                                 ~AttributeCache();
 public:
-  EXPORT static Cache&          instance();
+  EXPORT static Cache<Attributes>& instance();
 };
 
 class DynamicAttributesCache : private Cache < Attributes > 
@@ -194,7 +194,7 @@ private:
                                 DynamicAttributesCache(const DynamicAttributesCache&);
                                 ~DynamicAttributesCache();
 public:
-  EXPORT static Cache&          instance();
+  EXPORT static Cache<Attributes>&          instance();
 };
 
 class FileMappingCache : private Cache < FileMapping* >

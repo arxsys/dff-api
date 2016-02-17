@@ -113,7 +113,7 @@ WMIDevices::WMIDevices(void)
 
   this->pLoc = NULL; 
   this->pSvc = NULL;
- 
+
   hres =  CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); 
   if (FAILED(hres))
   {
@@ -168,6 +168,7 @@ WMIDevices::WMIDevices(void)
   }
   pEnumerator->Release();
 }
+
 
 WMIDevices::~WMIDevices()
 {
