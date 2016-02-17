@@ -103,7 +103,7 @@ EXPORT const char *magic_getpath(const char *, int);
 /* const char *magic_descriptor(magic_t, int); */
 EXPORT const char *magic_buffer(magic_t, const void *, size_t);
 
-const char *magic_error(magic_t);
+EXPORT const char *magic_error(magic_t);
 EXPORT int magic_setflags(magic_t, int);
  
 EXPORT int magic_version(void);
