@@ -16,7 +16,7 @@
 
 #include "pyrun.swg"
 
-%module(package="dff.api.crashreporter", directors="1") libcrashreporter
+%module(package="dff.api.crashreporter", directors="1") libcrashhandler
 
 %{
 #include "export.hpp"

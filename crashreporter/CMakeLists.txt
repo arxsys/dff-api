@@ -26,7 +26,7 @@ elseif (UNIX)
   set(libbreakpad "${CMAKE_BINARY_DIR}/dff/api/crashreporter/breakpad/libbreakpad.a")
 endif(WIN32)
 
-dff_cpp_api(crashreporter
+dff_cpp_api(crashhandler
   CPP_FILES handler.cpp
   SWIG_FILE libcrashreporter.i
   EXTRA_FILES __init__.py
@@ -34,4 +34,4 @@ dff_cpp_api(crashreporter
   INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dff/api/crashreporter/breakpad"
   )
 
-add_dependencies(crashreporter breakpad)
+add_dependencies(crashhandler breakpad)

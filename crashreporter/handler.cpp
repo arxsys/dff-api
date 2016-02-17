@@ -47,7 +47,7 @@ static bool dumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
   else if (pid == 0)
     {
       cargs = (char**)context;
-      execl("dff/api/exceptions/reporter/CrashReporter", "CrashReporter", "-p", descriptor.path(), "-v", cargs[0], "-s", cargs[1], NULL);
+      execl("dff/api/crashreporter/reporter/CrashReporter", "CrashReporter", "-p", descriptor.path(), "-v", cargs[0], "-s", cargs[1], NULL);
       exit(1);
     }
   return succeeded;
@@ -63,21 +63,18 @@ bool	dumpCallback(const wchar_t* _dump_dir, const wchar_t* _minidump_id, void* c
 {
   STARTUPINFO		si;
   PROCESS_INFORMATION	pi;
-  char**		cargs;
   
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
   ZeroMemory(&pi, sizeof(pi));
-  cargs = (char**)context;
-  std::wstring args(L"CrashReporer -p ");
+  std::string* cargs = (std::string*)context;
+  std::wstring args(L"CrashReporter -p ");
   args += std::wstring(_dump_dir);
   args += std::wstring(_minidump_id);
   args += std::wstring(L".dmp");
-  args += std::wstring("-v ");
-  args += std::wstring(cargs[0], strlen(cargs[0]));
-  args += std::wstring("-s ");
-  args += std::wstring(cargs[1], strlen(cargs[1]));
-  if (!CreateProcessW(L"dff\\api\\exceptions\\reporter\\CrashReporter.exe", 
+ args += std::wstring(cargs->begin(), cargs->end());
+ std::wcout << args << std::endl;
+ if (!CreateProcessW(L"dff\\api\\crashreporter\\reporter\\CrashReporter.exe",
 		      (LPWSTR)args.c_str(),
 		      NULL, NULL, FALSE, 0, NULL, NULL, (LPSTARTUPINFOW)&si, &pi))
     {
@@ -114,14 +111,12 @@ void	CrashHandler::setVersion(std::string version)
   this->__version = version;
 }
 
-
+#ifndef WIN32
 void	CrashHandler::setHandler()
 {
-  std::string	args;
-  char**	cargs;
+    char**	cargs;
 
   cargs = NULL;
-  args = " -v " + this->__version + " -s ";
   if ((cargs = (char**)calloc(2, sizeof(char*))) != NULL)
     {
       if ((cargs[0] = (char*)calloc(this->__version.size()+1, sizeof(char))) != NULL)
@@ -140,27 +135,36 @@ void	CrashHandler::setHandler()
     }
   else
     return; //XXX No handler set
-  #ifndef WIN32
-	google_breakpad::MinidumpDescriptor descriptor("/tmp");
-	this->__eh = new google_breakpad::ExceptionHandler(descriptor, 
-							   NULL,//DmpFilter, 
-							   dumpCallback,
-							   (void*)cargs, 
-							   true,
-							   -1);
-  #else
-	TCHAR tempPath[1024];
-	std::wstring wpath;
-	
-	GetTempPath(1024, tempPath);
-	wpath = std::wstring(tempPath);
-	this->__eh = new google_breakpad::ExceptionHandler(wpath,
-							   NULL,//DmpFilter, 
-							   dumpCallback,//DmpCallback 
-  							   (void*)cargs, 
-							   true);
-  #endif
+
+  google_breakpad::MinidumpDescriptor descriptor("/tmp");
+  this->__eh = new google_breakpad::ExceptionHandler(descriptor,
+						     NULL,//DmpFilter,
+						     dumpCallback,
+						     (void*)cargs,
+						     true,
+						     -1);
 }
+
+#else 
+void	CrashHandler::setHandler()
+{
+  TCHAR tempPath[1024];
+  std::wstring wpath;
+  std::string	*args = new std::string(" -v ");
+  args->append(this->__version);
+  if (this->__silent)
+    args->append(" -s 1 ");
+  else
+    args->append(" -s 0 ");
+  GetTempPath(1024, tempPath);
+  wpath = std::wstring(tempPath);
+  this->__eh = new google_breakpad::ExceptionHandler(wpath,
+						     NULL,//DmpFilter,
+						     dumpCallback,//DmpCallback
+						     (void*)args,
+						     true);
+}
+#endif
 
 
 void	CrashHandler::unsetHandler()
