@@ -149,7 +149,7 @@ const std::string	DataTypeManager::type(Node* node)
 	      result = std::string("error");
 	    }
 	  mutex_lock(&this->__mutex);
-	  std::map<std::string, const Type* >::const_iterator types = this->__types.find(result);
+	  std::map<const std::string, const Type* >::const_iterator types = this->__types.find(result);
 	  if (types == this->__types.end())
 	    {
 	      type = new Type(result);
@@ -173,7 +173,7 @@ std::list<std::string>		DataTypeManager::compatibleModules(Node* node)
   const Type* type = NULL;
 
   mutex_lock(&this->__mutex);
-  std::map<std::string, const Type* >::const_iterator types = this->__types.find(dtype);
+  std::map<const std::string, const Type* >::const_iterator types = this->__types.find(dtype);
   mutex_unlock(&this->__mutex);
   if (types != this->__types.end())
     type = types->second;
