@@ -7,12 +7,6 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
-#ifndef WIN32
-  #include <unistd.h>
-  #include <dirent.h>
-#endif
-
 #include "file.h"
 #include "magic.h"
 
@@ -110,18 +104,28 @@ void	list(char* fn)
 }
 
 
-void	compile(char* fn)
+bool	compile(char* fn)
 {
   magic_t	ms;
+  bool		compiled;
 
-  std::cout << "Compiling magic files in " << fn << std::endl;
   ms = NULL;
+  compiled = false;
+  std::cout << "Compiling magic files from " << fn;
   if ((ms = magic_open(MAGIC_NONE)) != NULL)
     {
-      magic_compile(ms, fn);
+      if (magic_compile(ms, fn) == 0)
+	{
+	  std::cout << " [SUCCEED]" << std::endl;
+	  compiled = true;
+	}
+      else
+	std::cout << " [FAILED]";
       magic_close(ms);
-    } 
-  std::cout << "magic file compiled" << std::endl;
+    }
+  else
+    std::cout << " [FAILED]";
+  return compiled;
 }
 
 
@@ -132,33 +136,26 @@ int main(int argc, char* argv[])
   std::string		abspath;
   char*			result;
 
-
-  compile("./magic");
-  std::cout << std::endl;
-  list("./magic.mgc");
-  std::cout << std::endl;
-#ifndef WIN32
-  struct dirent*	entry;
-  DIR* dirp = opendir("magic");
-  while (((entry = readdir(dirp)) != NULL))
+  if (compile("./magic"))
     {
-      abspath = std::string("libcmagic.so") + std::string(entry->d_name);
+      std::cout << std::endl;
+      list("./magic.mgc");
+      std::cout << std::endl;
+#ifndef WIN32
+      abspath = std::string("libcmagic.so");
+#else
+      abspath = std::string("cmagic.dll");
+#endif
+      std::cout << "Testing compiled magic file on " << abspath;
       if ((rbytes = allocAndRead(abspath.c_str(), &buffer, 2048)) > 0)
 	{
-	  std::cout << abspath << "\n\t";
+	  std::cout << "\n\t";
 	  if ((result = getmagic(buffer, rbytes)) != NULL)
-	    std::cout << result << std::endl;
+	    std::cout << "type: " << result << std::endl;
 	  else
 	    std::cout << "FAILED" << std::endl;
 	}
     }
-#else  
-  abspath = std::string("cmagic.dll");
-  if ((rbytes = allocAndRead(abspath.c_str(), &buffer, 2048)) > 0)
-    {
-      std::cout << abspath << "\n\t";
-      if ((result = getmagic(buffer, rbytes)) != NULL)
-	std::cout << result << std::endl;
-    }
-#endif
+  else
+    std::cout << "File types won't be available at runtime!" << std::endl;
 }
