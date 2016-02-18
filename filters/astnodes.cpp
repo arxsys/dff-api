@@ -27,8 +27,6 @@ static int __timestampcreator__ = AttributeFactory::instance()->registerCreator(
 
 KEYWORD(time, time, AttributeFactory::Timestamp, QueryFlags::Advanced)
 KEYWORD(year, year, AttributeFactory::Timestamp, QueryFlags::Advanced)
-KEYWORD(magic, type.magic, AttributeFactory::Named, QueryFlags::DataType)
-KEYWORD(mime, type.magic mime, AttributeFactory::Named, QueryFlags::DataType)
 KEYWORD(type, type, AttributeFactory::Named, QueryFlags::DataType)
 KEYWORD(size, filesize, AttributeFactory::Named, QueryFlags::Primitive)
 KEYWORD(deleted, deleted, AttributeFactory::Named, QueryFlags::Primitive)
@@ -41,7 +39,7 @@ KEYWORD(tags, tags, AttributeFactory::Named, QueryFlags::Tags)
 KEYWORD(tagged, tagged, AttributeFactory::Named, QueryFlags::Tags)
 KEYWORD(to, pff.Transport headers.To, AttributeFactory::Named, QueryFlags::Advanced)
 KEYWORD(from, pff.Transport headers.From, AttributeFactory::Named, QueryFlags::Advanced)
-KEYWORD(module, module, AttributeFactory::Named, QueryFlags::Primitive)
+KEYWORD(module, module, AttributeFactory::Named, QueryFlags::Advanced)
 
 InterpreterContext::InterpreterContext()
 {
@@ -109,17 +107,15 @@ void		InterpreterContext::setCurrentNode(Node* node)
 	  this->__attributes["deleted"] = new Variant(node->isDeleted());
 	  this->__attributes["folder"] = new Variant(node->isDir());
 	  this->__attributes["file"] = new Variant(node->isFile());
-	  if (node->fsobj() != NULL)
-	    this->__attributes["module"] = new Variant(node->fsobj()->name);
-	  else
-	    this->__attributes["module"] = new Variant(std::string("unknown"));
 	}
       if ((this->__qflags & QueryFlags::DataType) == QueryFlags::DataType)
 	this->__attributes["type"] = new Variant(this->__cnode->dataType());
       if ((this->__qflags & QueryFlags::Advanced) == QueryFlags::Advanced)
 	{
+	  VLIST modules;
 	  if ((fsobj = this->__cnode->fsobj()) != NULL)
 	    {
+	      modules.push_back(new Variant(fsobj->name));
 	      try
 	      {
 	        attr = this->__cnode->fsoAttributes();
@@ -135,15 +131,20 @@ void		InterpreterContext::setCurrentNode(Node* node)
 		}
 	    }
 	  try
-	  {
-	    attr = this->__cnode->dynamicAttributes();
-	  }
+	    {
+	      attr = this->__cnode->dynamicAttributes();
+	      if (!attr.empty())
+		{
+		  this->__attributes.insert(attr.begin(), attr.end());
+		  for (it = attr.begin(); it != attr.end(); it++)
+		    modules.push_back(new Variant(it->first));
+		}
+	    }
 	  catch (...)
-	  {
-	    std::cout << "astnodes InterpreterContext::setCurrentNode can't get node->dynamicAttributes()" << std::endl;
-	  }
-	  if (!attr.empty())
-	    this->__attributes.insert(attr.begin(), attr.end());
+	    {
+	      std::cout << "astnodes InterpreterContext::setCurrentNode can't get node->dynamicAttributes()" << std::endl;
+	    }
+	  this->__attributes["module"] = new Variant(modules);
 	}
       if ((this->__qflags & QueryFlags::Tags) == QueryFlags::Tags)
 	{
