@@ -14,7 +14,15 @@
  *  Frederic B. <fba@digital-forensic.org>
  */
 
+#include <ios>
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <stdlib.h>
 #include "dictionnary.hpp"
+#include "search.hpp"
+#include "node.hpp"
 
 using namespace DFF;
 

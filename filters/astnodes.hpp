@@ -19,11 +19,12 @@
 
 #include <iostream>
 #include <vector>
-#include "node.hpp"
 #include "search.hpp"
 #include "eventhandler.hpp"
 #include "factory.hpp"
 #include "dictionnary.hpp"
+#include "node.hpp"
+
 
 using namespace DFF;
 // forward declaration

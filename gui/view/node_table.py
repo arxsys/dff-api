@@ -30,7 +30,6 @@ class NodeTableView(QTableView):
         self.factor = 1
         self.configure()
 
-
     def configure(self):
         self.verticalHeader().setDefaultSectionSize(DEFAULT_SIZE * self.factor)
         self.setIconSize(QSize(DEFAULT_SIZE * self.factor, DEFAULT_SIZE * self.factor))

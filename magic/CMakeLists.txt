@@ -115,10 +115,10 @@ else (WIN32)
   set(magic_library libcmagic.so)
 endif (WIN32)
 
-add_custom_command(TARGET magict POST_BUILD COMMAND magict WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/magic)
+#add_custom_command(TARGET magict POST_BUILD COMMAND magict WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/magic)
 
 #add_custom_target(CopyMagicFiles ALL COMMAND )
-add_custom_target(CompileMagic ALL COMMAND magict DEPENDS CopyMagicFiles)
+#add_custom_target(CompileMagic ALL COMMAND magict DEPENDS CopyMagicFiles)
 
 file(RELATIVE_PATH rpath ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 file(APPEND "${CMAKE_BINARY_DIR}/installed_files.log" "${rpath}/magic.mgc\n")

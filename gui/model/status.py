@@ -94,18 +94,48 @@ class ViewStatusModel(AbstractStatusModel):
     self.resetStatus()
     _list = self._model.list()
     recursive = self._model.recursive()
-    if len(_list):
+    if len(_list): 
       for i in xrange(0, len(_list)):
         for status in self._status.itervalues():
           status.setRecursive(recursive)
           status.process(_list[i])
     self.notify()
 
+class TimeLineNodeViewStatusModel(ViewStatusModel):
+  def __init__(self, model, selection):
+    AbstractStatusModel.__init__(self)
+    self._model = model
+    self._order = ["Nodes", "Files", "Folders", "Selected"]
+    self._status = {"Nodes": NodesCounterModel(),
+                    "Files": FilesCounterModel(),
+                    "Folders": FoldersCounterModel(),
+                    "Selected": SelectedCounterModel(selection)}
+    self.connect(model, SIGNAL("changeList"), self.processList)
+    self.connect(model, SIGNAL("appendList"), self.process)
+    self.connect(model, SIGNAL("clearList"), self.clearList)
+
+  def clearList(self):
+    for status in self._status.itervalues():
+      status.setRecursive(False)
+      status.reset()
+    self.notify()
+
+  def processList(self):
+    self.resetStatus()
+    _list = self._model.list()
+    recursive = self._model.recursive()
+    if len(_list): 
+      for i in xrange(0, len(_list)):
+        for status in self._status.itervalues():
+          status.setRecursive(recursive)
+          status.process(_list[i].node())
+    self.notify()
+
 class NodeStatusModel(AbstractStatusModel):
   def __init__(self, emiter):
     AbstractStatusModel.__init__(self)
-    self._order = ["Mime"]
-    self._status = {"Mime": AttributeStatusModel("Mime", "type.magic mime")}
+    self._order = ["Type"]
+    self._status = {"Type": AttributeStatusModel("Type", "type")}
     #self._order = ["Mime", "First Cluster"]
     #self._status = {"Mime": AttributeStatusModel("Mime", "type.magic mime"),
     #                "First Cluster": AttributeStatusModel("First Cluster", "Fat File System.first cluster")}

@@ -17,6 +17,13 @@
 #ifndef __DICTIONNARY_HPP__
 #define __DICTIONNARY_HPP__
 
+#ifndef WIN32
+  #include <stdint.h>
+#elif _MSC_VER >= 1600
+  #include <stdint.h>
+#else
+  #include "wstdint.h"
+#endif
 // forward declaration
 #include <ios>
 #include <iostream>
@@ -25,10 +32,14 @@
 #include <vector>
 #include <stdlib.h>
 
-#include "node.hpp"
-#include "search.hpp"
 #include "export.hpp"
 #include "threading.hpp"
+
+namespace DFF
+{
+  class Node;
+  class Search;
+};
 
 using namespace DFF;
 

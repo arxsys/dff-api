@@ -87,8 +87,9 @@ public:
 
   EXPORT int64_t                epochTime(void) const;
   EXPORT void                   epochTime(int64_t);
-  EXPORT int32_t                globalTimeZone(void) const;
-  EXPORT void                   globalTimeZone(int32_t timeZone);
+
+  EXPORT int32_t                globalTimeZone(void) const; //static ICU  
+  EXPORT void                   globalTimeZone(int32_t timeZone); //static ICU 
 
   EXPORT const std::string      toString(void) const;
   EXPORT const std::string      toISOString(void) const;

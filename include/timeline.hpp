@@ -19,15 +19,13 @@
 
 #include <vector>
 
-#include "node.hpp"
-
 namespace DFF
 {
+class Node;
 
 class TimeLineNode
 {
 public:
-  TimeLineNode(void);
   TimeLineNode(Node* node, const std::string& attributeName, const vtime& time);
   TimeLineNode(const TimeLineNode& copy);
   ~TimeLineNode();
@@ -48,10 +46,16 @@ class TimeLine
 public:
   TimeLine(std::vector<Node*> nodes);
   ~TimeLine(); 
- 
+
+  void                         stop(void); 
   std::vector<TimeLineNode*>   sort(void);
   void                         clear(void);
+  uint64_t                     processed(void) const;
+  uint64_t                     toProcess(void) const;
 private:
+  bool                         __stop;
+  uint64_t                     __processed;
+  uint64_t                     __toProcess;
   std::vector<Node*>           __nodes;
   std::vector<TimeLineNode*>   __sorted;
 };

@@ -22,7 +22,7 @@ from dff.api.gui.view.node_list import NodeListView, TimeLineNodeListView
 from dff.api.gui.view.node_table import NodeTableView, TimeLineNodeTableView
 from dff.api.gui.model.node_list import NodeListModel, TimeLineNodeListModel
 
-from dff.api.gui.model.status import ViewStatusModel, NodeStatusModel
+from dff.api.gui.model.status import ViewStatusModel, NodeStatusModel, TimeLineNodeViewStatusModel
 from dff.api.gui.widget.status import StatusWidget, StatusBarWidget
 from dff.api.gui.widget.linklabel import LinkLabel
 
@@ -46,13 +46,11 @@ class NodeWidget(QWidget):
         self.__statuswidget = StatusBarWidget()
         QApplication.instance().mainWindow.status.addWidget(self.__statuswidget)
         self.__viewstatus = StatusWidget()
-        self.__viewstatus.setStatusModel(ViewStatusModel(self.model, selectionManager))
+        self.viewStatusSetStatusModel(selectionManager)
         self.__linklabel = LinkLabel()
         self.__nodestatus = StatusWidget()
         self.__nodestatus.setStatusModel(NodeStatusModel(self))
-        self.__statuswidget.addStatusWidget(self.__viewstatus, 20)
-        self.__statuswidget.addStatusWidget(self.__linklabel, 60)
-        self.__statuswidget.addStatusWidget(self.__nodestatus, 20)
+        self.setStatusWidget()
         self.setListView()
         self.setTableView()
         self.tableview.setModel(self.model)
@@ -68,6 +66,26 @@ class NodeWidget(QWidget):
         self.createConnections()
         self.menuManager(selectionManager)
         self.connect(self.model, SIGNAL("dataChanged"), self.dataChanged)
+
+    def setStatusWidget(self):
+      self.__statuswidget.addStatusWidget(self.__viewstatus, 20)
+      self.__statuswidget.addStatusWidget(self.__linklabel, 60)
+      self.__statuswidget.addStatusWidget(self.__nodestatus, 20)
+
+    def linkLabel(self):
+       return self.__linklabel
+
+    def statusWidget(self):
+       return self.__statuswidget
+
+    def nodeStatus(self):
+       return self.__nodestatus
+ 
+    def viewStatusSetStatusModel(self, selectionmanager):
+        self.__viewstatus.setStatusModel(ViewStatusModel(self.model, selectionmanager))
+
+    def viewStatus(self):
+       return self.__viewstatus
 
     def setListView(self):
         self.listview = NodeListView(self)
@@ -183,6 +201,66 @@ class NodeWidget(QWidget):
     def openAsNewTab(self, rootnode):
         QApplication.instance().mainWindow.addNodeBrowser(rootpath=rootnode)
 
+class TimeLineNodeWidget(NodeWidget):
+  def __init__(self, selectionManager, tabmode=False, filtermode=False):
+    NodeWidget.__init__(self, selectionManager, tabmode, filtermode)
+
+  def viewStatusSetStatusModel(self, selectionManager):
+    self.viewStatus().setStatusModel(TimeLineNodeViewStatusModel(self.model, selectionManager))
+
+  def setModel(self, selectionManager):
+    self.model = TimeLineNodeListModel(selectionManager)
+
+  def setListView(self):
+     self.listview = TimeLineNodeListView(self)
+
+  def setTableView(self):
+     self.tableview = TimeLineNodeTableView(self)
+
+  def updateStatusShowProgressBar(self):
+     self.viewStatus().hide()
+     self.linkLabel().hide()    
+     self.nodeStatus().hide()
+     self.progressBar.show()
+     #izePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+     #sizePolicy.setHorizontalStretch(1)
+     #sizePolicy.setVerticalStretch(1)
+     #self.status.setSizePolicy(sizePolicy)
+
+  def updateStatusShowWidgets(self):
+     self.progressBar.hide()
+     self.viewStatus().show()
+     self.linkLabel().show()
+     self.nodeStatus().show()
+     self.statusWidget().setVisible(True)
+     QApplication.instance().mainWindow.status.setCurrentWidget(self.statusWidget())
+
+  def updateStatusProgressBar(self, processed, toProcess):
+     self.progressBar.setRange(0, toProcess)
+     self.progressBar.setValue(processed)
+     self.statusWidget().setVisible(True)
+     QApplication.instance().mainWindow.status.setCurrentWidget(self.statusWidget())
+
+  def updateStatus(self):
+     visible = True
+     timelineNode = self.model.currentNode()
+     if timelineNode is not None:
+       node = timelineNode.node()
+       if node is not None:
+         self.linkLabel().setLink(node)
+         self.emit(SIGNAL("currentNode"), node)
+     else:
+       visible = False
+     self.statusWidget().setVisible(visible)
+     QApplication.instance().mainWindow.status.setCurrentWidget(self.statusWidget())
+
+  def setStatusWidget(self):
+     self.statusWidget().addStatusWidget(self.viewStatus(), 20)
+     self.statusWidget().addStatusWidget(self.linkLabel(), 60)
+     self.statusWidget().addStatusWidget(self.nodeStatus(), 20)
+     self.progressBar = QProgressBar()
+     self.progressBar.hide()
+     self.statusWidget().addStatusWidget(self.progressBar, 100)
 
 class ScrollBar(QScrollBar):
     def __init__(self, nodeview):
@@ -239,15 +317,3 @@ class ScrollBar(QScrollBar):
     def moveTo(self, value):
         self.model.seek(value)
 
-class TimeLineNodeWidget(NodeWidget):
-  def __init__(self, selectionManager, tabmode=False, filtermode=False):
-    NodeWidget.__init__(self, selectionManager, tabmode, filtermode)
-
-  def setModel(self, selectionManager):
-    self.model = TimeLineNodeListModel(selectionManager)
-
-  def setListView(self):
-     self.listview = TimeLineNodeListView(self)
-
-  def setTableView(self):
-     self.tableview = TimeLineNodeTableView(self)
