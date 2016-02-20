@@ -53,6 +53,7 @@ public:
   uint64_t                            processed(void) const;
   uint64_t                            toProcess(void) const;
 private:
+  void                                __clear(void);
   bool                                __stop;
   uint64_t                            __processed;
   uint64_t                            __toProcess;

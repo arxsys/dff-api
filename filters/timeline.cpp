@@ -21,8 +21,6 @@
 #include "variant.hpp"
 #include "node.hpp"
 
-#include <iostream>
-
 namespace DFF
 {
 
@@ -70,10 +68,7 @@ TimeLine::TimeLine() : __stop(0), __processed(0), __toProcess(0)
 
 TimeLine::~TimeLine()
 {
-  std::vector<TimeLineNode*>::iterator timeLineNode = this->__sorted.begin();
-  for (; timeLineNode != this->__sorted.end(); ++timeLineNode)
-    delete (*timeLineNode);
-  this->__sorted.clear();
+  this->__clear();
 }
 
 void                          TimeLine::stop(void)
@@ -100,7 +95,7 @@ const std::vector<TimeLineNode*>&   TimeLine::sort(std::vector<Node*> nodes)
   {
     if (this->__stop)
     {
-      this->__sorted.clear();
+      this->__clear();
       this->__stop = 0;
       throw std::string("TimeLine::sort() stopped");
     }
@@ -110,7 +105,9 @@ const std::vector<TimeLineNode*>&   TimeLine::sort(std::vector<Node*> nodes)
     {
       vtime* time = attribute->second->value<vtime*>();
       if (time)
+      {
         this->__sorted.push_back(new TimeLineNode((*node), attribute->first, *time));
+      }
     }
     this->__processed += 1;
   }
@@ -122,6 +119,14 @@ const std::vector<TimeLineNode*>&   TimeLine::sort(std::vector<Node*> nodes)
 const std::vector<TimeLineNode*>&     TimeLine::sorted(void) const
 {
   return (this->__sorted);
+}
+
+void                                  TimeLine::__clear(void)
+{
+  std::vector<TimeLineNode*>::iterator timeLineNode = this->__sorted.begin();
+  for (; timeLineNode != this->__sorted.end(); ++timeLineNode)
+    delete (*timeLineNode);
+  this->__sorted.clear();
 }
 
 }
