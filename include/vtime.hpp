@@ -17,7 +17,7 @@
 #ifndef __VTIME_HPP__
 #define __VTIME_HPP__
 
-#ifndef WIN32   //EVERYWHERE CHANGER CA PLEASE C degueux lasse
+#ifndef WIN32   //set in a header and import everywhere rather than copy/paste 
 #include <stdint.h>
 #elif _MSC_VER >= 1600
 #include <stdint.h>
@@ -31,8 +31,7 @@
 #include "export.hpp"
 //XXX grep TIME_FIX ou FIX_TIME ?
 
-//XXX XXX XXX usename space
-//Virer le DTime degeux de jey ... on a une class pour ca qu elle connard
+//use this class rather than DTime class in python
 
 namespace DFF
 {
@@ -119,6 +118,7 @@ class DosDateTime : public vtime
 #define IS_LEAP_YEAR(y)	(!((y) & 3) && (y) != YEAR_2100)
 public:
   EXPORT DosDateTime(uint16_t time, uint16_t date);
+  EXPORT ~DosDateTime();
 private:
   static const time_t days_in_year[];
 };
@@ -135,6 +135,7 @@ class MS64DateTime : public vtime //MSFILETIME  // WindowsFileTime // MicrosoftF
 #endif
 public:
   EXPORT MS64DateTime(uint64_t);
+  EXPORT ~MS64DateTime();
 };
 
 /**
@@ -144,6 +145,7 @@ class MS128DateTime : public vtime
 {
 public:
   EXPORT  MS128DateTime(char *);
+  EXPORT  ~MS128DateTime();
 }; 
 
 /**
@@ -154,6 +156,7 @@ class HFSDateTime : public vtime
 #define SECONDS_FROM_1904_TO_1970  (uint64_t)(2082844800ULL)
 public:
   EXPORT HFSDateTime(uint32_t);
+  EXPORT ~HFSDateTime();
 };
 
 }

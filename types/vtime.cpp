@@ -261,6 +261,10 @@ DosDateTime::DosDateTime(uint16_t time, uint16_t date) : vtime((int64_t)0) //, t
   this->epochTime(second);
 }
 
+DosDateTime::~DosDateTime()
+{
+}
+
 /**
  *  MS64DateTime
  */
@@ -273,6 +277,10 @@ MS64DateTime::MS64DateTime(uint64_t time) : vtime((int64_t)0) //uint64 or int64 
   time /= 10000000;
 
   this->epochTime(time);
+}
+
+MS64DateTime::~MS64DateTime()
+{
 }
 
 /**
@@ -300,6 +308,10 @@ MS128DateTime::MS128DateTime(char *_time) : vtime((int64_t)0) //vtimeMS128 //TIM
   this->epochTime(this->__timegm(&dateTime));
 }
 
+MS128DateTime::~MS128DateTime()
+{
+}
+
 /**
  *  HFSDateTime
  */
@@ -314,6 +326,10 @@ HFSDateTime::HFSDateTime(uint32_t hfsTime) : vtime((int64_t)0)
   time -= SECONDS_FROM_1904_TO_1970;
 
   this->epochTime(time);
+}
+
+HFSDateTime::~HFSDateTime()
+{
 }
 
 }

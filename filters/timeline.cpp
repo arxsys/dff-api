@@ -105,9 +105,7 @@ const std::vector<TimeLineNode*>&   TimeLine::sort(std::vector<Node*> nodes)
     {
       vtime* time = attribute->second->value<vtime*>();
       if (time)
-      {
         this->__sorted.push_back(new TimeLineNode((*node), attribute->first, *time));
-      }
     }
     this->__processed += 1;
   }
