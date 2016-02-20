@@ -336,7 +336,7 @@ std::string  VFile::readline(uint32_t size)
 
 int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
-  unsigned char		*buffer;
+  unsigned char		*buffer = NULL;
   int32_t		bread;
   int32_t		idx;
   int32_t		hlen;
@@ -376,10 +376,12 @@ int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcar
   }
   catch (vfsError const& e)
   {
-    free(buffer);
+    if (buffer)
+      free(buffer);
     throw std::string(e.error);
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   if (idx == -1)
     pos = -1;
   else
@@ -390,7 +392,7 @@ int64_t		VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcar
 
 int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
-  unsigned char		*buffer;
+  unsigned char		*buffer = NULL;
   int32_t		bread;
   int32_t		idx;
   int32_t		hlen;
@@ -440,10 +442,12 @@ int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildca
   }
   catch (vfsError const& e)
   {
-    free(buffer);
+    if (buffer)
+      free(buffer);
     throw std::string(e.error);
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   if (idx == -1)
     pos = -1;
   else
@@ -454,7 +458,7 @@ int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildca
 
 int32_t		VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end)
 {
-  unsigned char		*buffer;
+  unsigned char		*buffer = NULL;
   int32_t		bread;
   uint64_t		totalread;
   int32_t		tcount;
@@ -496,14 +500,15 @@ int32_t		VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildca
     else
       totalread = this->seek(this->tell());
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   return (count);
 }
 
 
 std::vector<uint64_t>*	VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
-  unsigned char*		buffer;
+  unsigned char*		buffer = NULL;
   std::vector<uint64_t>*	indexes;
   int32_t			bread;
   int32_t			idx;
@@ -546,7 +551,8 @@ std::vector<uint64_t>*	VFile::indexes(unsigned char* needle, uint32_t nlen, unsi
     e->value = Variant_p(new Variant(totalread));
     this->notify(e);
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   delete e;
   return (indexes);
 }
