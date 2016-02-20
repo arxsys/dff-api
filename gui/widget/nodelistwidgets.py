@@ -60,9 +60,9 @@ class Timeliner(QObject):
 
   def launch(self, nodesList):
     self.isRunning = True
-    self.timeLine = TimeLine(nodesList)
+    self.timeLine = TimeLine()
     try:
-      sortedList = self.timeLine.sort()
+      sortedList = self.timeLine.sort(nodesList)
       self.emit(SIGNAL("timelinerFinished"), sortedList) 
       self.isRunning = False
     except Exception as e:
@@ -225,6 +225,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
        else:
           self.timeLineView.updateStatusShowWidgets()
           self.emit(SIGNAL("timelinerStop")) 
+     self.model().clearList()
+     self.timeliner = None #call TimeLineNode destructor
      self.timeLineView.updateStatusShowWidgets()
      self.leftpan.show()
      self.timeLineButton.setChecked(False)
@@ -234,7 +236,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.emit(SIGNAL("timelinerGetProgress"))
 
   def timelinerUpdateProgress(self, processed, toProcess):
-      self.timeLineView.updateStatusProgressBar(processed, toProcess)
+      if self.parent().visibility():
+        self.timeLineView.updateStatusProgressBar(processed, toProcess)
 
   def showTimeLine(self):
      if self.timeLineButton.isChecked():

@@ -21,7 +21,6 @@
 #include "variant.hpp"
 #include "node.hpp"
 
-#include <ctime>
 #include <iostream>
 
 namespace DFF
@@ -37,7 +36,6 @@ TimeLineNode::TimeLineNode(const TimeLineNode& copy) : __node(copy.__node), __at
 
 TimeLineNode::~TimeLineNode()
 {
-  std::cout << "~TimeLineNode" << std::endl;
 }
  
 bool    TimeLineNode::compare(TimeLineNode* a, TimeLineNode* b)
@@ -45,7 +43,7 @@ bool    TimeLineNode::compare(TimeLineNode* a, TimeLineNode* b)
   if (a && b)
     return (a->__timeAttribute < b->__timeAttribute);
   else
-    return false;
+    return (false);
 }
  
 Node*   TimeLineNode::node(void) const
@@ -66,23 +64,20 @@ const std::string TimeLineNode::attributeName(void) const
 /**
  *  TimeLiner
  */
-TimeLine::TimeLine(std::vector<Node*> nodes) : __stop(0), __processed(0), __toProcess(0),  __nodes(nodes)
+TimeLine::TimeLine() : __stop(0), __processed(0), __toProcess(0)
 {
-  std::cout << "TimeLine()" << std::endl;
 }
 
 TimeLine::~TimeLine()
 {
-  std::cout << "~TimeLine" << std::endl; //hum on delte et on file vector apres donc verifier que au moins c bien del les TimeLineNode() par python/swig  use //newobject ? mais c une copy pas un pointeur donc ca edvrait se faire
-  //std::vector<TimeLineNode*>::iterator timeLineNode = this->__sorted.begin();
-  //for(; timeLineNode != this->__sorted.end(); ++timeLineNode)
-  //delete (*timeLineNode);
-  //this->clear();
+  std::vector<TimeLineNode*>::iterator timeLineNode = this->__sorted.begin();
+  for (; timeLineNode != this->__sorted.end(); ++timeLineNode)
+    delete (*timeLineNode);
+  this->__sorted.clear();
 }
 
 void                          TimeLine::stop(void)
 {
-  std::cout << "setting stop to 1" << std::endl;
   this->__stop = 1;
 }
 
@@ -96,17 +91,15 @@ uint64_t                      TimeLine::processed(void) const
   return (this->__processed);
 }
 
-std::vector<TimeLineNode*>    TimeLine::sort(void)
+const std::vector<TimeLineNode*>&   TimeLine::sort(std::vector<Node*> nodes)
 {
-  std::cout << "TimeLine::sort() " << this->__nodes.size() << std::endl;
-  this->__toProcess = this->__nodes.size();
-  std::clock_t    start = std::clock();
-  std::vector<Node*>::iterator node = this->__nodes.begin();
-  for (; node != this->__nodes.end(); ++node)
+  this->__toProcess = nodes.size();
+
+  std::vector<Node*>::iterator node = nodes.begin();
+  for (; node != nodes.end(); ++node)
   {
     if (this->__stop)
     {
-      std::cout << "stop is on 1 throwing" << std::endl;
       this->__sorted.clear();
       this->__stop = 0;
       throw std::string("TimeLine::sort() stopped");
@@ -121,20 +114,14 @@ std::vector<TimeLineNode*>    TimeLine::sort(void)
     }
     this->__processed += 1;
   }
-  std::cout << "take " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl; 
-
-  std::cout << "sorting " << this->__sorted.size() << " Nodes " << std::endl;
-  start = std::clock();
   std::sort(this->__sorted.begin(), this->__sorted.end(), TimeLineNode::compare);
-  std::cout << "take " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl; 
 
   return (this->__sorted);
 }
 
-void                    TimeLine::clear(void)
+const std::vector<TimeLineNode*>&     TimeLine::sorted(void) const
 {
-  this->__nodes.clear();
-  this->__sorted.clear();
+  return (this->__sorted);
 }
 
 }
