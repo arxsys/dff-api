@@ -23,6 +23,9 @@
 #include "video.hpp"
 #include <libavcodec/avcodec.h>
 
+namespace DFF
+{
+
 Image::Image(uint8_t* idata, uint32_t size, int32_t width, int32_t height)
 {
   this->_data.size = size;
@@ -502,3 +505,4 @@ std::string VideoDecoder::codec()
   return std::string("");
 }
 
+}
