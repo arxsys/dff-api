@@ -18,11 +18,11 @@ from os.path import exists, expanduser, normpath
 
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QVariant, SIGNAL, QThread, Qt, QFile, QIODevice, QStringList, QRect, SLOT, QEvent, QString, QSignalMapper, pyqtSignal, pyqtSlot, SLOT
-from PyQt4.QtGui import QWidget, QDateTimeEdit, QLineEdit, QHBoxLayout, QLabel, QPushButton, QMessageBox, QListWidget, QTableWidget, QTableWidgetItem, QAbstractItemView, QIcon, QInputDialog, QTableView, QMessageBox, QVBoxLayout, QComboBox, QCheckBox, QHeaderView, QDialog, QTreeWidget, QIntValidator, QDialogButtonBox, QApplication, QCursor, QFileDialog, QSizePolicy, QLayout, QSplitter, QTextEdit
+from PyQt4.QtGui import QWidget, QDateTimeEdit, QLineEdit, QHBoxLayout, QLabel, QPushButton, QMessageBox, QListWidget, QTableWidget, QTableWidgetItem, QAbstractItemView, QIcon, QInputDialog, QTableView, QMessageBox, QVBoxLayout, QComboBox, QCheckBox, QHeaderView, QDialog, QTreeWidget, QIntValidator, QDialogButtonBox, QApplication, QCursor, QFileDialog, QSizePolicy, QLayout, QSplitter, QTextEdit, QTreeWidgetItem
 
 from dff.api.vfs import vfs
-from dff.api.vfs.libvfs import VFS, Node, VLink
-from dff.api.types.libtypes import Variant, typeId
+from dff.api.vfs.libvfs import VFS, Node, VLink, TagsManager
+from dff.api.types.libtypes import Variant, typeId, ConfigManager
 from dff.api.filters.libfilters import Filter
 
 from dff.api.gui.widget.search.thread import SearchThread
@@ -43,7 +43,7 @@ from dff.ui.gui.resources.ui_search_customtable import Ui_searchCustomTable
 from dff.ui.gui.resources.ui_filter_conjunction import Ui_filterConjunction
 
 # DEFINES COLUMNS
-FIELDS = ["name", "data", "size", "time", "mime", "dico", "deleted","file", "attributes", "path", "extension", "expression"]
+FIELDS = ["name", "data", "size", "time", "type", "dico", "deleted", "file", "attributes", "path", "extension", "tags", "module", "expression"]
 
 SPECIAL_FIELDSID = range(5, 9)
 CONJONCTIONS = ["and", "and not", "or", "or not"]
@@ -53,12 +53,6 @@ OPERATORS = ["<", "<=", "==", "!=", ">=", ">"]
 SIZE_T = [1024, 1024*1024, 1024*1024*1024]
 DICO_TYPE = ["name", "data"]
 DICO_MATCH = [" any of ", " all of ", " none of "]
-
-DOCUMENT_Q = "\"text\",\"application/pdf\",\"application/vnd.oasis.opendocument.text\",\"application/vnd.oasis.opendocument.graphics\",\"application/vnd.oasis.opendocument.presentation\",\"application/vnd.oasis.opendocument.spreadsheet\",\"application/vnd.oasis.opendocument.chart\",\"application/vnd.oasis.opendocument.formula\",\"application/vnd.oasis.opendocument.database\",\"application/vnd.oasis.opendocument.image\""
-IMAGE_Q = "\"image\""
-VIDEO_Q = "\"video\""
-APPLICATION_Q = "\"application\""
-AUDIO_Q = "\"audio\""
 
 class SearchPanel(Ui_searchPanel, QWidget):
   def __init__(self, parent, searchview):
@@ -512,7 +506,7 @@ class FilterRequests(QTableWidget):
         widget = SizeRequest(self)
       elif ftype == FIELDS.index("time"):
         widget = DateRequest(self)
-      elif ftype == FIELDS.index("mime"):
+      elif ftype == FIELDS.index("type"):
         widget = MimeRequest(self)
       elif ftype == FIELDS.index("dico"):
         widget = DicoRequest(self)
@@ -526,6 +520,10 @@ class FilterRequests(QTableWidget):
         widget = StringRequest(self, FIELDS[ftype])
       elif ftype == FIELDS.index("path"):
         widget = StringRequest(self, FIELDS[ftype])
+      elif ftype == FIELDS.index("tags"):
+        widget = TagRequest(self)
+      elif ftype == FIELDS.index("module"):
+        widget = ModuleRequest(self)
       elif ftype == FIELDS.index("expression"):
         widget = RawStringRequest(self)
       else:
@@ -716,6 +714,10 @@ class MimeRequest(Ui_filterMime, Request):
     self.setupUi(self)
     self.setContent()
     self.setSelectButton()
+    #XXX
+    # temporary workaround to maintain selected items
+    # issue is that it won't populate new types if it happens
+    self.dialog = MimeDialog(self)
 
   def setContent(self):
     self.content.setReadOnly(True)
@@ -731,22 +733,143 @@ class MimeRequest(Ui_filterMime, Request):
     self.connect(self.selectButton, SIGNAL("clicked()"), self.selectMimeDialog)
 
   def selectMimeDialog(self):
-    dialog = MimeDialog(self)
-    ret = dialog.exec_()
+    ret = self.dialog.exec_()
     if ret == 1:
-      result = dialog.selectedTypes()
+      result = self.dialog.selectedTypes()
       self.content.clear()
       self.content.setText(result)
 
   def request(self):
-    res = "(mime in[" + str(unicode(self.content.text()).encode('utf-8')) + "])"
+    res = "(type in[" + str(unicode(self.content.text()).encode('utf-8')) + "])"
     return res
 
 
+class TagRequest(Request):
+  def __init__(self, parent):
+    Request.__init__(self, parent)
+    self.tagsmanager = TagsManager.get()
+    self.selectedTags = []
+    self.content = QLineEdit(self)
+    self.connect(self.content, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.content, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+    self.content.setReadOnly(True)
+    self.selectButton = QPushButton(self.tr("Select ..."))
+    self.connect(self.selectButton, SIGNAL("clicked()"), self.selectTagsDialog)
+    self.layout().addWidget(self.content, 50) 
+    self.layout().addWidget(self.selectButton)
+    
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+
+    
+  def selectTagsDialog(self):
+    dialog = ListSelectionDialog(self, self.tr("Select tags to look for"))
+    tags = self.tagsmanager.tags()
+    tags = [unicode(tag.name(), 'utf-8') for tag in tags]    
+    dialog.populate(tags, self.selectedTags)
+    ret = dialog.exec_()
+    if ret == 1:
+      self.selectedTags = dialog.selectedItems()
+      query = ""
+      for tag in self.selectedTags:
+        if len(query):
+          query += ', "'+ str(tag.toUtf8()) + '"'
+        else:
+          query += '"'+ str(tag.toUtf8()) + '"'
+      self.content.setText(query)
+
+
+  def request(self):
+    res = "(tags in[" + str(unicode(self.content.text()).encode('utf-8')) + "])"
+    return res
+
+
+class ModuleRequest(Request):
+  def __init__(self, parent):
+    Request.__init__(self, parent)
+    self.configs = ConfigManager.Get()
+    self.selectedModules = []
+    self.content = QLineEdit(self)
+    self.connect(self.content, SIGNAL("textChanged(const QString &)"), self.updateQuery)
+    self.connect(self.content, SIGNAL("textEdited(const QString &)"), self.updateQuery)
+    self.content.setReadOnly(True)
+    self.selectButton = QPushButton(self.tr("Select ..."))
+    self.connect(self.selectButton, SIGNAL("clicked()"), self.selectModuleDialog)
+    self.layout().addWidget(self.content, 50) 
+    self.layout().addWidget(self.selectButton)
+    self.selectedModules = []
+
+  def updateQuery(self, data):
+    self.emit(SIGNAL("queryUpdated"))
+
+    
+  def selectModuleDialog(self):
+    modules = []
+    configs = self.configs.configs()
+    for config in configs:
+      mime = config.constantByName("mime-type")
+      ext = config.constantByName("extension-type")
+      modname = config.origin()
+      if modname.find("viewer") == -1:
+        if mime is not None:
+          modules.append(config.origin())
+        elif ext is not None:
+          modules.append(config.origin())
+    dialog = ListSelectionDialog(self, self.tr("Select modules to look for"))
+    dialog.populate(modules, self.selectedModules)
+    ret = dialog.exec_()
+    if ret == 1:
+      self.selectedModules = dialog.selectedItems()
+      query = ""
+      for module in self.selectedModules:
+        if len(query):
+          query += ', "'+ str(module.toUtf8()) + '"'
+        else:
+          query += '"'+ str(module.toUtf8()) + '"'
+      self.content.setText(query)
+
+
+  def request(self):
+    res = "(module in [" + str(unicode(self.content.text()).encode('utf-8')) + "])"
+    return res
+
+
+class ListSelectionDialog(Ui_filterMimeDialog, QDialog):
+  def __init__(self, parent, title):
+    QDialog.__init__(self, parent)
+    self.setupUi(self)
+    self.setWindowTitle(title)
+    self.items = []
+
+    
+  def populate(self, items, selected):
+    for item in items:
+      treeItem = QTreeWidgetItem(self.treeWidget)
+      treeItem.setFlags(Qt.ItemIsUserCheckable|Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+      if item in selected:
+        treeItem.setCheckState(0, Qt.Checked)
+      else:
+        treeItem.setCheckState(0, Qt.Unchecked)
+      treeItem.setText(0, item)
+      self.items.append(treeItem)
+    self.treeWidget.resizeColumnToContents(0)
+    
+    
+  def selectedItems(self):
+    selected = []
+    for item in self.items:
+      i = 0
+      if item.checkState(0) == Qt.Checked:
+        selected.append(item.text(0))
+    return selected
+
+    
 class MimeDialog(Ui_filterMimeDialog, QDialog):
   def __init__(self, parent):
     QDialog.__init__(self, parent)
     self.setupUi(self)
+    self.setWindowTitle(self.tr("Select types to look for"))
     self.mime = MimeTypesTree(self.treeWidget)
 
   def selectedTypes(self):
