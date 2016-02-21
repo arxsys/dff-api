@@ -75,7 +75,11 @@ pdata* VFile::read(void)
     memset(data->buff, 0, size);
     n = this->__fsobj->vread(this->__fd, (void*)data->buff, size);
     if (n < 0)
+    {
+      free(data->buff);
+      delete data;
       throw vfsError(this->__fsobj->name + " read error\n");
+    }
     stat_read(n);
     data->len = n;
     return (data);
@@ -111,7 +115,11 @@ pdata* VFile::read(uint32_t size)
     memset(data->buff, 0, size);
     n = this->__fsobj->vread(this->__fd, data->buff, size);
     if (n < 0)
+    {
+      free(data->buff);
+      delete data;
       throw vfsError(this->__fsobj->name + " read error\n");
+    }
     data->len = n;
     stat_read(n);
     return (data);
