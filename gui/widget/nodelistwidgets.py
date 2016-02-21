@@ -230,6 +230,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
      self.timeLineView.updateStatusShowWidgets()
      self.leftpan.show()
      self.timeLineButton.setChecked(False)
+     self.filter.setEnabled(True)
+     self.infostack.setEnabled(True)
      return True
 
   def timelinerGetProgress(self):
@@ -241,7 +243,8 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
 
   def showTimeLine(self):
      if self.timeLineButton.isChecked():
-       #filter /clear & hide to handle in timeline 
+       self.filter.setEnabled(False)
+       self.infostack.setEnabled(False)
        previousModelNodeList = self.model().list()
        self.viewpan.setCurrentWidget(self.timeLineView)
        self.leftpan.hide()
