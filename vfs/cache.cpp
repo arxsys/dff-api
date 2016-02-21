@@ -50,6 +50,11 @@ VFilePool::~VFilePool()
 
   for (i = 0; i < this->__poolSize; i++)
   {
+    if (this->__poolSlot[i]->content)
+    {
+      VFile* vfile = (VFile*)this->__poolSlot[i]->content;
+      delete vfile;
+    }
     free(this->__poolSlot[i]);
   }
   free(this->__poolSlot);

@@ -25,9 +25,6 @@
 #include "export.hpp"
 #include "rc.hpp"
 
-class Node; 
-class VFile;
-
 extern "C"
 {
 #ifndef INT64_C
@@ -44,8 +41,13 @@ extern "C"
 #include <libswscale/swscale.h>
 }
 
+namespace DFF
+{
+class Node; 
+class VFile;
 
-struct ImageData
+
+struct  ImageData
 {
   char*         buff;
   uint32_t      size;
@@ -59,14 +61,14 @@ private:
   int32_t	 _width;
   int32_t	 _height;
 public:
-  EXPORT			Image(uint8_t* idata, uint32_t size, int32_t width, int32_t height);
+  EXPORT		Image(uint8_t* idata, uint32_t size, int32_t width, int32_t height);
   EXPORT    		~Image(void);
   EXPORT ImageData	data(void);
   EXPORT int32_t	height(void);
   EXPORT int32_t	width(void);
 };
 
-#define Image_p RCPtr< Image > 
+#define Image_p DFF::RCPtr< DFF::Image > 
 
 class	VideoDecoder
 {
@@ -105,4 +107,5 @@ public:
 
 };
 
+}
 #endif 

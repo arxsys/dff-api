@@ -43,7 +43,7 @@ namespace DFF
 class VLink;
 class Node;
 class Path;
-class vtime;
+class DateTime;
 class Argument;
 
 #define Variant_p	DFF::RCPtr< DFF::Variant > //typedef 
@@ -83,7 +83,7 @@ public:
       Map,
       List,
       // dff types
-      VTime,
+      DateTime,
       Node,
       Path,
       Argument,
@@ -114,7 +114,7 @@ public:
   EXPORT Variant(int64_t ull);
   EXPORT Variant(uint64_t ll);
   EXPORT Variant(bool b);
-  EXPORT Variant(DFF::vtime *vt) throw (std::string);
+  EXPORT Variant(DFF::DateTime *vt) throw (std::string);
   EXPORT Variant(Node* node) throw (std::string);
   EXPORT Variant(Path* path) throw (std::string);
   EXPORT Variant(Argument* argument) throw (std::string);
@@ -208,10 +208,10 @@ public:
 	    *b = this->__data.b;
 	    ret = true;
 	  }
-	else if ((itype == typeId::VTime) && (this->_type == typeId::VTime))
+	else if ((itype == typeId::DateTime) && (this->_type == typeId::DateTime))
 	  {
-	    vtime **vt = static_cast<vtime**>(res);
-	    *vt = (vtime*)this->__data.ptr;
+	    DateTime **vt = static_cast<DateTime**>(res);
+	    *vt = (DateTime*)this->__data.ptr;
 	    ret = true;
 	  }
 	else if ((itype == typeId::List) && (this->_type == typeId::List))

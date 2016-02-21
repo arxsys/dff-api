@@ -826,7 +826,7 @@ Open the node and return a pointer to a VFile instance
 #include "rootnode.hpp"
 #include "vlink.hpp"
 #include "variant.hpp"
-#include "vtime.hpp"
+#include "datetime.hpp"
 #include "path.hpp"
 #include "iostat.hpp"
 #include "fdmanager.hpp"
@@ -865,7 +865,7 @@ namespace std
   %template(Listui64)		std::list<uint64_t>;
   %template(Vectui64)		std::vector<uint64_t>;
   %template(Vectui32)		std::vector<uint32_t>;
-  %template(MapTime)		std::map<std::string, DFF::vtime*>;
+  %template(MapTime)		std::map<std::string, DFF::DateTime*>;
   %template(MapNameTypes)	std::map<std::string, uint8_t>;
   %template(FsoVect)		std::vector<DFF::fso*>;
   %template(RCPtrTagVect)       std::vector<Tag_p >;
@@ -873,8 +873,8 @@ namespace std
 
 /* %traits_swigtype(Variant); */
 /* %fragment(SWIG_Traits_frag(Variant)); */
-//%traits_swigtype(vtime); already in libtypes.i
-//%fragment(SWIG_Traits_frag(vtime));
+//%traits_swigtype(DateTime); already in libtypes.i
+//%fragment(SWIG_Traits_frag(DateTime));
 
 namespace DFF
 {

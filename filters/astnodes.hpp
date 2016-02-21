@@ -39,7 +39,7 @@ class PatternContainer;
 typedef std::vector<uint64_t>		NumberList;
 typedef std::vector<std::string>	StringList;
 typedef std::vector<std::string>	AttributeList;
-typedef std::vector<vtime*>		TimeList;
+typedef std::vector<DateTime*>		TimeList;
 typedef std::vector<Expression*>	ExpressionList;
 typedef std::list< Variant_p >		VLIST;
 

@@ -222,10 +222,6 @@ class TimeLineNodeWidget(NodeWidget):
      self.linkLabel().hide()    
      self.nodeStatus().hide()
      self.progressBar.show()
-     #izePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-     #sizePolicy.setHorizontalStretch(1)
-     #sizePolicy.setVerticalStretch(1)
-     #self.status.setSizePolicy(sizePolicy)
 
   def updateStatusShowWidgets(self):
      self.progressBar.hide()

@@ -26,38 +26,38 @@ class Node;
 class TimeLineNode
 {
 public:
-  TimeLineNode(Node* node, const std::string& attributeName, const vtime& time);
+  TimeLineNode(Node* node, const std::string& attributeName, const DateTime& time);
   TimeLineNode(const TimeLineNode& copy);
   ~TimeLineNode();
  
   static bool           compare(TimeLineNode* a, TimeLineNode* b);
 
   Node*                 node(void) const;
-  vtime                 attribute(void) const;
+  DateTime              attribute(void) const;
   const std::string     attributeName(void) const;
 private:
   Node*                 __node;
   std::string           __attributeName;
-  vtime                 __timeAttribute;
+  DateTime              __timeAttribute;
 };
 
 class TimeLine
 {
 public:
-  TimeLine(std::vector<Node*> nodes);
+  TimeLine();
   ~TimeLine(); 
 
-  void                         stop(void); 
-  std::vector<TimeLineNode*>   sort(void);
-  void                         clear(void);
-  uint64_t                     processed(void) const;
-  uint64_t                     toProcess(void) const;
+  void                                stop(void); 
+  const std::vector<TimeLineNode*>&   sort(std::vector<Node*> nodes);
+  const std::vector<TimeLineNode*>&   sorted(void) const;
+  uint64_t                            processed(void) const;
+  uint64_t                            toProcess(void) const;
 private:
-  bool                         __stop;
-  uint64_t                     __processed;
-  uint64_t                     __toProcess;
-  std::vector<Node*>           __nodes;
-  std::vector<TimeLineNode*>   __sorted;
+  void                                __clear(void);
+  bool                                __stop;
+  uint64_t                            __processed;
+  uint64_t                            __toProcess;
+  std::vector<TimeLineNode*>          __sorted;
 };
 
 }

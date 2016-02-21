@@ -25,7 +25,7 @@ from dff.ui.gui.resources.ui_select_attributes import Ui_SelectAttributesWiz
 
 INT_T = [typeId.Int16, typeId.UInt16, typeId.Int32, typeId.UInt16, typeId.Int64, typeId.UInt64]
 STRING_T = [typeId.String, typeId.Char, typeId.CArray]
-TIME_T = [typeId.VTime]
+TIME_T = [typeId.DateTime]
 BOOL_T = [typeId.Bool]
 
 class AttributeSelectorMenu(QMenu):

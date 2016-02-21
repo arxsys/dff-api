@@ -16,7 +16,7 @@
 
 #include <sstream>
 
-#include "vtime.hpp"
+#include "datetime.hpp"
 #include "vfile.hpp"
 #include "fso.hpp"
 #include "tags.hpp"
@@ -659,7 +659,7 @@ bool		TimestampAttribute::compile(InterpreterContext* ic)
 
 Variant*	TimestampAttribute::evaluate()
 {
-  std::list< Variant_p >  types = this->_ic->lookupByType(typeId::VTime);
+  std::list< Variant_p >  types = this->_ic->lookupByType(typeId::DateTime);
   if (types.size() > 0)
     return new Variant(types);
   else
@@ -763,7 +763,7 @@ bool		Timestamp::compile(InterpreterContext* ic)
 
 Variant*	Timestamp::evaluate()
 {
-  return new Variant(new vtime(__val));
+  return new Variant(new DateTime(__val));
 }
 
 

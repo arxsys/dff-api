@@ -21,7 +21,7 @@ from PyQt4.QtCore import SIGNAL, QAbstractItemModel, QModelIndex, QVariant, Qt, 
 from PyQt4.QtGui import QColor, QIcon, QImage, QImageReader, QPixmap, QPixmapCache, QStandardItemModel, QStandardItem, QStyledItemDelegate, QBrush, QPen, QPalette, QPainter
 from PyQt4 import QtCore
 
-from dff.api.types.libtypes import Variant, vtime
+from dff.api.types.libtypes import Variant
 from dff.api.vfs.libvfs import VFS
 from dff.api.events.libevents import EventHandler
 
