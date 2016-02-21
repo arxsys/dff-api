@@ -14,10 +14,10 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
-#ifndef __VTIME_HPP__
-#define __VTIME_HPP__
+#ifndef __DFF_DATETIME_HPP__
+#define __DFF_DATETIME_HPP__
 
-#ifndef WIN32   //set in a header and import everywhere rather than copy/paste 
+#ifndef WIN32   //XXX set in a header and import everywhere rather than copy/paste
 #include <stdint.h>
 #elif _MSC_VER >= 1600
 #include <stdint.h>
@@ -29,9 +29,6 @@
 #include <string>
 
 #include "export.hpp"
-//XXX grep TIME_FIX ou FIX_TIME ?
-
-//use this class rather than DTime class in python
 
 namespace DFF
 {
@@ -39,9 +36,6 @@ namespace DFF
 /**
  *  DateTime
  */
-//class TimeDelta
-//{}
-
 #ifdef WIN32
 #define gmtimex(timet, structtm)\
    _gmtime_64(timet)
@@ -55,40 +49,40 @@ namespace DFF
  *  derivated class must pass epoch time as time GMT (converted from time zone)
  *  then user can specify a global time zone that will affect returned time informations.
  */
-class vtime //Destruct to be serializable ? RENAME DateTime and use namespace !
+class DateTime
 {
 private:
-  static const int     __cumdays[12]; //XXX ambigous name :)
+  static const int     __daysByMonth[12];
   static int64_t       __globalTimeZoneOffset;
   int64_t              __epochTime;
 protected:
   int64_t              __timegm(struct tm*); 
 public:
-  EXPORT explicit       vtime(int64_t epochTime);
-  EXPORT                vtime(vtime const&);
-  EXPORT		vtime(const std::string&);
-  EXPORT 		vtime(int32_t year, int32_t month, int32_t day, int32_t minute, int32_t hour, int32_t second);
-  EXPORT virtual	~vtime();
+  EXPORT explicit       DateTime(int64_t epochTime);
+  EXPORT                DateTime(DateTime const&);
+  EXPORT		DateTime(const std::string&);
+  EXPORT 		DateTime(int32_t year, int32_t month, int32_t day, int32_t minute, int32_t hour, int32_t second);
+  EXPORT virtual	~DateTime();
 
-  EXPORT bool           operator==(const vtime& other) const; //Take care to compare to None with is None in python not == None which can't convert None to vtime
-  EXPORT bool           operator!=(const vtime& other) const;
-  EXPORT bool		operator<(const vtime& other) const;
-  EXPORT bool           operator>(const vtime& other) const;
-  EXPORT bool		operator<=(const vtime& other) const;
-  EXPORT bool           operator>=(const vtime& other) const;
+  EXPORT bool           operator==(const DateTime& other) const; //Take care to compare to None with is None in python not == None which can't convert None to DateTime
+  EXPORT bool           operator!=(const DateTime& other) const;
+  EXPORT bool		operator<(const DateTime& other) const;
+  EXPORT bool           operator>(const DateTime& other) const;
+  EXPORT bool		operator<=(const DateTime& other) const;
+  EXPORT bool           operator>=(const DateTime& other) const;
 /*
-  need time span if want to implement
-  EXPORT TimeDelta operator+(const vtime& other) const;
-  EXPORT TimeDelta operator-(const vtime& other) const;
-  const vtime& operator+=(TimeDelta delta);
-  const vtime& operator-=(TimeDelta delta);
+  need TimeDelta if we want to implement it
+  EXPORT TimeDelta operator+(const DateTime& other) const;
+  EXPORT TimeDelta operator-(const DateTime& other) const;
+  const DateTime& operator+=(TimeDelta delta);
+  const DateTime& operator-=(TimeDelta delta);
 */
 
   EXPORT int64_t                epochTime(void) const;
   EXPORT void                   epochTime(int64_t);
 
-  EXPORT int32_t                globalTimeZone(void) const; //static ICU  
-  EXPORT void                   globalTimeZone(int32_t timeZone); //static ICU 
+  EXPORT int32_t                globalTimeZone(void) const; //static use ICU lib to convert
+  EXPORT void                   globalTimeZone(int32_t timeZone); //static use ICU lib to convert
 
   EXPORT const std::string      toString(void) const;
   EXPORT const std::string      toISOString(void) const;
@@ -108,7 +102,7 @@ public:
 /**
  *  DosDateTime
  */
-class DosDateTime : public vtime 
+class DosDateTime : public DateTime 
 {
 #define SECONDS_PER_MIN	  60
 #define SECONDS_PER_HOUR  (60 * 60)
@@ -120,13 +114,13 @@ public:
   EXPORT DosDateTime(uint16_t time, uint16_t date);
   EXPORT ~DosDateTime();
 private:
-  static const time_t days_in_year[];
+  static const time_t daysInYear[];
 };
 
 /**
  *  MS64DateTime
  */
-class MS64DateTime : public vtime //MSFILETIME  // WindowsFileTime // MicrosoftFileTime
+class MS64DateTime : public DateTime
 {
 #if __WORDSIZE == 64
   #define SECONDS_FROM_1601_TO_1970  (uint64_t)(116444736000000000UL)
@@ -141,7 +135,7 @@ public:
 /**
  *  MS128DateTime
  */
-class MS128DateTime : public vtime
+class MS128DateTime : public DateTime
 {
 public:
   EXPORT  MS128DateTime(char *);
@@ -151,7 +145,7 @@ public:
 /**
  *  HFSDateTime
  */
-class HFSDateTime : public vtime
+class HFSDateTime : public DateTime
 {
 #define SECONDS_FROM_1904_TO_1970  (uint64_t)(2082844800ULL)
 public:

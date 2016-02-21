@@ -14,7 +14,7 @@
  *  Solal J. <sja@digital-forensic.org>
  */
 
-#include "vtime.hpp"
+#include "datetime.hpp"
 
 #include <stdio.h>
 #include <string.h>
@@ -25,30 +25,30 @@
 namespace DFF
 {
 
-int64_t  vtime::__globalTimeZoneOffset = 0;
+int64_t  DateTime::__globalTimeZoneOffset = 0;
 
-vtime::vtime(int64_t epochTime) : __epochTime(epochTime)
+DateTime::DateTime(int64_t epochTime) : __epochTime(epochTime)
 {
 }
 
-vtime::vtime(vtime const& copy) : __epochTime(copy.__epochTime)
+DateTime::DateTime(DateTime const& copy) : __epochTime(copy.__epochTime)
 {
 }
 
-vtime::vtime(const std::string& dateTime) : __epochTime(0)
+DateTime::DateTime(const std::string& dateTime) : __epochTime(0)
 {
   struct tm    date;
 
   memset(&date, 0, sizeof(struct tm));
   if (sscanf(dateTime.c_str(), "%4d-%2d-%2d%*1c%2d:%2d:%2d", &date.tm_year, &date.tm_mon, &date.tm_mday, &date.tm_hour, &date.tm_min, &date.tm_sec) != 6)
-    throw std::string("Can't convert invalid date : " + dateTime + " to vtime");
+    throw std::string("Can't convert invalid date : " + dateTime + " to DateTime");
   date.tm_year -= 1900;
   date.tm_mon -= 1;
 
   this->epochTime(this->__timegm(&date));
 }
 
-vtime::vtime(int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second) : __epochTime(0)
+DateTime::DateTime(int32_t year, int32_t month, int32_t day, int32_t hour, int32_t minute, int32_t second) : __epochTime(0)
 {
   struct tm     dateTime;
 
@@ -65,46 +65,46 @@ vtime::vtime(int32_t year, int32_t month, int32_t day, int32_t hour, int32_t min
   this->epochTime(this->__timegm(&dateTime));
 }
 
-vtime::~vtime()
+DateTime::~DateTime()
 {
 }
 
-bool    vtime::operator==(const vtime& other) const
+bool    DateTime::operator==(const DateTime& other) const
 {
   return (this->__epochTime == other.__epochTime);
 }
 
-bool    vtime::operator!=(const vtime& other) const
+bool    DateTime::operator!=(const DateTime& other) const
 {
   return (this->__epochTime != other.__epochTime);
 }
 
-bool    vtime::operator<(const vtime& other) const
+bool    DateTime::operator<(const DateTime& other) const
 {
   return (this->__epochTime < other.__epochTime);
 }
 
-bool    vtime::operator>(const vtime& other) const
+bool    DateTime::operator>(const DateTime& other) const
 {
   return (this->__epochTime > other.__epochTime);
 }
 
-bool    vtime::operator<=(const vtime& other) const
+bool    DateTime::operator<=(const DateTime& other) const
 {
   return (this->__epochTime <= other.__epochTime);
 }
 
-bool    vtime::operator>=(const vtime& other) const
+bool    DateTime::operator>=(const DateTime& other) const
 {
   return (this->__epochTime >= other.__epochTime);
 }
 
-const int vtime::__cumdays[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+const int DateTime::__daysByMonth[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 
-int64_t vtime::__timegm(struct tm* t)
+int64_t DateTime::__timegm(struct tm* t)
 {
    register int64_t year = 1900 + t->tm_year + t->tm_mon / 12;
-   register int64_t result = (year - 1970) * 365 + this->__cumdays[t->tm_mon % 12];
+   register int64_t result = (year - 1970) * 365 + this->__daysByMonth[t->tm_mon % 12];
 
    result += (year - 1968) / 4;
    result -= (year - 1900) / 100;
@@ -124,27 +124,27 @@ int64_t vtime::__timegm(struct tm* t)
    return (result);
 }
 
-int64_t vtime::epochTime(void) const
+int64_t DateTime::epochTime(void) const
 {
   return (this->__epochTime + this->__globalTimeZoneOffset);
 }
 
-void    vtime::epochTime(int64_t epochTime)
+void    DateTime::epochTime(int64_t epochTime)
 {
   this->__epochTime = epochTime;
 }
 
-int32_t vtime::globalTimeZone(void) const
+int32_t DateTime::globalTimeZone(void) const
 {
   return (this->__globalTimeZoneOffset);
 }
 
-void    vtime::globalTimeZone(int32_t timeZoneMinutesOffset)
+void    DateTime::globalTimeZone(int32_t timeZoneMinutesOffset)
 {
   this->__globalTimeZoneOffset = timeZoneMinutesOffset;
 }
 
-int32_t vtime::year(void) const
+int32_t DateTime::year(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -152,7 +152,7 @@ int32_t vtime::year(void) const
   return (gmtimex(&time, &date)->tm_year + 1900); 
 }
 
-int32_t  vtime::month(void) const
+int32_t  DateTime::month(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -160,7 +160,7 @@ int32_t  vtime::month(void) const
   return (gmtimex(&time, &date)->tm_mon + 1); 
 }
 
-int32_t vtime::day(void) const
+int32_t DateTime::day(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -168,7 +168,7 @@ int32_t vtime::day(void) const
   return (gmtimex(&time, &date)->tm_mday); 
 }
 
-int32_t vtime::hour(void) const
+int32_t DateTime::hour(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -176,7 +176,7 @@ int32_t vtime::hour(void) const
   return (gmtimex(&time, &date)->tm_hour); 
 }
 
-int32_t vtime::minute(void) const
+int32_t DateTime::minute(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -184,7 +184,7 @@ int32_t vtime::minute(void) const
   return (gmtimex(&time, &date)->tm_min); 
 }
 
-int32_t vtime::second(void) const
+int32_t DateTime::second(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -192,7 +192,7 @@ int32_t vtime::second(void) const
   return (gmtimex(&time, &date)->tm_sec); 
 }
 
-int32_t vtime::dayOfWeek(void) const
+int32_t DateTime::dayOfWeek(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -200,7 +200,7 @@ int32_t vtime::dayOfWeek(void) const
   return (gmtimex(&time, &date)->tm_wday); 
 }
 
-int32_t vtime::dayOfYear(void) const
+int32_t DateTime::dayOfYear(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
@@ -208,7 +208,7 @@ int32_t vtime::dayOfYear(void) const
   return (gmtimex(&time, &date)->tm_yday); //CHECK NULL ! 
 }
 
-const std::string       vtime::toISOString(void) const
+const std::string       DateTime::toISOString(void) const
 {
   struct tm     date;
   char	        timeBuff[20];
@@ -219,10 +219,10 @@ const std::string       vtime::toISOString(void) const
     if (strftime(timeBuff, 20, "%Y-%m-%dT%H:%M:%S", &date) == 19) //use TZ !!
       return std::string(timeBuff);
 
-  throw std::string("vtime::toISOString() invalid time value");
+  throw std::string("DateTime::toISOString() invalid time value");
 }
 
-const std::string       vtime::toString(void) const
+const std::string       DateTime::toString(void) const
 {
   struct tm     date;
   char	        timeBuff[20];
@@ -233,15 +233,15 @@ const std::string       vtime::toString(void) const
     if (strftime(timeBuff, 20, "%Y-%m-%d %H:%M:%S", &date) == 19) //use TZ !!
       return std::string(timeBuff);
 
-  throw std::string("vtime::toString() invalid time value");
+  throw std::string("DateTime::toString() invalid time value");
 }
 
 /**
  *  DosDateTime
  */
-time_t const  DosDateTime::days_in_year[] = { 0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 0, 0, 0, };
+time_t const  DosDateTime::daysInYear[] = { 0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 0, 0, 0, };
  
-DosDateTime::DosDateTime(uint16_t time, uint16_t date) : vtime((int64_t)0) //, timeZoneset timezone conversion to convert to GMT
+DosDateTime::DosDateTime(uint16_t time, uint16_t date) : DateTime((int64_t)0) //, timeZoneset timezone conversion to convert to GMT
 {
   int64_t day = std::max(1, date & 0x1f) - 1;
   int64_t year  = date >> 9;
@@ -256,7 +256,7 @@ DosDateTime::DosDateTime(uint16_t time, uint16_t date) : vtime((int64_t)0) //, t
   register int second =  (time & 0x1f) << 1;
   second += ((time >> 5) & 0x3f) * SECONDS_PER_MIN;
   second += (time >> 11) * SECONDS_PER_HOUR;
-  second += (year * 365 + leap_day + days_in_year[month] + day + DAYS_DELTA) * SECONDS_PER_DAY;
+  second += (year * 365 + leap_day + daysInYear[month] + day + DAYS_DELTA) * SECONDS_PER_DAY;
 
   this->epochTime(second);
 }
@@ -268,7 +268,7 @@ DosDateTime::~DosDateTime()
 /**
  *  MS64DateTime
  */
-MS64DateTime::MS64DateTime(uint64_t time) : vtime((int64_t)0) //uint64 or int64 //MSFileTime ? // Already in gmt
+MS64DateTime::MS64DateTime(uint64_t time) : DateTime((int64_t)0) 
 {
   if (time == 0)
     return;
@@ -286,10 +286,10 @@ MS64DateTime::~MS64DateTime()
 /**
  *  MS128DateTime
  */
-MS128DateTime::MS128DateTime(char *_time) : vtime((int64_t)0) //vtimeMS128 //TIME_FIX //pass buffer directly ? better ?
+MS128DateTime::MS128DateTime(char *_time) : DateTime((int64_t)0) 
 {
   if (_time == NULL)
-    throw std::string("vtimeMS128, time is NULL");
+    throw std::string("DateTimeMS128, time is NULL");
 
   struct tm     dateTime;
   uint16_t* t = (uint16_t*)_time;
@@ -315,7 +315,7 @@ MS128DateTime::~MS128DateTime()
 /**
  *  HFSDateTime
  */
-HFSDateTime::HFSDateTime(uint32_t hfsTime) : vtime((int64_t)0)
+HFSDateTime::HFSDateTime(uint32_t hfsTime) : DateTime((int64_t)0)
 {
   if (hfsTime <= SECONDS_FROM_1904_TO_1970)
     return;

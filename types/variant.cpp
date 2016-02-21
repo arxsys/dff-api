@@ -19,7 +19,7 @@
 #include "string.h"
 #include <stdio.h>
 
-#include "vtime.hpp"
+#include "datetime.hpp"
 #include "path.hpp"
 
 #ifdef WIN32
@@ -49,7 +49,7 @@ typeId::typeId()
   this->mapping.insert(std::pair<std::string, uint8_t>(typeid(char**).name(), typeId::CArray));
   this->mapping.insert(std::pair<std::string, uint8_t>(typeid(void**).name(), typeId::VoidPtr));
   this->mapping.insert(std::pair<std::string, uint8_t>(typeid(std::string *).name(), typeId::String));
-  this->mapping.insert(std::pair<std::string, uint8_t>(typeid(class vtime**).name(), typeId::VTime));
+  this->mapping.insert(std::pair<std::string, uint8_t>(typeid(class DateTime**).name(), typeId::DateTime));
   this->mapping.insert(std::pair<std::string, uint8_t>(typeid(class Node**).name(), typeId::Node));
   this->mapping.insert(std::pair<std::string, uint8_t>(typeid(class VLink**).name(), typeId::VLink));
   this->mapping.insert(std::pair<std::string, uint8_t>(typeid(class Path * *).name(), typeId::Path));
@@ -71,7 +71,7 @@ typeId::typeId()
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Bool, "bool"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Map, "std::map<std::string, Variant_p >"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::List, "std::list< Variant_p >"));
-  this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::VTime, "vtime*"));
+  this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::DateTime, "DateTime*"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Node, "Node*"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Path, "Path*"));
   this->rmapping.insert(std::pair<uint8_t, std::string>(typeId::Argument, "Argument*"));
@@ -144,10 +144,10 @@ Variant::Variant(class Variant* orig) throw (std::string)
 	this->__data.ll = orig->value<int64_t>();
       if (this->_type == typeId::Bool)
 	this->__data.b = orig->value<bool>();
-      if (this->_type == typeId::VTime)
+      if (this->_type == typeId::DateTime)
 	{
-	  vtime*	vt = orig->value<vtime*>();
-	  this->__data.ptr = new vtime(*vt);
+	  DateTime* vt = orig->value<DateTime*>(); //XXX delete original ?
+	  this->__data.ptr = new DateTime(*vt);
 	}
       if (this->_type == typeId::Node)
 	this->__data.ptr = (void*)orig->value<class Node*>();
@@ -196,11 +196,11 @@ Variant::~Variant()
 	delete this->__data.str;
       this->__data.str = NULL;
     }
-  if (this->_type == typeId::VTime)
+  if (this->_type == typeId::DateTime)
     {
       if (this->__data.ptr != NULL)
 	{
-	  vtime*	vt = (vtime*)this->__data.ptr;
+	  DateTime*	vt = (DateTime*)this->__data.ptr;
 	  delete vt;
 	}
       this->__data.ptr = NULL;
@@ -295,12 +295,12 @@ Variant::Variant(bool b)
   this->_type = typeId::Bool;
 }
 
-Variant::Variant(DFF::vtime *vt) throw (std::string)
+Variant::Variant(DFF::DateTime *vt) throw (std::string)
 {
   if (vt != NULL)
     {
       this->__data.ptr = (void*)vt;
-      this->_type = typeId::VTime;
+      this->_type = typeId::DateTime;
     }
   else
     throw (std::string("NULL Pointer provided"));
@@ -406,9 +406,9 @@ std::string	Variant::toString() throw (std::string)
       else
 	res << "False";
     }
-  else if (this->_type == typeId::VTime && this->__data.ptr != NULL)
+  else if (this->_type == typeId::DateTime && this->__data.ptr != NULL)
     {
-      vtime* vt = (vtime*)this->__data.ptr;
+      DateTime* vt = (DateTime*)this->__data.ptr;
       res << vt->toString(); 
     }
   else if (this->_type == typeId::List && this->__data.ptr != NULL)
@@ -1009,17 +1009,15 @@ bool	Variant::operator==(Variant* v)
 	    return false;
 	}
 
-      else if (this->_type == typeId::VTime)
+      else if (this->_type == typeId::DateTime)
         {
-          if (v->type() == typeId::VTime)
+          if (v->type() == typeId::DateTime)
             {
-              vtime*    mine;
-              vtime*    other;
+              DateTime*    mine;
+              DateTime*    other;
               
-              mine = (vtime*)this->__data.ptr;
-              other = v->value<vtime*>();
-              //TIME_FIX
-              std::cout << "variant == " << std::endl;
+              mine = (DateTime*)this->__data.ptr;
+              other = v->value<DateTime*>();
               return (mine->operator==(*other));
             }
           else
@@ -1161,16 +1159,16 @@ bool	Variant::operator>(Variant* v)
       else
 	return true;
     }
-  else if (this->_type == typeId::VTime)
+  else if (this->_type == typeId::DateTime)
     {
-      if (v->type() == typeId::VTime)
+      if (v->type() == typeId::DateTime)
         {
-          vtime*        mine;
-          vtime*        other;
+          DateTime*        mine;
+          DateTime*        other;
           
-          mine = (vtime*)this->__data.ptr;
-          other = v->value<vtime*>();
-          return (mine->operator>(*other)); //TIME_FIX //check for null pointer before deferencing ! do it every where !
+          mine = (DateTime*)this->__data.ptr;
+          other = v->value<DateTime*>();
+          return (mine->operator>(*other)); //XXX check for null pointer before deferencing ?
         }
       else
         return false;

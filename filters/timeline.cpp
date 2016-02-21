@@ -16,7 +16,7 @@
 
 #include <algorithm>
 
-#include "vtime.hpp"
+#include "datetime.hpp"
 #include "timeline.hpp"
 #include "variant.hpp"
 #include "node.hpp"
@@ -24,7 +24,7 @@
 namespace DFF
 {
 
-TimeLineNode::TimeLineNode(Node* node, const std::string& attributeName, const vtime& attribute) : __node(node), __attributeName(attributeName), __timeAttribute(attribute)
+TimeLineNode::TimeLineNode(Node* node, const std::string& attributeName, const DateTime& attribute) : __node(node), __attributeName(attributeName), __timeAttribute(attribute)
 {
 }
       
@@ -49,7 +49,7 @@ Node*   TimeLineNode::node(void) const
   return (this->__node);
 }
 
-vtime   TimeLineNode::attribute(void) const
+DateTime  TimeLineNode::attribute(void) const
 {
   return (this->__timeAttribute);
 }
@@ -99,11 +99,11 @@ const std::vector<TimeLineNode*>&   TimeLine::sort(std::vector<Node*> nodes)
       this->__stop = 0;
       throw std::string("TimeLine::sort() stopped");
     }
-    Attributes attributes = (*node)->attributesByType(typeId::VTime); 
+    Attributes attributes = (*node)->attributesByType(typeId::DateTime); 
     Attributes::iterator attribute = attributes.begin();
     for (; attribute != attributes.end(); ++attribute)
     {
-      vtime* time = attribute->second->value<vtime*>();
+      DateTime* time = attribute->second->value<DateTime*>();
       if (time)
         this->__sorted.push_back(new TimeLineNode((*node), attribute->first, *time));
     }

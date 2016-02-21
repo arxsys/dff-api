@@ -31,10 +31,10 @@ class VariantTreeWidget(QTreeWidget, Ui_VariantTreeWidget):
     def setItemText(self, item, vval):
         if vval == None:
 	    item.setText(1, str("None")) 
-        elif vval.type() == typeId.VTime:
-            vtime = vval.value()
-	    if vtime:
-              item.setText(1, str(vtime))
+        elif vval.type() == typeId.DateTime:
+            dateTime = vval.value()
+	    if dateTime:
+              item.setText(1, str(dateTime))
         elif vval.type() in [typeId.Int16, typeId.UInt16, typeId.Int32, typeId.UInt32, typeId.Int64, typeId.UInt64]:
             item.setText(1, vval.toString() + " - " + vval.toHexString())
         elif vval.type() in [typeId.Char, typeId.String, typeId.CArray]:

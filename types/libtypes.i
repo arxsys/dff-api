@@ -35,7 +35,7 @@
 #include "config.hpp"
 #include "confmanager.hpp"
 #include "path.hpp"
-#include "vtime.hpp"
+#include "datetime.hpp"
   
 #ifndef WIN32
 	#include <stdint.h>
@@ -86,7 +86,7 @@
 %include "../include/export.hpp"
 %include "../include/config.hpp"
 %include "../include/path.hpp"
-%include "../include/vtime.hpp"
+%include "../include/datetime.hpp"
 %include "../include/confmanager.hpp"
 
 %extend_smart_pointer( Variant_p );
@@ -101,7 +101,7 @@ namespace std
   %template(ConstantList)    std::list<DFF::Constant*>;
   %template(VList)	     std::list< Variant_p >;
   %template(VMap)	     std::map<std::string, Variant_p >;
-  %template(MapVtime)        std::map<std::string, DFF::vtime*>;
+  %template(MapDateTime)     std::map<std::string, DFF::DateTime*>;
   %template(MapConstant)     std::map<std::string, DFF::Constant*>;
   %template(MapArgument)     std::map<std::string, DFF::Argument*>;
   %template(MapInt)          std::map<string, unsigned int>;
@@ -119,8 +119,8 @@ namespace std
 namespace DFF
 {
 
-%traits_swigtype(DFF::vtime);
-%fragment(SWIG_Traits_frag(DFF::vtime));
+%traits_swigtype(DFF::DateTime);
+%fragment(SWIG_Traits_frag(DFF::DateTime));
 
 %template(__Char) Variant::value<char>;
 %template(__Int16) Variant::value<int16_t>;
@@ -133,7 +133,7 @@ namespace DFF
 %template(__CArray) Variant::value<char *>;
 %template(__Node) Variant::value<DFF::Node*>;
 %template(__Path) Variant::value<DFF::Path*>;
-#%template(__VTime) Variant::value<DFF::vtime*>;
+%template(__DateTime) Variant::value<DFF::DateTime*>;
 %template(__VLink) Variant::value<DFF::VLink*>;
 %template(__String) Variant::value<std::string>;
 %template(__VList) Variant::value< std::list< Variant_p > >;
@@ -1603,7 +1603,7 @@ std::map<std::string, Variant_p >       generate(PyObject* obj) throw (std::stri
                   typeId.CArray: "_Variant__CArray",
                   typeId.Node: "_Variant__Node",
                   typeId.Path: "_Variant__Path",
-                  typeId.VTime: "_Variant__VTime",
+                  typeId.DateTime: "_Variant__DateTime",
                   typeId.List: "_Variant__VList",
                   typeId.Map: "_Variant__VMap",
                   typeId.VLink: "_Variant__VLink"}
@@ -1611,7 +1611,7 @@ std::map<std::string, Variant_p >       generate(PyObject* obj) throw (std::stri
     def __str__(self):
         if self.type() == typeId.Node:
            return self.value().absolute()
-        elif self.type() == typeId.VTime:
+        elif self.type() == typeId.DateTime:
            return self.value()
         else:
            return self.toString()
@@ -1634,9 +1634,9 @@ std::map<std::string, Variant_p >       generate(PyObject* obj) throw (std::stri
   %}
 };
 
-%extend vtime
+%extend DateTime 
 {
-  PyObject* DFF::vtime::toPyDateTime(void)
+  PyObject* DFF::DateTime::toPyDateTime(void)
   {
     SWIG_PYTHON_THREAD_BEGIN_BLOCK;
     PyDateTime_IMPORT;
@@ -1674,7 +1674,7 @@ std::map<std::string, Variant_p >       generate(PyObject* obj) throw (std::stri
 		  typeId.CArray: "_RCVariant__CArray",
 		  typeId.Node: "_RCVariant__Node",
 		  typeId.Path: "_RCVariant__Path",
-		  typeId.VTime: "_RCVariant__VTime",
+		  typeId.DateTime: "_RCVariant__DateTime",
 		  typeId.List: "_RCVariant__VList",
 		  typeId.Map: "_RCVariant__VMap",
                   typeId.VLink: "_RCVariant__VLink"}
@@ -1682,7 +1682,7 @@ std::map<std::string, Variant_p >       generate(PyObject* obj) throw (std::stri
     def __str__(self):
         if self.type() == typeId.Node:
            return self.value().absolute()
-        elif self.type() == typeId.VTime:
+        elif self.type() == typeId.DateTime:
            return self.value()
         else:
            return self.toString()

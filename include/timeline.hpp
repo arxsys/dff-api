@@ -26,19 +26,19 @@ class Node;
 class TimeLineNode
 {
 public:
-  TimeLineNode(Node* node, const std::string& attributeName, const vtime& time);
+  TimeLineNode(Node* node, const std::string& attributeName, const DateTime& time);
   TimeLineNode(const TimeLineNode& copy);
   ~TimeLineNode();
  
   static bool           compare(TimeLineNode* a, TimeLineNode* b);
 
   Node*                 node(void) const;
-  vtime                 attribute(void) const;
+  DateTime              attribute(void) const;
   const std::string     attributeName(void) const;
 private:
   Node*                 __node;
   std::string           __attributeName;
-  vtime                 __timeAttribute;
+  DateTime              __timeAttribute;
 };
 
 class TimeLine

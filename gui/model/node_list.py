@@ -16,7 +16,7 @@
 from PyQt4.QtCore import SIGNAL, QAbstractItemModel, QModelIndex, QVariant, Qt, QDateTime, QString, QSize
 from PyQt4.QtGui import QColor, QIcon, QPixmap, QPainter, QStandardItemModel, QStandardItem, QApplication, QCursor, QPalette
 
-from dff.api.types.libtypes import Variant, vtime
+from dff.api.types.libtypes import Variant, DateTime 
 from dff.api.events.libevents import EventHandler
 from dff.api.vfs.libvfs import VFS, ABSOLUTE_ATTR_NAME, VecNode, VLink
 from dff.api.types.libtypes import typeId
@@ -267,10 +267,10 @@ class NodeListModel(QAbstractItemModel):
 	   print "NodeListModel data can't get attribute " + attrpath + " by name " + str(e)
 	   return QVariant()
         if len(val) == 1:
-          if val[0].type() == typeId.VTime:
-            vtime = val[0].value()
-            if vtime:
-              return QVariant(str(vtime))
+          if val[0].type() == typeId.DateTime:
+            dateTime = val[0].value()
+            if dateTime:
+              return QVariant(str(dateTime))
           elif val[0].type() == typeId.String:
             return QVariant(QString.fromUtf8(val[0].value()))
           else:
@@ -625,9 +625,8 @@ class NodeListModel(QAbstractItemModel):
   def attributesByName(self, node, attrpath, ABSOLUTE_ATTR_NAME):
       val = node.attributesByName(attrpath, ABSOLUTE_ATTR_NAME)
       if len(val) == 1:
-        if val[0].type() == typeId.VTime:
-          #val[0].thisown = False
-          return vtime(val[0].value()) #must copy because or set variant this own to false because rc_variant store vtime*  that is deleted at function return
+        if val[0].type() == typeId.DateTime:
+          return DateTime(val[0].value()) #must copy because or set variant this own to false because rc_variant store DateTime*  that is deleted at function return
         else:
           val = val[0].value()
           return val
@@ -758,10 +757,10 @@ class TimeLineNodeListModel(NodeListModel):
 	   print "NodeListModel data can't get attribute " + attrpath + " by name " + str(e)
 	   return QVariant()
         if len(val) == 1:
-          if val[0].type() == typeId.VTime:
-            vtime = val[0].value()
-            if vtime:
-              return QVariant(str(vtime))
+          if val[0].type() == typeId.DateTime:
+            dateTime = val[0].value()
+            if dateTime:
+              return QVariant(str(dateTime))
           elif val[0].type() == typeId.String:
             return QVariant(QString.fromUtf8(val[0].value()))
           else:

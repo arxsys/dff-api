@@ -284,8 +284,8 @@ class RangeStatusModel(AbstractStatusItemModel):
     attr = node.attributesByName(attribute, ABSOLUTE_ATTR_NAME)
     if len(attr):
       attr = attr[0]
-      if attr.type() == VTime:
-        val = attr.value().toPyDateTime() #TIME_FIX
+      if attr.type() == DateTime:
+        val = attr.value().toPyDateTime() 
         ts = time.mktime(val)
         if ts > self.__maximum:
           self.__maximum = ts
