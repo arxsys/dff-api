@@ -25,6 +25,11 @@
 #include <sys/types.h>
 #include "node.hpp"
 
+using namespace Destruct;
+
+namespace DFF
+{
+
 class VLink : public Node
 {
 private :
@@ -58,7 +63,7 @@ public :
   EXPORT AttributesHandlers&            attributesHandlers(void);
   EXPORT bool				registerAttributes(AttributesHandler*);
 
-  EXPORT Attributes			dataType(void); 
+  EXPORT const std::string		dataType(void); 
   EXPORT Attributes			attributes(void);
   EXPORT Attributes			attributesByType(uint8_t type);
   EXPORT std::list< Variant_p >		attributesByName(std::string name, attributeNameType tname=RELATIVE_ATTR_NAME);
@@ -84,4 +89,5 @@ public :
   EXPORT static  VLink*                 load(Destruct::DValue const& args);
 };
 
+}
 #endif

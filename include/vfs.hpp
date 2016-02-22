@@ -35,14 +35,18 @@
 #include <list>
 #include <set>
 
+#include "dstructs.hpp"
+#include "protocol/dcppobject.hpp"
+#include "dobject.hpp"
+#include "dvalue.hpp"
+#include "drealvalue.hpp"
 #include "eventhandler.hpp"
 #include "export.hpp"
 #include "exceptions.hpp"
 
-#include "dstructs.hpp"
-#include "dvalue.hpp"
-#include "protocol/dcppobject.hpp"
 
+namespace DFF
+{
 class Node;
 class fso;
 class vfsError;
@@ -79,7 +83,7 @@ private:
   void                         __loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* node);//Node* node 
 };
 
-class VFS : public EventHandler, public Destruct::DCppObject<VFS>
+class VFS : public EventHandler, public Destruct::DCppObject<DFF::VFS>
 {  
 private:
   EXPORT 	                VFS();
@@ -87,7 +91,6 @@ private:
 
   VFS&                          operator=(VFS&);
                                 VFS(const VFS&);
-
 
   void                          __deleteNode(Node* node);
   std::vector<fso*>	        __fsobjs;
@@ -173,15 +176,20 @@ public:
   }
 };
 
-namespace Destruct{
-template<>
-inline DObject* DCppObject<VFS>::clone() const
-{
-  return (const_cast<DCppObject<VFS> *>(this));
 }
 
+namespace Destruct
+{
+  template<>
+  inline Destruct::DObject* Destruct::DCppObject<DFF::VFS>::clone() const
+  {
+    return (const_cast<Destruct::DCppObject<DFF::VFS> *>(this));
+  }
 }
-class NodeContainer : public Destruct::DCppObject<NodeContainer>
+
+namespace DFF
+{
+class NodeContainer : public Destruct::DCppObject<DFF::NodeContainer>
 {
 public:
   EXPORT                                           NodeContainer(Destruct::DStruct* dstruct, Destruct::DValue const& args);
@@ -230,5 +238,5 @@ private:
   Node*         __node;
 };
 
-
+}
 #endif

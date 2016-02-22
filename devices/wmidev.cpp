@@ -16,6 +16,9 @@
 
 #include "wmidev.hpp"
 
+namespace DFF
+{
+
 /*
 This use WMI to get devices informations 
 */
@@ -176,4 +179,6 @@ WMIDevices::~WMIDevices()
     this->pSvc->Release();
   if (this->pLoc)
     this->pLoc->Release();
+}
+
 }

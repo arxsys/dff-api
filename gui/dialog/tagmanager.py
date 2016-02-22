@@ -53,7 +53,10 @@ class TagManagerDialog(QDialog, Ui_Tags):
      self.connect(self.selectedTags, SIGNAL("itemDoubleClicked(QListWidgetItem*)"), self.editTag)
      self.connect(self.allTags, SIGNAL("itemDoubleClicked(QListWidgetItem*)"), self.editTag)
      self.tagsManager = TagsManager.get()
-     self.selectedNodesList = selectedNodesList
+     if len(selectedNodesList) == 1 and selectedNodesList[0] == None:
+       self.selectedNodesList = []
+     else:
+       self.selectedNodesList = selectedNodesList
      self.selectedNodes = []
      self.fillLists()
      self.translation()

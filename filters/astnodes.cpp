@@ -16,19 +16,22 @@
 
 #include <sstream>
 
+#include "datetime.hpp"
 #include "vfile.hpp"
 #include "fso.hpp"
 #include "tags.hpp"
 #include "astnodes.hpp"
 #include "parser.hpp"
+#include "exceptions.hpp"
+
+using namespace DFF;
 
 static int __namedcreator__ = AttributeFactory::instance()->registerCreator(AttributeFactory::Named, NamedAttribute::create);
 static int __timestampcreator__ = AttributeFactory::instance()->registerCreator(AttributeFactory::Timestamp, TimestampAttribute::create);
 
 KEYWORD(time, time, AttributeFactory::Timestamp, QueryFlags::Advanced)
 KEYWORD(year, year, AttributeFactory::Timestamp, QueryFlags::Advanced)
-KEYWORD(magic, type.magic, AttributeFactory::Named, QueryFlags::DataType)
-KEYWORD(mime, type.magic mime, AttributeFactory::Named, QueryFlags::DataType)
+KEYWORD(type, type, AttributeFactory::Named, QueryFlags::DataType)
 KEYWORD(size, filesize, AttributeFactory::Named, QueryFlags::Primitive)
 KEYWORD(deleted, deleted, AttributeFactory::Named, QueryFlags::Primitive)
 KEYWORD(folder, folder, AttributeFactory::Named, QueryFlags::Primitive)
@@ -40,7 +43,7 @@ KEYWORD(tags, tags, AttributeFactory::Named, QueryFlags::Tags)
 KEYWORD(tagged, tagged, AttributeFactory::Named, QueryFlags::Tags)
 KEYWORD(to, pff.Transport headers.To, AttributeFactory::Named, QueryFlags::Advanced)
 KEYWORD(from, pff.Transport headers.From, AttributeFactory::Named, QueryFlags::Advanced)
-KEYWORD(module, module, AttributeFactory::Named, QueryFlags::Primitive)
+KEYWORD(module, module, AttributeFactory::Named, QueryFlags::Advanced)
 
 InterpreterContext::InterpreterContext()
 {
@@ -81,7 +84,7 @@ void		InterpreterContext::setQueryFlags(QueryFlags::Level qflags)
   this->__qflags |= qflags;
 }
 
-void		InterpreterContext::setCurrentNode(Node* node)
+void		InterpreterContext::setCurrentNode(DFF::Node* node)
 {
   Attributes::iterator			it;
   Variant*				vptr;
@@ -108,20 +111,15 @@ void		InterpreterContext::setCurrentNode(Node* node)
 	  this->__attributes["deleted"] = new Variant(node->isDeleted());
 	  this->__attributes["folder"] = new Variant(node->isDir());
 	  this->__attributes["file"] = new Variant(node->isFile());
-	  if (node->fsobj() != NULL)
-	    this->__attributes["module"] = new Variant(node->fsobj()->name);
-	  else
-	    this->__attributes["module"] = new Variant(std::string("unknown"));
 	}
       if ((this->__qflags & QueryFlags::DataType) == QueryFlags::DataType)
-	{
-	  attr = this->__cnode->dataType();
-	  this->__attributes["type"] = new Variant(attr);
-	}
+	this->__attributes["type"] = new Variant(this->__cnode->dataType());
       if ((this->__qflags & QueryFlags::Advanced) == QueryFlags::Advanced)
 	{
+	  VLIST modules;
 	  if ((fsobj = this->__cnode->fsobj()) != NULL)
 	    {
+	      modules.push_back(new Variant(fsobj->name));
 	      try
 	      {
 	        attr = this->__cnode->fsoAttributes();
@@ -137,15 +135,20 @@ void		InterpreterContext::setCurrentNode(Node* node)
 		}
 	    }
 	  try
-	  {
-	    attr = this->__cnode->dynamicAttributes();
-	  }
+	    {
+	      attr = this->__cnode->dynamicAttributes();
+	      if (!attr.empty())
+		{
+		  this->__attributes.insert(attr.begin(), attr.end());
+		  for (it = attr.begin(); it != attr.end(); it++)
+		    modules.push_back(new Variant(it->first));
+		}
+	    }
 	  catch (...)
-	  {
-	    std::cout << "astnodes InterpreterContext::setCurrentNode can't get node->dynamicAttributes()" << std::endl;
-	  }
-	  if (!attr.empty())
-	    this->__attributes.insert(attr.begin(), attr.end());
+	    {
+	      std::cout << "astnodes InterpreterContext::setCurrentNode can't get node->dynamicAttributes()" << std::endl;
+	    }
+	  this->__attributes["module"] = new Variant(modules);
 	}
       if ((this->__qflags & QueryFlags::Tags) == QueryFlags::Tags)
 	{
@@ -656,7 +659,7 @@ bool		TimestampAttribute::compile(InterpreterContext* ic)
 
 Variant*	TimestampAttribute::evaluate()
 {
-  std::list< Variant_p >  types = this->_ic->lookupByType(typeId::VTime);
+  std::list< Variant_p >  types = this->_ic->lookupByType(typeId::DateTime);
   if (types.size() > 0)
     return new Variant(types);
   else
@@ -760,7 +763,7 @@ bool		Timestamp::compile(InterpreterContext* ic)
 
 Variant*	Timestamp::evaluate()
 {
-  return new Variant(new vtime(__val));
+  return new Variant(new DateTime(__val));
 }
 
 

@@ -25,52 +25,56 @@
 #include <QDesktopWidget>
 #include <QObject>
 
-void		sendDump(int argc, char* argv[], char* version, char* path);
+void		sendDump(int argc, char* argv[], char* version, char* path, char* silent);
 void		usage();
-void		parseArguments(int argc, char* argv[], char** version, char** path);
+void		parseArguments(int argc, char* argv[], char** version, char** path, char** silent);
+void		silentReport(char* version, CrashDumpInfo* cinfo);
+void		guiReport(int argc, char* argv[], char* version, CrashDumpInfo* cinfo);
+
 
 int		main(int argc, char* argv[])
 {
   char*		path;
   char*		version;
+  char*		silent;
  
   path = NULL;
   version = NULL;
-  parseArguments(argc, argv, &version, &path);
-  sendDump(argc, argv, version, path);
+  silent = NULL;
+  parseArguments(argc, argv, &version, &path, &silent);
+  sendDump(argc, argv, version, path, silent);
 }
 
 
-void	parseArguments(int argc, char* argv[], char** version, char** path)
+void	parseArguments(int argc, char* argv[], char** version, char** path, char** silent)
 {
   int	i;
 
-  if (argc != 5)
+  if (argc != 7)
     usage();
-  for (i = 0; i != 5; i++)
+  for (i = 0; i != 7; i++)
     {
-      if ((strncmp(argv[i], "-p", 2) == 0) && i < 5 && (strncmp(argv[i+1], "-v", 2) != 0))
+      if ((strncmp(argv[i], "-p", 2) == 0) && i < 7 && (strncmp(argv[i+1], "-v", 2) != 0) && (strncmp(argv[i+1], "-s", 2) != 0))
 	*path = argv[i+1];
-      if ((strncmp(argv[i], "-v", 2) == 0) && i < 5 && (strncmp(argv[i+1], "-p", 2) != 0))
+      if ((strncmp(argv[i], "-v", 2) == 0) && i < 7 && (strncmp(argv[i+1], "-p", 2) != 0) && (strncmp(argv[i+1], "-s", 2) != 0))
 	*version = argv[i+1];
+      if ((strncmp(argv[i], "-s", 2) == 0) && i < 7 && (strncmp(argv[i+1], "-p", 2) != 0) && (strncmp(argv[i+1], "-v", 2) != 0))
+	*silent = argv[i+1];
     }
-  if (version == NULL || path == NULL)
+  if (version == NULL || path == NULL || silent == NULL)
     usage();
 }
 
 
 void	usage()
 {
-  std::cout << "usage: CrashReporter -v version -p path" << std::endl;
+  std::cout << "usage: CrashReporter -v version -p path -s [0|1]" << std::endl;
   exit(1);
 }
 
-void			sendDump(int argc, char* argv[], char* version, char* path)
+
+void			sendDump(int argc, char* argv[], char* version, char* path, char* silent)
 {
-  int			ret;
-  std::string		msg;
-  CrashDialog*		cdialog;
-  CrashReporter*	reporter;
   CrashDumpInfo*	cinfo;
   
   cinfo = new CrashDumpInfo();
@@ -84,16 +88,55 @@ void			sendDump(int argc, char* argv[], char* version, char* path)
       delete cinfo;
       exit(1);
     }
+  if (strncmp(silent, "1", 1) == 0)
+    silentReport(version, cinfo);
+  else
+    guiReport(argc, argv, version, cinfo);
+}
+
+
+void	silentReport(char* version, CrashDumpInfo* cinfo)
+{
+  CrashReporter*	reporter;
+  std::string		msg;
+
+  reporter = createCrashReporter();
+  reporter->setMinidumpPath(cinfo->minidumpPath());
+  reporter->setVersion(version);
+  reporter->setComment("Silent report");
+  if (!reporter->sendReport())
+    { 
+      msg = "Error while uploading dump " + reporter->minidumpPath();
+      msg += "\nYou can send it by mail at the following address : contact@arxsys.fr";
+      std::cout << msg << std::endl;
+    }
+  else
+    {
+      msg = "Dump " + reporter->minidumpPath() + " successfully uploaded";
+      msg += "\nand is available at " + reporter->viewUrl();
+      msg += "\n\nThanks for your support!";
+      std::cout << msg << std::endl;
+    }  
+}
+
+
+void	guiReport(int argc, char* argv[], char* version, CrashDumpInfo* cinfo)
+{
+  CrashDialog*		cdialog;
+  CrashReporter*	reporter;
+  std::string		msg;
+  int			ret;
+  
   QApplication app(argc, argv, true);
   cdialog = new CrashDialog();
   cdialog->setDetails(cinfo->details());
   cdialog->setVersion(version);
-  cdialog->setMinidumpPath(path);
+  cdialog->setMinidumpPath(cinfo->minidumpPath());
   ret = cdialog->exec();
   if (cdialog->reportEnabled())
     {
       reporter = createCrashReporter();
-      reporter->setMinidumpPath(path);
+      reporter->setMinidumpPath(cinfo->minidumpPath());
       reporter->setVersion(version);
       reporter->setComment(cdialog->userComment());
       if (cdialog->proxyEnabled())
@@ -122,4 +165,3 @@ void			sendDump(int argc, char* argv[], char* version, char* path)
     exit(1);
   }
 }
-

@@ -69,6 +69,15 @@ void		CrashDumpInfo::print()
 }
 
 
+std::string		CrashDumpInfo::minidumpPath()
+{
+  if (this->__minidump)
+    return this->__minidump->path();
+  else
+    return std::string();
+}
+
+
 std::string		CrashDumpInfo::details()
 {
   std::stringstream	details;

@@ -12,14 +12,16 @@
 # Author(s):
 #  Jeremy MOUNIER <jmo@digital-forensic.org>
 
-from PyQt4 import QtCore, QtGui
+import time
+
+from PyQt4 import QtCore, QtGui, Qt
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from dff.api.vfs.vfs import vfs, Node
 from dff.api.vfs.libvfs import VFS, VecNode, TagsManager
 from dff.api.types.libtypes import typeId, Variant, RCVariant
-from dff.api.filters.libfilters import Filter
+from dff.api.filters.libfilters import Filter, TimeLine
 from dff.api.events.libevents import event, EventHandler
 
 from dff.api.gui.widget.propertytable import PropertyTable
@@ -27,7 +29,7 @@ from dff.api.gui.model.node_list import NodeListModel
 from dff.api.gui.model.tree import TreeModel
 from dff.api.gui.model.selection import SelectionManager
 from dff.api.gui.view.tree import NodeTreeView
-from dff.api.gui.widget.nodewidget import NodeWidget
+from dff.api.gui.widget.nodewidget import NodeWidget, TimeLineNodeWidget
 from dff.api.gui.widget.search.thread import SearchThread
 from dff.api.gui.widget.search.search_widget import SearchPanel
 from dff.api.gui.widget.search.filter import FilterBar
@@ -50,6 +52,29 @@ FILTER_RESULT = 3
 # LEFT PAN
 TREE_VIEW = 0
 SEARCH_PAN = 1
+
+class Timeliner(QObject):
+  def __init__(self):
+    QObject.__init__(self)
+    self.isRunning = False
+
+  def launch(self, nodesList):
+    self.isRunning = True
+    self.timeLine = TimeLine()
+    try:
+      sortedList = self.timeLine.sort(nodesList)
+      self.emit(SIGNAL("timelinerFinished"), sortedList) 
+      self.isRunning = False
+    except Exception as e:
+      self.isRunning = False
+      self.emit(SIGNAL("timelinerStopped"))
+
+  def progress(self):
+     self.emit(SIGNAL("timelinerUpdateProgress"), self.timeLine.processed(), self.timeLine.toProcess())
+
+  def stop(self):
+     if self.isRunning:
+       self.timeLine.stop()
 
 class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
   def __init__(self, parent=None, mode=ADVANCED):
@@ -81,6 +106,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.VFS.connection(self)
     self.connect(self, SIGNAL("refreshList"), self.refreshList)
     self.bookManager = BookmarkManager(self.model())
+    self.timelinerThread = None
 
   def __del__(self):
     self.VFS.deconnection(self)
@@ -101,6 +127,7 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.browserview.model.removeNode(node)
       self.filterview.model.removeNode(node)
       self.searchview.model.removeNode(node)
+      self.timeLineView.model.removeNode(node)
       self.bookManager.removeCategory(node)
     else:
       self.emit(SIGNAL("refreshList"), e)
@@ -155,6 +182,12 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.search.setVisible(False)
     self.toolbar.addWidget(self.filter)
     self.connect(self.filter, SIGNAL("clicked(bool)"), self.viewFilter)
+
+    self.timeLineButton = QPushButton(QIcon(":clock"), self.tr("Timeline"), self)
+    self.timeLineButton.setCheckable(True)
+    self.toolbar.addWidget(self.timeLineButton)
+    self.connect(self.timeLineButton, SIGNAL("clicked(bool)"), self.showTimeLine)
+
     self.mainlayout.addWidget(self.toolbar, 0)
 
   def viewFilter(self):
@@ -171,6 +204,80 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.viewpan.setCurrentWidget(self.currentView())
       self.infostack.hide()
     self.updateStatus()
+
+  def timerlinerFinished(self, timelineNodeList):
+     self.timeLineView.updateStatusShowWidgets()
+     self.model().updateList(timelineNodeList)
+     self.timelinerStopped()
+
+  def timelinerStopped(self):
+     self.timelinerProgressTimer.stop()
+     self.timelinerProgressTimer = None
+     self.timelinerThread.quit()
+     self.timelinerThread.wait()
+     self.timelinerThread = None
+ 
+  def askToStopTimeline(self):
+     if self.timeliner.isRunning:
+       if QMessageBox(QMessageBox.Warning, self.tr("Stop timeline"), self.tr("Do you want to stop the timeline creation ?"), QMessageBox.Yes | QMessageBox.No, self).exec_() == QMessageBox.No:
+         self.timeLineButton.setChecked(True)
+         return False
+       else:
+          self.timeLineView.updateStatusShowWidgets()
+          self.emit(SIGNAL("timelinerStop")) 
+     self.model().clearList()
+     self.timeliner = None #call TimeLineNode destructor
+     self.timeLineView.updateStatusShowWidgets()
+     self.leftpan.show()
+     self.timeLineButton.setChecked(False)
+     self.filter.setEnabled(True)
+     self.infostack.setEnabled(True)
+     return True
+
+  def timelinerGetProgress(self):
+      self.emit(SIGNAL("timelinerGetProgress"))
+
+  def timelinerUpdateProgress(self, processed, toProcess):
+      if self.parent().visibility():
+        self.timeLineView.updateStatusProgressBar(processed, toProcess)
+
+  def showTimeLine(self):
+     if self.timeLineButton.isChecked():
+       self.filter.setEnabled(False)
+       self.infostack.setEnabled(False)
+       previousModelNodeList = self.model().list()
+       self.viewpan.setCurrentWidget(self.timeLineView)
+       self.leftpan.hide()
+       self.navigationtoolbar.setEnabled(False)
+       self.model().clearList()
+       if self.timelinerThread is not None:
+         print 'Error timelinerThread still exist'
+         return
+       self.timelinerThread = QThread()
+       self.timeliner = Timeliner()
+       self.timeliner.moveToThread(self.timelinerThread)
+       self.connect(self.timelinerThread, SIGNAL("finished"), self.timeliner.deleteLater)
+       self.connect(self, SIGNAL("timelinerLaunch"), self.timeliner.launch)
+       self.connect(self, SIGNAL("timelinerStop"), self.timeliner.stop, Qt.DirectConnection)
+       self.connect(self, SIGNAL("timelinerGetProgress"), self.timeliner.progress, Qt.DirectConnection)
+       self.connect(self.timeliner, SIGNAL("timelinerFinished"), self.timerlinerFinished)
+       self.connect(self.timeliner, SIGNAL("timelinerFinished"), self.updateStatus)
+       self.connect(self.timeliner, SIGNAL("timelinerStopped"), self.timelinerStopped)
+       self.connect(self.timeliner, SIGNAL("timelinerUpdateProgress"), self.timelinerUpdateProgress)
+       self.timeLineView.updateStatusShowProgressBar()
+       self.timelinerThread.start()
+       self.timelinerProgressTimer = QTimer()
+       self.timelinerProgressTimer.setSingleShot(False)
+       self.timelinerProgressTimer.timeout.connect(self.timelinerGetProgress)
+       self.timelinerProgressTimer.start(1000)
+       self.emit(SIGNAL("timelinerLaunch"), previousModelNodeList)
+     else:
+       if self.askToStopTimeline() == False:
+         return 
+       if self.search.isChecked():
+         self.viewpan.setCurrentWidget(self.searchview) 
+       else:
+         self.viewpan.setCurrentWidget(self.browserview)
 
   def factorminus(self):
     value = self.factorSlider.value() - 1
@@ -242,8 +349,17 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.viewpan.addWidget(self.filterview)
     if self.mode == ADVANCED:
       self.searchwidget = SearchPanel(self, self.searchview)
+      self.connect(self.browserview.model, SIGNAL("layoutChanged()"), self.updateStatus)
       self.connect(self.searchwidget, SIGNAL("finished()"), self.updateStatus)
       self.leftpan.addWidget(self.searchwidget)
+    # TimeLine view
+    self.timeLineView = TimeLineNodeWidget(self.selection)
+
+    self.connect(self.timeLineView.model, SIGNAL("layoutChanged()"), self.updateStatus)
+    self.connect(self.timeLineView, SIGNAL("nodePressed"), self.timeLineNodePressed)
+    self.views.append(self.timeLineView)
+    self.viewpan.addWidget(self.timeLineView)
+
     self.splitter.addWidget(self.leftpan)
     self.splitter.addWidget(self.viewstack)
     self.splitter.addWidget(self.attributes)
@@ -252,6 +368,13 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.splitter.setStretchFactor(2, 15)
 
     self.mainlayout.addWidget(self.splitter, 50)
+
+  def timeLineNodePressed(self, timeLineNode):
+    node = timeLineNode.node()
+    self.attributes.fill(node)
+    self.mainwindow.emit(SIGNAL("previewUpdate"), node)
+    self.emit(SIGNAL("nodePressed"), node)
+    self.updateStatus()
 
   def nodePressed(self, node):
     self.attributes.fill(node)
@@ -283,6 +406,14 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
       self.currentView().updateStatus()
 
   def activateSearchPan(self, state):
+    if self.timeLineButton.isChecked(): 
+      if self.search.isChecked() == False:
+        self.search.setChecked(True)
+        return
+      else:
+        if self.askToStopTimeline() == False:
+          self.search.setChecked(False)
+          return
     if self.mode == ADVANCED:
       if state:
         self.leftpan.setCurrentIndex(SEARCH_PAN)
@@ -362,10 +493,12 @@ class NodeListWidgets(Ui_BrowserToolBar, QWidget, EventHandler):
     self.bookManager.launch()
 
   def currentView(self):
-    if not self.search.isChecked():
-      return self.browserview
-    else:
+    if self.timeLineButton.isChecked():
+      return self.timeLineView
+    elif self.search.isChecked():
       return self.searchview
+    else:
+      return self.browserview
 
   def views(self):
     views = []

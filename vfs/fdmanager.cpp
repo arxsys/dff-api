@@ -17,6 +17,9 @@
 #include "fdmanager.hpp"
 #include "threading.hpp"
 
+namespace DFF
+{
+
 FdManager::FdManager()
 {
   mutex_init(&this->__mutex);
@@ -113,4 +116,6 @@ void		FdManager::remove(int32_t fd)
     }
   }
   mutex_unlock(&this->__mutex);
+}
+
 }

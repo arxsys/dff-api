@@ -27,6 +27,9 @@
 #include "constant.hpp"
 #include "config.hpp"
 
+namespace DFF
+{
+
 class ConfigManager
 {
 private:
@@ -47,4 +50,5 @@ public:
   EXPORT std::map<std::string, Argument*>	argumentsByName(std::string argname);
 };
 
+}
 #endif

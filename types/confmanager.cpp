@@ -16,6 +16,9 @@
 
 #include "confmanager.hpp"
 
+namespace DFF
+{
+
 ConfigManager::ConfigManager()
 {
 }
@@ -117,4 +120,6 @@ std::map<std::string, Argument*>	ConfigManager::argumentsByName(std::string argn
     if ((arg = it->second->argumentByName(argname)) != NULL)
       margs.insert(std::pair<std::string, Argument*>(it->first, arg));
   return margs;
+}
+
 }

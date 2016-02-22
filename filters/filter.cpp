@@ -16,8 +16,12 @@
 
 #include "filter.hpp"
 #include "scanner.hpp"
-#include <iostream>
+#include "fso.hpp"
+#include "node.hpp"
+#include "vfs.hpp"
 
+namespace DFF
+{
 
 Filter::Filter(std::string fname) 
 {
@@ -383,4 +387,6 @@ bool			Filter::__eval(Node* node)
   if (vptr != NULL)
     delete vptr;
   return ret;
+}
+
 }

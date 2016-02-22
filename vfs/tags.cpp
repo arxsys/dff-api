@@ -25,6 +25,9 @@
 #include "drealvalue.hpp"
 #include "dnullobject.hpp" 
 
+namespace DFF
+{
+
 Color::Color() : r(0), g(0), b(0)
 {
 }
@@ -308,4 +311,6 @@ void                    TagsManager::load(Destruct::DValue value)
     color->destroy();
   }
   vector->destroy();
+}
+
 }

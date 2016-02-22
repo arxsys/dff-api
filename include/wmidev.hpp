@@ -28,6 +28,9 @@
 #include <Wbemidl.h>
 # pragma comment(lib, "wbemuuid.lib")
 
+namespace DFF
+{
+
 class WMIDevice : public Device
 {
 private:
@@ -54,4 +57,5 @@ public:
   EXPORT		  	~WMIDevices();
 };
 
+}
 #endif

@@ -17,7 +17,10 @@
 #include "rootnode.hpp"
 #include "vfs.hpp"
 #include "vlink.hpp"
-#include "fso.hpp"
+#include "simplefso.hpp"
+
+namespace DFF
+{
 
 VFSRootNode::VFSRootNode(std::string name) : Node()//: Node(name) register manually to avoid recursive lock
 {
@@ -104,49 +107,4 @@ std::string     IconNode::icon(void)
   return (this->__iconName);
 }
 
-/**
- *  SimpleFso
- */
-
-SimpleFso::SimpleFso(const std::string& name) : fso(name)
-{
-}
-
-void      SimpleFso::start(std::map<std::string, RCPtr< Variant > > args)
-{
-}
-
-int32_t   SimpleFso::vopen(class Node *n)
-{
-  return (-1);
-}
-
-int32_t   SimpleFso::vread(int32_t fd, void *rbuff, uint32_t size)
-{
-  return (-1);
-}
-
-int32_t  SimpleFso::vwrite(int32_t fd, void *wbuff, uint32_t size)
-{
-  return (-1);
-}
-
-int32_t  SimpleFso::vclose(int32_t fd)
-{
-  return (-1);
-}
-
-uint64_t SimpleFso::vseek(int32_t fd, uint64_t offset, int32_t whence)
-{
-  return ((uint64_t)-1);
-}
-
-uint32_t  SimpleFso::status(void)
-{
-  return (0);
-};
-
-uint64_t SimpleFso::vtell(int32_t fd)
-{
-  return (0);
 }

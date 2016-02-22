@@ -19,6 +19,9 @@
 #include "vlink.hpp"
 #include "vfs.hpp"
 
+namespace DFF
+{
+
 VLink::VLink(Node* linkedNode, Node* parent, std::string newname) : Node()
 {
   if (!parent)
@@ -135,7 +138,7 @@ AttributesHandlers&	VLink::attributesHandlers(void)
 }
 
 
-Attributes	VLink::dataType(void)
+const std::string	VLink::dataType(void)
 {
   return this->__linkedNode->dataType();
 }
@@ -265,4 +268,6 @@ VLink*                  VLink::load(Destruct::DValue const& arg)
     return (NULL);
   
   return (new VLink(linkedNode, node, name));
+}
+
 }

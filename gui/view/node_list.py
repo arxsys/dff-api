@@ -141,6 +141,10 @@ class NodeListView(QListView):
     elif event.matches(QKeySequence.MoveToPreviousChar):
       self.select(self.model().activeSelection() - 1)
 
+class TimeLineNodeListView(NodeListView):
+  def __init__(self, widget):
+    NodeListView.__init__(self, widget)
+
 class CheckStateListDelegate(QStyledItemDelegate):
   def __init__(self, parent):
     QStyledItemDelegate.__init__(self, parent) 

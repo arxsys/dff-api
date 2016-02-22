@@ -15,6 +15,11 @@
  */
 
 #include "fso.hpp"
+#include "node.hpp"
+#include "vfs.hpp"
+
+namespace DFF
+{
 
 #include "drealvalue.hpp"
 #include "dvalue.hpp"
@@ -132,4 +137,6 @@ bool            fso::load(Destruct::DValue value)
 Destruct::DValue fso::save(void) const
 {
   return (Destruct::RealValue<Destruct::DObject*>(Destruct::DNone));
+}
+
 }

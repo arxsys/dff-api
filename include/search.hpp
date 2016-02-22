@@ -20,12 +20,14 @@
 #ifndef WIN32
 #include <stdint.h>
 #else
-	#if _MSC_VER >= 1600
-		#include <stdint.h>
-	#else
-		#include "wstdint.h"
-	#endif
+  #if _MSC_VER >= 1600
+     #include <stdint.h>
+  #else
+     #include "wstdint.h"
+  #endif
 #endif
+#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <list>
 #include <vector>
@@ -33,21 +35,24 @@
 
 #include "fastsearch.hpp"
 #ifdef HAVE_TRE
-	#include <tre/tre.h>
-	#ifdef WIN32
-		#undef HAVE_ALLOCA
-		#undef HAVE_ALLOCA_H
-		#define tre_free tre_regfree;
-	#else
-		#ifdef __cplusplus
-		extern "C" {
-		#endif
-			extern void tre_free(regex_t *preg);
-		#ifdef __cplusplus
+  #include <tre/tre.h>
+  #ifdef WIN32
+     #undef HAVE_ALLOCA
+     #undef HAVE_ALLOCA_H
+     #define tre_free tre_regfree;
+  #else
+     #ifdef __cplusplus
+     extern "C" {
+     #endif
+        extern void tre_free(regex_t *preg);
+     #ifdef __cplusplus
 		}
-		#endif
-	#endif
+     #endif
+  #endif
 #endif
+
+namespace DFF
+{
 
 class FastSearch
 {
@@ -141,4 +146,5 @@ private:
   EXPORT int32_t			__acount(char* haystack, uint32_t hslen, int32_t maxcount);
 };
 
+}
 #endif

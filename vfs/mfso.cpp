@@ -21,6 +21,14 @@
 #include "mfso.hpp"
 #include "threading.hpp"
 #include "cache.hpp"
+#include "filemapping.hpp"
+#include "node.hpp"
+#include "variant.hpp"
+#include "vfile.hpp"
+#include "fdmanager.hpp"
+
+namespace DFF
+{
 
 mfso::mfso(std::string name): fso(name)
 {
@@ -328,4 +336,6 @@ uint64_t	mfso::vseek(int32_t fd, uint64_t offset, int32_t whence)
 uint32_t	mfso::status(void)
 {
   return (0);
+}
+
 }

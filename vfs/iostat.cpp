@@ -16,6 +16,9 @@
 
 #include "iostat.hpp"
 
+namespace DFF
+{
+
 IOStat&	IOStat::getInstance()
 {
   static IOStat	instance;
@@ -56,4 +59,6 @@ uint64_t	IOStat::totalInstanceById(uint16_t fsoid)
   if (this->__instances.exist(fsoid))
     total = this->__instances[fsoid];
   return total;
+}
+
 }

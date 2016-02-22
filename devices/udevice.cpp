@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include "udevice.hpp"
 
+namespace DFF
+{
+
 /*
 This use udev to get devices informations
 */
@@ -147,4 +150,6 @@ UDevices::~UDevices()
  std::vector<Device *>::iterator i = this->deviceList.begin();
  for (; i != this->deviceList.end(); i++)
     delete (*i);
+}
+
 }

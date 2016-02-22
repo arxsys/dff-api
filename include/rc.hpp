@@ -15,6 +15,9 @@
 #include "export.hpp"
 #include "threading.hpp"
 
+namespace DFF
+{
+
 struct RCObjBase  
 {
 public:
@@ -82,25 +85,25 @@ template <class T> struct RCPtr
 
   RCPtr(T* realPtr) :pointee(realPtr) 
   {
-   dff::ScopedMutex  locker(__mutex);
+   DFF::ScopedMutex  locker(__mutex);
    addref(pointee);  
   };
 
   RCPtr(const RCPtr& rhs) : pointee(rhs.pointee) 
   { 
-    dff::ScopedMutex locker(__mutex);
+    DFF::ScopedMutex locker(__mutex);
     addref(pointee);
   };
 
   ~RCPtr() 
   { 
-    dff::ScopedMutex locker(__mutex);
+    DFF::ScopedMutex locker(__mutex);
     delref(pointee); 
   };
 
   RCPtr& operator=(const RCPtr& rhs) 
   { 
-    dff::ScopedMutex locker(__mutex);
+    DFF::ScopedMutex locker(__mutex);
 
     if (pointee != rhs.pointee) 
     {
@@ -158,8 +161,8 @@ template <class T> struct RCPtr
     
 private:
   T* pointee;
-  dff::Mutex __mutex;
+  DFF::Mutex __mutex;
 };
 
-
+}
 #endif

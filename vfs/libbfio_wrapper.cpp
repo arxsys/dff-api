@@ -16,6 +16,12 @@
 
 #include "libbfio_wrapper.hpp"
 
+#include "node.hpp"
+#include "vfile.hpp"
+
+namespace DFF
+{
+
 int dff_libbfio_file_io_handle_initialize(dff_libbfio_file_io_handle_t** dff_io_handle, libbfio_error_t** error)
 {
   if (dff_io_handle == NULL)
@@ -193,4 +199,6 @@ int dff_libbfio_file_get_size(intptr_t *io_handle, size64_t *size, libbfio_error
   *size = (size64_t) file_io_handle->parent->size();
 
   return (1);
+}
+
 }

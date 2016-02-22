@@ -20,9 +20,12 @@ install_file(__init__.py)
 include_directories(destruct)
 add_subdirectory (destruct)
 
-include_directories("${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad")
-
 add_subdirectory (exceptions)
+
+STRING (REGEX MATCH "Linux" LINUX ${CMAKE_SYSTEM_NAME})
+#if(LINUX OR WIN32)
+  #add_subdirectory (crashreporter)
+#endif(LINUX OR WIN32)
 add_subdirectory (events)
 add_subdirectory (loader)
 add_subdirectory (module)
@@ -32,10 +35,9 @@ add_subdirectory (search)
 add_subdirectory (filters)
 add_subdirectory (tree)
 
-
-if (WIN32)
+if (LINUX OR WIN32)
   add_subdirectory (magic)
-endif (WIN32)
+endif (LINUX OR WIN32)
 
 # python only
 add_subdirectory (taskmanager)

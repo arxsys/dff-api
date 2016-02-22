@@ -33,12 +33,13 @@
 #include <vector>
 
 #include "fso.hpp"
-#include "fdmanager.hpp"
-#include "vfile.hpp"
-//#include "cache.hpp"
-#include "threading.hpp"
 
+namespace DFF
+{
 class FileMappingCache;
+class FdManager;
+class fdinfo;
+class FileMapping;
 
 class mfso: public fso
 {
@@ -65,4 +66,5 @@ public:
   EXPORT bool                           unmap(Node* node);
 };
 
+}
 #endif

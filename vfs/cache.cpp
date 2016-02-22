@@ -17,6 +17,10 @@
 #include "vfile.hpp"
 #include "filemapping.hpp"
 #include "cache.hpp"
+#include "node.hpp"
+
+namespace DFF
+{
 
 VFilePool& poolInit = VFilePool::instance();
 Cache<Attributes>& attributeInit = AttributeCache::instance();
@@ -46,6 +50,11 @@ VFilePool::~VFilePool()
 
   for (i = 0; i < this->__poolSize; i++)
   {
+    if (this->__poolSlot[i]->content)
+    {
+      VFile* vfile = (VFile*)this->__poolSlot[i]->content;
+      delete vfile;
+    }
     free(this->__poolSlot[i]);
   }
   free(this->__poolSlot);
@@ -258,4 +267,6 @@ void    FileMappingCache::remove(Node* node)
   }
   mutex_unlock(&this->__mutex);
   return;
+}
+
 }

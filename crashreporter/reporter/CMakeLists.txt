@@ -29,7 +29,7 @@ qt4_wrap_cpp(CrashDialog_MOC crashdialog.hpp)
 
 include(${QT_USE_FILE})
 
-include_directories("${CMAKE_SOURCE_DIR}/dff/api/exceptions/breakpad")
+include_directories("${CMAKE_SOURCE_DIR}/dff/api/crashreporter/breakpad")
 
 add_definitions(${QT_DEFINITIONS})
 
@@ -38,7 +38,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 if (WIN32)
   add_definitions(-DUNICODE -D_UNICODE)
   add_executable(CrashReporter main.cpp crashdumpinfo.cpp crashreporter.cpp crashdialog.cpp ${CrashDialog_MOC})
-  target_link_libraries (CrashReporter Qt4::QtCore Qt4::QtGui wininet "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/breakpad.lib")
+  target_link_libraries (CrashReporter Qt4::QtCore Qt4::QtGui wininet "${CMAKE_BINARY_DIR}/dff/api/crashreporter/breakpad/breakpad.lib")
   set_target_properties (CrashReporter PROPERTIES
     SUFFIX ".exe"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
@@ -46,11 +46,11 @@ if (WIN32)
     RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}"
     RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_CURRENT_BINARY_DIR}"
     )
-  install (TARGETS CrashReporter DESTINATION dff/dff/api/exceptions/reporter)
+  install (TARGETS CrashReporter DESTINATION dff/dff/api/crashreporter/reporter)
 else (WIN32)
   add_executable(CrashReporter main.cpp crashdumpinfo.cpp crashreporter.cpp crashdialog.cpp ${CrashDialog_MOC})
-  target_link_libraries (CrashReporter Qt4::QtCore Qt4::QtGui dl "${CMAKE_BINARY_DIR}/dff/api/exceptions/breakpad/libbreakpad.a")
-  install (TARGETS CrashReporter DESTINATION dff/api/exceptions/reporter)
+  target_link_libraries (CrashReporter Qt4::QtCore Qt4::QtGui dl "${CMAKE_BINARY_DIR}/dff/api/crashreporter/breakpad/libbreakpad.a")
+  install (TARGETS CrashReporter DESTINATION dff/api/crashreporter/reporter)
 endif (WIN32)
 
 add_dependencies(CrashReporter breakpad)

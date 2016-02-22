@@ -42,6 +42,8 @@
     #define DEBUG_END(val)
 #endif
 
+namespace DFF
+{
 
 TwoThreeTree::TwoThreeTree()
 {
@@ -293,4 +295,6 @@ void	TwoThreeTree::dump()
   for (it = this->__elems.begin(); it != this->__elems.end(); ++it)
     std::cout << (*it)->lhs << "-" << (*it)->rhs << ", "; 
   std::cout << std::endl;
+}
+
 }

@@ -27,25 +27,26 @@
 #else
 #include "wstdint.h"
 #endif
-#include "threading.hpp"
-#include "fso.hpp"
-#include "node.hpp"
 #include "export.hpp"
-#include "search.hpp"
 #include "eventhandler.hpp"
 
 #define BUFFSIZE 1024*1024*10
 
-typedef struct _pdata
+namespace DFF
+{
+
+struct pdata 
 {
   void		*buff;
   uint64_t	len;
-}		pdata;
+};
 
-class VFile: public EventHandler
+class Search;
+
+class VFile: public DFF::EventHandler
 {
 private:
-  FastSearch*   __fs;
+  class FastSearch*   __fs;
   class fso*	__fsobj;
   int32_t	__fd;
   class Node*  	__node;
@@ -84,4 +85,5 @@ public:
   EXPORT std::vector<uint64_t>*	indexes(Search* sctx, uint64_t start=0, uint64_t end=UINT64_MAX);
 };
 
+}
 #endif

@@ -22,7 +22,7 @@
 %feature("autodoc", 1); //1 = generate type for func proto, no work for typemap
 %feature("docstring");
 
-%feature("docstring") FileMapping
+%feature("docstring") DFF::FileMapping
 " 
     Most of the time (with a few exceptions), nodes in DFF are associated with a set of meta-data
     and a content. For example, a file system driver will parse the real file system of a dump
@@ -64,43 +64,43 @@
     which is called by DFF when the node is opened.
 "
 
-%feature("docstring") FileMapping::mappedFileSize
+%feature("docstring") DFF::FileMapping::mappedFileSize
 "
         Return the total size of the different chunks. Should be equal to the node
         size.
 "
 
-%feature("docstring") FileMapping::chunkCount
+%feature("docstring") DFF::FileMapping::chunkCount
 "
         Return the number of mapped chunks.
 "
 
-%feature("docstring") FileMapping::firstChunk
+%feature("docstring") DFF::FileMapping::firstChunk
 "
         Return a pointer to the first chunk of the list.
 "
 
 
-%feature("docstring") FileMapping::lastChunk
+%feature("docstring") DFF::FileMapping::lastChunk
 "
         Return a pointer to the last chunk of the list.
 "
 
-%feature("docstring") FileMapping::chunkFromIdx
+%feature("docstring") DFF::FileMapping::chunkFromIdx
 "
 
         Return a pointer on the chunk structure corresponding to index `idx`
         in the list of chunk.
 "
 
-%feature("docstring") FileMapping::chunkFromOffset
+%feature("docstring") DFF::FileMapping::chunkFromOffset
 "
 
         Return a pointer to the chunk in which offset `offset` is.
 "
 
 
-%feature("docstring") fso
+%feature("docstring") DFF::fso
 "
 The fso or 'File System Object' class is the base class of the API. All
 modules must inheritates it (or inherit mfso, which itself inherit fso). It provides
@@ -121,7 +121,7 @@ UNIX equivalent. The vwrite method is generally not used, and even left empty in
 
 "
 
-%feature("docstring") fso::start
+%feature("docstring") DFF::fso::start
 "
         This method is called when the module starts. It does the job the module
         is supposed to do. This method is declared as a pure virtual so each modules
@@ -143,7 +143,7 @@ UNIX equivalent. The vwrite method is generally not used, and even left empty in
 
 "
  
-%feature("docstring") fso::vopen
+%feature("docstring") DFF::fso::vopen
 "
         Open a node.
 
@@ -153,7 +153,7 @@ UNIX equivalent. The vwrite method is generally not used, and even left empty in
         Return the opened file descriptor, or 0 if it failed.
 "
 
-%feature("docstring") fso::vread
+%feature("docstring") DFF::fso::vread
 "
         vread(self, int32_t fd, void rbuff, uint32_t size) -> int32_t
 
@@ -167,12 +167,12 @@ UNIX equivalent. The vwrite method is generally not used, and even left empty in
         Return the number of read characters.
 "
 
-%feature("docstring") fso::vwrite
+%feature("docstring") DFF::fso::vwrite
 "
 Not used.
 "
 
-%feature("docstring") fso::vclose
+%feature("docstring") DFF::fso::vclose
 "
 Close an open file descriptor and make it available again for others
 openings.
@@ -180,7 +180,7 @@ openings.
 Return `0` if everything went fine, `0` otherwise.
 "
 
-%feature("docstring") fso::vseek
+%feature("docstring") DFF::fso::vseek
 "
         vseek(self, int32_t fd, uint64_t offset, int32_t whence) -> uint64_t
 
@@ -198,17 +198,17 @@ Return `0` if everything went fine, `0` otherwise.
         Return an uint64_t
 "
 
-%feature("docstring") fso::status
+%feature("docstring") DFF::fso::status
 "
 Return the status of the module.
 "
 
-%feature("docstring") fso::vtell
+%feature("docstring") DFF::fso::vtell
 "
 Returns the current offset in a file.
 "
 
-%feature("docstring") fso::setVerbose
+%feature("docstring") DFF::fso::setVerbose
 "
         Set the module in verbose mode if the param `verbose` is et to `true`, 
         shutdown the verbose mode otherwise. Verbose mode should not be enabled
@@ -218,12 +218,12 @@ Returns the current offset in a file.
                 * verbose : the verbosity
 "
 
-%feature("docstring") fso::verbose
+%feature("docstring") DFF::fso::verbose
 "
         Return `true` if the module is in verbose mode, `false` otherwise.
 "
 
-%feature("docstring") mfso
+%feature("docstring") DFF::mfso
 "
 The mfso purpose has pretty the same role as the fso one. It inheritates fso.
 
@@ -236,7 +236,7 @@ to developers, making the code easier to write.
 File mapping is detailed in libvfs.fileMapping.
 "
 
-%feature("docstring") mfso::start
+%feature("docstring") DFF::mfso::start
 "
         start(self, argument args)
 
@@ -265,7 +265,7 @@ File mapping is detailed in libvfs.fileMapping.
 
 "
   
-%feature("docstring") mfso::open
+%feature("docstring") DFF::mfso::open
 "
 Open the node `n`.
 
@@ -276,7 +276,7 @@ An implentation of this method is provided with mfso, so developers should not h
 to reimplement it.
 "
 
-%feature("docstring") mfso::vread
+%feature("docstring") DFF::mfso::vread
 "
         Perform readings on an open node and returns the number of bytes which were read.
         The reading is performed at the current offset on the file. If the user tries
@@ -296,12 +296,12 @@ to reimplement it.
         Return the number of read characters.
 "
 
-%feature("docstring") mfso::vwrite
+%feature("docstring") DFF::mfso::vwrite
 "
 Not used in most cases.
 "
 
-%feature("docstring") mfso::vclose
+%feature("docstring") DFF::mfso::vclose
 "
         Close an open file descriptor and make it available again for others
         openings.
@@ -316,7 +316,7 @@ Not used in most cases.
 
 "
 
-%feature("docstring") mfso::vseek
+%feature("docstring") DFF::mfso::vseek
 "
 
         This method is used to change offset within an open node.
@@ -336,7 +336,7 @@ Not used in most cases.
         Return of how many bytes the position changed.
 "
 
-%feature("docstring") mfso::vtell
+%feature("docstring") DFF::mfso::vtell
 "
 
         Returns the current offset in a file.
@@ -349,7 +349,7 @@ Not used in most cases.
 
 "
 
-%feature("docstring") mfso::setVerbose
+%feature("docstring") DFF::mfso::setVerbose
         """
         setVerbose(self, bool verbose)
 
@@ -357,21 +357,21 @@ Not used in most cases.
         shutdown the verbose mode otherwise.
         """
 
-%feature("docstring") mfso::verbose
+%feature("docstring") DFF::mfso::verbose
         """
         verbose(self) -> bool
 
         Return `true` if the module is in verbose mode, `false` otherwise.
         """
 
-%feature("docstring") Node
+%feature("docstring") DFF::Node
 "
 This class is the base interface of every nodes reprensented in DFF virtual file
 system tree view. Most of the modules will have to extend this class before using
 it, that is why some of the methods are virtual.
 "
 
-%feature("docstring") Node::setId
+%feature("docstring") DFF::Node::setId
 "
         Set an ID of type uint32_t
 
@@ -379,48 +379,48 @@ it, that is why some of the methods are virtual.
                 * id : the id you want to set to node.
 "
 
-%feature("docstring") Node::id
+%feature("docstring") DFF::Node::id
 "
         Return the ID.
 "
 
-%feature("docstring") Node::setFile
+%feature("docstring") DFF::Node::setFile
 "
 If the node is a file this method should be called to set proper attributes.
 "
 
-%feature("docstring") Node::setDir
+%feature("docstring") DFF::Node::setDir
 "
 If the node is a directory this method should be called to set proper attributes.
 "
 
-%feature("docstring") Node::setLink
+%feature("docstring") DFF::Node::setLink
 "
 If the node is a link this method should be called to set proper attributes.
 "
 
-%feature("docstring") Node::setDeleted
+%feature("docstring") DFF::Node::setDeleted
 "
 If the node corresponds to a data which was deleted (and recovered by the
 module), this method should be called to set proper attributes.
 "
 
-%feature("docstring") Node::setSize
+%feature("docstring") DFF::Node::setSize
 "
 Set the node size in bytes.
 "
 
-%feature("docstring") Node::setFsobj
+%feature("docstring") DFF::Node::setFsobj
 "
 Set a fso object.
 "
 
-%feature("docstring") Node::setParent
+%feature("docstring") DFF::Node::setParent
 "
 Set the parent's node of the current node.
 "
 
-%feature("docstring") Node::fileMapping
+%feature("docstring") DFF::Node::fileMapping
 "
 The fileMapping method takes a pointer to an instance of a FileMapping object
 as parameter. This method is called when a node is opened.
@@ -438,7 +438,7 @@ on the vfile.
 FileMapping can be filled up by calling their push() method.
 "
 
-%feature("docstring") Node::extendedAttributes
+%feature("docstring") DFF::Node::extendedAttributes
 "
 This method is used to set extended attributes to a node. It takes a pointer
 to an Attributes instance as parameter. This parameter can be filled up with
@@ -447,114 +447,114 @@ attributes of any types by using the Variant type.
 ExtendedAttributes can be filled up by calling their push() method.
 "
 
-%feature("docstring") Node::modifiedTime
+%feature("docstring") DFF::Node::modifiedTime
 "
 Set the time of last modification
 "
 
-%feature("docstring") Node::accessedTime
+%feature("docstring") DFF::Node::accessedTime
 "
 Set the time of last access
 "
 
-%feature("docstring") Node::createdTime
+%feature("docstring") DFF::Node::createdTime
 "
 Set the time of creation
 "
 
-%feature("docstring") Node::changedTime
+%feature("docstring") DFF::Node::changedTime
 "
 Set the time of last change
 "
 
-%feature("docstring") Node::times
+%feature("docstring") DFF::Node::times
 "
 Return a map containing the different time informations on a node.
 "
 
-%feature("docstring") Node::size
+%feature("docstring") DFF::Node::size
 "
 Return the size of the node
 "
 
-%feature("docstring") Node::path
+%feature("docstring") DFF::Node::path
 "
 return the path to the node
 "
 
-%feature("docstring") Node::name
+%feature("docstring") DFF::Node::name
 "
 return the name of the node
 "
 
-%feature("docstring") Node::absolute
+%feature("docstring") DFF::Node::absolute
 "
 return the absolute path of the node (equivalent to Node::path() + Node::name())
 "
 
-%feature("docstring") Node::isFile
+%feature("docstring") DFF::Node::isFile
 "
 return true if the node is a file, false otherwise
 "
 
-%feature("docstring") Node::isDir
+%feature("docstring") DFF::Node::isDir
 "
 return true if the node is a directory, false otherwise
 "
 
-%feature("docstring") Node::isLink
+%feature("docstring") DFF::Node::isLink
 "
 return true if the node is a link, false otherwise
 "
 
-%feature("docstring") Node::isVDir
+%feature("docstring") DFF::Node::isVDir
 "
 return true if the node is a link to a directory, false otherwise
 "
 
-%feature("docstring") Node::isDeleted
+%feature("docstring") DFF::Node::isDeleted
 "
 return true if the node is deleted, false otherwise
 "
 
-%feature("docstring") Node::fsobj
+%feature("docstring") DFF::Node::fsobj
 "
 return a pointer to fso instance associated with the node
 "
 
-%feature("docstring") Node::parent
+%feature("docstring") DFF::Node::parent
 "
 return a pointer to the node which is the parent of the cuurent node.
 "
 
-%feature("docstring") Node::children
+%feature("docstring") DFF::Node::children
 "
 return a vector containing pointers to the children of the current node. If the
 node has no child, the vector is empty.
 "
 
-%feature("docstring") Node::addChild
+%feature("docstring") DFF::Node::addChild
 "
 Take a pointer to a node in parameter. This node will be added to the current node
 as one of its child.
 "
 
-%feature("docstring") Node::hasChildren
+%feature("docstring") DFF::Node::hasChildren
 "
 return true if the node has one or more children, false otherwise
 "
 
-%feature("docstring") Node::childCount
+%feature("docstring") DFF::Node::childCount
 "
 return the number of children the node has
 "
 
-%feature("docstring") Node::open
+%feature("docstring") DFF::Node::open
 "
 Open the node and return a pointer to a VFile instance
 "
 
-%feature("docstring") VLink
+%feature("docstring") DFF::VLink
 "
     The class VLink inherits the Node class. It a specific type of Node corresponding
     to a link to an other node. This class can be useful to create nodes \"pointing\"
@@ -563,7 +563,7 @@ Open the node and return a pointer to a VFile instance
     Otherwise, the VLink class is pretty similar to the Node class.
 "
 
-%feature("docstring") VLink::__init__
+%feature("docstring") DFF::VLink::__init__
 "
         Constructor.
 
@@ -573,12 +573,12 @@ Open the node and return a pointer to a VFile instance
                 * newname : the name of the node (empty by default)
 "
 
-%feature("docstring") VLink::linkPath
+%feature("docstring") DFF::VLink::linkPath
 "
         Return the path to the pointed node.
 "
 
-%feature("docstring") VLink::linkName
+%feature("docstring") DFF::VLink::linkName
 "
         Return the name of the pointed node.
 "
@@ -589,32 +589,32 @@ Open the node and return a pointer to a VFile instance
         VLink::linkPath() + \"/\" + VLink::linkName()
 "
 
-%feature("docstring") VLink::linkParent
+%feature("docstring") DFF::VLink::linkParent
 "
         Return a pointer to the parent node of the pointed node.
 "
 
-%feature("docstring") VLink::linkChildren
+%feature("docstring") DFF::VLink::linkChildren
 "
         Return the list of children of the pointed node.
 "
 
-%feature("docstring") VLink::linkHasChildren
+%feature("docstring") DFF::VLink::linkHasChildren
 "
         Return `true` if the pointed node has children, `false` otherwise.
 "
 
-%feature("docstring") VLink::linkChildCount
+%feature("docstring") DFF::VLink::linkChildCount
 "
         Return the number of child the pointed nodes has.
 "
 
-%feature("docstring") VLink::linkNode
+%feature("docstring") DFF::VLink::linkNode
 "
         Return a pointer to the node pointed by the link.
 "
 
-%feature("docstring") Attributes
+%feature("docstring") DFF::Attributes
 "
     The Attributes class is designed to store a list of  attributes related to
     a Node, such as, among others, time informations, file mode or UNIX access rights
@@ -624,7 +624,7 @@ Open the node and return a pointer to a VFile instance
     is Variant type. For more precisions on Variant, see the Variant documentation.
 "
 
-%feature("docstring") Attributes::push
+%feature("docstring") DFF::Attributes::push
 "
         push(self, string key, Variant value)
 
@@ -636,33 +636,33 @@ Open the node and return a pointer to a VFile instance
 
 "
 
-%feature("docstring") Attributes::keys
+%feature("docstring") DFF::Attributes::keys
 "
         keys(self) -> std::list<(std::string,std::allocator<(std::string)>)>
 
         Returns a std::list<std::string> where each values are a key of attributes.
 "
 
-%feature("docstring") Attributes::value
+%feature("docstring") DFF::Attributes::value
 "
         value(self, string key) -> Variant
         
         Return the value of the attributes which key is `key`
 "
 
-%feature("docstring") Attributes::attributes
+%feature("docstring") DFF::Attributes::attributes
 "
         attributes(self) -> std::map<(std::string,p.Variant,std::less<(std::string)>,std::allocator<(std::pair<(q(const).std::string,p.Variant)>)>)>
 
         Return a std::map<std::string, Variant \*> which contains the entire list of attributes
 "
 
-%feature("docstring") FdManager
+%feature("docstring") DFF::FdManager
 "
     The FdManager is used to manage all open file descriptors.
 "
 
-%feature("docstring") FdManager::get
+%feature("docstring") DFF::FdManager::get
 "
         Return a pointer to the fdinfo structure correponding to file descriptor `fd`
 
@@ -670,12 +670,12 @@ Open the node and return a pointer to a VFile instance
                 * fd : the file decsriptor on which you want to get the fdinfo structure
 "
 
-%feature("docstring") FdManager::remove
+%feature("docstring") DFF::FdManager::remove
 "
         Free the resources occupied by the fdinfo structure correponding to `fd`
 "
 
-%feature("docstring") FdManager::push
+%feature("docstring") DFF::FdManager::push
 "
         Push the fdinfo `fi` into the list of opened file descriptors.
 "
@@ -699,20 +699,20 @@ Open the node and return a pointer to a VFile instance
 %include "windows.i"
 
 
-%feature("director") fso;
-%feature("director") mfso;
-%feature("director") Node;
-%feature("director") VLink;
-%feature("director") AttributesHandler;
-%feature("director") DataTypeHandler;
+%feature("director") DFF::fso;
+%feature("director") DFF::mfso;
+%feature("director") DFF::Node;
+%feature("director") DFF::VLink;
+%feature("director") DFF::AttributesHandler;
+%feature("director") DFF::DataTypeHandler;
 
-%newobject VFile::search;
-%newobject VFile::indexes;
+%newobject DFF::VFile::search;
+%newobject DFF::VFile::indexes;
 
-%newobject Node::open;
-%newobject VLink::open;
+%newobject DFF::Node::open;
+%newobject DFF::VLink::open;
 
-%newobject TagsManager::tags;
+%newobject DFF::TagsManager::tags;
 
 /* %feature("director:except") fso */
 /* { */
@@ -746,30 +746,30 @@ Open the node and return a pointer to a VFile instance
 /*     } */
 /* } */
 
-%import "../exceptions/libexceptions.i"
+%import "../exceptions/libexceptions.i" //redefine by dswrapper ?
 %import "../include/dswrapper.i"
 
 //XXX fix iterator !
-%typemap(out) (Node*)
+%typemap(out) (DFF::Node*)
 {
   //#int dcast = 0;
-  VLink *dobj = dynamic_cast<VLink*>($1);
+  DFF::VLink *dobj = dynamic_cast<DFF::VLink*>($1);
   if (dobj)
   {
-    %set_output(SWIG_NewPointerObj(dobj, SWIGTYPE_p_VLink, $owner | %newpointer_flags));
+    %set_output(SWIG_NewPointerObj(dobj, SWIGTYPE_p_DFF__VLink, $owner | %newpointer_flags));
   }
   else
   {
-    %set_output(SWIG_NewPointerObj($1, SWIGTYPE_p_Node, $owner | %newpointer_flags));
+    %set_output(SWIG_NewPointerObj($1, SWIGTYPE_p_DFF__Node, $owner | %newpointer_flags));
   }
 }
 
-%typemap(directorargout) (int32_t fd, void *rbuff, uint32_t size)
+%typemap(directorargout) (int32_t fd, void* rbuff, uint32_t size)
 {
   memcpy((char *)rbuff, PyString_AsString($input) , PyString_Size($input));
 }
 
-%typemap(out) pdata*
+%typemap(out) DFF::pdata*
 {
   Py_XDECREF($result);
   $result = PyString_FromStringAndSize((const char *)$1->buff, $1->len);
@@ -793,26 +793,26 @@ Open the node and return a pointer to a VFile instance
   $1 = (unsigned char) PyString_AsString($input)[0];
 }
 
-%ignore   VFile::find(unsigned char* needle, uint32_t nlen);
-%ignore   VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
-%ignore   VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start);
-%ignore   VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end);
+%ignore   DFF::VFile::find(unsigned char* needle, uint32_t nlen);
+%ignore   DFF::VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
+%ignore   DFF::VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start);
+%ignore   DFF::VFile::find(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end);
 
-%ignore   VFile::rfind(unsigned char* needle, uint32_t nlen);
-%ignore   VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
-%ignore   VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start);
-%ignore   VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end);
+%ignore   DFF::VFile::rfind(unsigned char* needle, uint32_t nlen);
+%ignore   DFF::VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
+%ignore   DFF::VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start);
+%ignore   DFF::VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end);
 
-%ignore   VFile::count(unsigned char* needle, uint32_t nlen);
-%ignore   VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
-%ignore   VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount);
-%ignore   VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start);
-%ignore   VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end);
+%ignore   DFF::VFile::count(unsigned char* needle, uint32_t nlen);
+%ignore   DFF::VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
+%ignore   DFF::VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount);
+%ignore   DFF::VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start);
+%ignore   DFF::VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end);
 
-%ignore	  VFile::indexes(unsigned char* needle, uint32_t nlen);
-%ignore	  VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
-%ignore	  VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start);
-%ignore	  VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end);
+%ignore	  DFF::VFile::indexes(unsigned char* needle, uint32_t nlen);
+%ignore	  DFF::VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard);
+%ignore	  DFF::VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start);
+%ignore	  DFF::VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end);
 
 
 %{
@@ -821,22 +821,23 @@ Open the node and return a pointer to a VFile instance
 #include "eventhandler.hpp"
 #include "vfs.hpp"
 #include "exceptions.hpp"
-#include "fdmanager.hpp"
 #include "filemapping.hpp"
 #include "export.hpp"
 #include "fso.hpp"
 #include "mfso.hpp"
-#include "node.hpp"
-#include "vlink.hpp"
 #include "vfile.hpp"
+#include "node.hpp"
+#include "rootnode.hpp"
+#include "vlink.hpp"
 #include "variant.hpp"
-#include "vtime.hpp"
+#include "datetime.hpp"
 #include "path.hpp"
 #include "iostat.hpp"
 #include "rootnode.hpp"
 #include "datatype.hpp"
 #include "../destruct/python/py_dobject.hpp"
 #include "../destruct/python/py_module.hpp"
+#include "fdmanager.hpp"
 %}
 
 %ignore NodesTypes;
@@ -845,50 +846,54 @@ Open the node and return a pointer to a VFile instance
 
 %import "../types/libtypes.i"
 
-%refobject RCObj "$this->addref();"
-%unrefobject RCObj "$this->delref();"
+%refobject DFF::RCObj "$this->addref();"
+%unrefobject DFF::RCObj "$this->delref();"
 %import "../events/libevents.i"
 
 %include "../include/rc.hpp"
 %include "../include/tags.hpp"
 %include "../include/vfs.hpp"
 %include "../include/export.hpp"
-%include "../include/fdmanager.hpp"
 %include "../include/filemapping.hpp"
 %include "../include/exceptions.hpp"
 %include "../include/fso.hpp"
 %include "../include/mfso.hpp"
-%include "../include/node.hpp"
-%include "../include/vlink.hpp"
 %include "../include/vfile.hpp"
+%include "../include/node.hpp"
+%include "../include/rootnode.hpp"
+%include "../include/vlink.hpp"
 %include "../include/iostat.hpp"
 %include "../include/rootnode.hpp"
 %include "../include/datatype.hpp"
+%include "../include/fdmanager.hpp"
 
 %extend_smart_pointer(Tag_p);
 %template(RCPtrTag) Tag_p;
 
 namespace std
 {
-  %template(VecNode)		vector<Node*>;
-  %template(ListNode)		list<Node*>;
-  %template(SetNode)		set<Node *>;
-  %template(VectChunk)		vector<chunk *>;
-  %template(Listui64)		list<uint64_t>;
-  %template(Vectui64)		vector<uint64_t>;
-  %template(Vectui32)		vector<uint32_t>;
-  %template(MapTime)		map<string, vtime*>;
-  %template(MapNameTypes)	map<string, uint8_t>;
-  %template(FsoVect)		vector<fso*>;
-  %template(RCPtrTagVect)       vector<Tag_p >;
-  %template(ListDataType)       list<DataTypeHandler*>;
-// #%template(MapDataType)        map<std::string, uint32_t>;
-};
+  %template(VecNode)		std::vector<DFF::Node*>;
+  %template(ListNode)		std::list<DFF::Node*>;
+  %template(SetNode)		std::set<DFF::Node *>;
+  %template(VectChunk)		std::vector<DFF::chunk *>;
+  %template(Listui64)		std::list<uint64_t>;
+  %template(Vectui64)		std::vector<uint64_t>;
+  %template(Vectui32)		std::vector<uint32_t>;
+  %template(MapTime)		std::map<std::string, DFF::DateTime*>;
+  %template(MapNameTypes)	std::map<std::string, uint8_t>;
+  %template(FsoVect)		std::vector<DFF::fso*>;
+  %template(RCPtrTagVect)       std::vector<Tag_p >;
+  %template(ListDataType)       list<DFF::DataTypeHandler*>;
+// #%template(MapDataType)      map<std::string, uint32_t>;
+}
 
 /* %traits_swigtype(Variant); */
 /* %fragment(SWIG_Traits_frag(Variant)); */
-%traits_swigtype(vtime);
-%fragment(SWIG_Traits_frag(vtime));
+//%traits_swigtype(DateTime); already in libtypes.i
+//%fragment(SWIG_Traits_frag(DateTime));
+
+namespace DFF
+{
 
 %extend VFile
 {
@@ -922,4 +927,6 @@ def __iter__(self):
      yield node
 %}
 
-};
+}
+
+}

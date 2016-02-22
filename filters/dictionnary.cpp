@@ -14,7 +14,17 @@
  *  Frederic B. <fba@digital-forensic.org>
  */
 
+#include <ios>
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <stdlib.h>
 #include "dictionnary.hpp"
+#include "search.hpp"
+#include "node.hpp"
+
+using namespace DFF;
 
 // LiveIndexer::LiveIndexer() : AttributesHandler("matched patterns")
 // {
@@ -52,7 +62,7 @@ void	IndexedPatterns::addPattern(std::string pattern, Node* node)
 
 std::vector<std::string>	IndexedPatterns::patternsByNode(Node* node)
 {
-  dff::vector<uint32_t>		patterns;
+  DFF::vector<uint32_t>		patterns;
   std::vector<std::string>	ret;
   unsigned int			iter;
 
@@ -69,7 +79,7 @@ std::vector<std::string>	IndexedPatterns::patternsByNode(Node* node)
 
 std::vector<Node*>	IndexedPatterns::nodesByPattern(std::string pattern)
 {
-  dff::vector<Node*>	nodes;
+  DFF::vector<Node*>	nodes;
   std::vector<Node*>	ret;
   uint32_t		pid;
   unsigned int		iter;
@@ -142,7 +152,7 @@ Dictionnary::Dictionnary()
 
 Dictionnary::~Dictionnary()
 {
-  std::vector<Search*>::iterator	sit;
+  std::vector<DFF::Search*>::iterator	sit;
   std::vector<BadPattern*>::iterator	bit;
 
   try
@@ -164,9 +174,9 @@ std::vector<BadPattern* > Dictionnary::badPatterns()
 }
 
 
-Search*			Dictionnary::nextSearchPattern()
+DFF::Search*			Dictionnary::nextSearchPattern()
 {
-  Search*		s;
+  DFF::Search*		s;
 
   s = NULL;
   if (this->__cp_pos < this->__cpatterns.size())
@@ -198,8 +208,8 @@ void				Dictionnary::_addBadPattern(std::string pattern, std::string message, un
 void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
 {
   std::string			err;
-  Search*			s;
-  Search::CaseSensitivity	cs;
+  DFF::Search*			s;
+  DFF::Search::CaseSensitivity	cs;
   size_t			subend;
   size_t			psize;
   char				cstart;
@@ -219,7 +229,7 @@ void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
 	    {
 	      cend = pattern.at(pattern.size() - 2);
 	      subend = pattern.size() - 3;
-	      cs = Search::CaseInsensitive;
+	      cs = DFF::Search::CaseInsensitive;
 	    }
 	  else
 	    subend = 0; //volontary set to 0 to fail all case condition
@@ -227,14 +237,14 @@ void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
       else
   	{
   	  subend = pattern.size() - 2;
-  	  cs = Search::CaseInsensitive;
+  	  cs = DFF::Search::CaseInsensitive;
   	}
       switch (cstart)
   	{
   	case '/':
   	  {
   	    if (cend == '/' && subend != 0)
-  	      s = new Search(pattern.substr(1, subend), cs, Search::Regexp);
+  	      s = new DFF::Search(pattern.substr(1, subend), cs, DFF::Search::Regexp);
   	    else
   	      err = "unterminated regular expression";
   	    break;
@@ -242,7 +252,7 @@ void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
   	case '~':
   	  {
   	    if (cend == '~' && subend != 0)
-  	      s = new Search(pattern.substr(1, subend), cs, Search::Fuzzy);
+  	      s = new DFF::Search(pattern.substr(1, subend), cs, DFF::Search::Fuzzy);
   	    else
   	      err = "unterminated fuzzy expression";
   	    break;
@@ -250,7 +260,7 @@ void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
   	case '$':
   	  {
   	    if (cend == '$' && subend != 0)
-  	      s = new Search(pattern.substr(1, subend), cs, Search::Wildcard);
+  	      s = new DFF::Search(pattern.substr(1, subend), cs, DFF::Search::Wildcard);
   	    else
   	      err = "unterminated wildcard expression";
   	    break;
@@ -258,7 +268,7 @@ void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
   	case '"':
   	  {
   	    if (cend == '"' && subend != 0)
-  	      s = new Search(pattern.substr(1, subend), cs, Search::Fixed);
+  	      s = new DFF::Search(pattern.substr(1, subend), cs, DFF::Search::Fixed);
   	    else
   	      err = "unterminated fixed expression";
   	    break;
@@ -282,7 +292,7 @@ void				Dictionnary::_compilePattern(std::string pattern, unsigned int line)
   	    }
   	}
       else
-  	this->_addBadPattern(pattern, std::string("Error while creating Search instance"), line);
+  	this->_addBadPattern(pattern, std::string("Error while creating DFF::Search instance"), line);
     }
   if (s != NULL)
     delete s;

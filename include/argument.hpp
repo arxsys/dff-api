@@ -38,6 +38,9 @@
 #define NEEDMASK			0x0C00
 #define PARAMMASK			0x3000
 
+namespace DFF
+{
+
 struct Parameter
 {
   enum types
@@ -87,4 +90,5 @@ public:
   EXPORT int32_t			maximumParameters();
 };
 
+}
 #endif

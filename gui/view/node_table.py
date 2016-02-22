@@ -30,7 +30,6 @@ class NodeTableView(QTableView):
         self.factor = 1
         self.configure()
 
-
     def configure(self):
         self.verticalHeader().setDefaultSectionSize(DEFAULT_SIZE * self.factor)
         self.setIconSize(QSize(DEFAULT_SIZE * self.factor, DEFAULT_SIZE * self.factor))
@@ -143,6 +142,9 @@ class NodeTableView(QTableView):
       self.headerorder[col] = order
       self.model().sort(col, order)
 
+class TimeLineNodeTableView(NodeTableView):
+  def __init__(self, tableWidget):
+    NodeTableView.__init__(self, tableWidget)
 
 class HeaderView(QHeaderView):
     def __init__(self, view):

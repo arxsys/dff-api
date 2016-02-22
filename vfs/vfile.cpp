@@ -15,7 +15,12 @@
  */
 
 #include "vfile.hpp"
+
 #include "iostat.hpp"
+#include "search.hpp"
+#include "node.hpp"
+#include "exceptions.hpp"
+#include "fso.hpp"
 
 #ifdef WITH_IOSTAT
 #define stat_instance() IOStat::getInstance().pushInstanceStats(this->__fsobj->uid())
@@ -24,6 +29,9 @@
 #define stat_instance()
 #define stat_read(readcount)
 #endif
+
+namespace DFF
+{
 
 VFile::VFile(int32_t fd, class fso *fsobj, class Node *node) : __fs(new FastSearch()), __fsobj(fsobj), __fd(fd), __node(node), __stop(false)
 {
@@ -67,7 +75,11 @@ pdata* VFile::read(void)
     memset(data->buff, 0, size);
     n = this->__fsobj->vread(this->__fd, (void*)data->buff, size);
     if (n < 0)
+    {
+      free(data->buff);
+      delete data;
       throw vfsError(this->__fsobj->name + " read error\n");
+    }
     stat_read(n);
     data->len = n;
     return (data);
@@ -103,7 +115,11 @@ pdata* VFile::read(uint32_t size)
     memset(data->buff, 0, size);
     n = this->__fsobj->vread(this->__fd, data->buff, size);
     if (n < 0)
+    {
+      free(data->buff);
+      delete data;
       throw vfsError(this->__fsobj->name + " read error\n");
+    }
     data->len = n;
     stat_read(n);
     return (data);
@@ -450,7 +466,7 @@ int64_t		VFile::rfind(unsigned char* needle, uint32_t nlen, unsigned char wildca
 
 int32_t		VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildcard, int32_t maxcount, uint64_t start, uint64_t end)
 {
-  unsigned char		*buffer;
+  unsigned char		*buffer = NULL;
   int32_t		bread;
   uint64_t		totalread;
   int32_t		tcount;
@@ -492,14 +508,15 @@ int32_t		VFile::count(unsigned char* needle, uint32_t nlen, unsigned char wildca
     else
       totalread = this->seek(this->tell());
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   return (count);
 }
 
 
 std::vector<uint64_t>*	VFile::indexes(unsigned char* needle, uint32_t nlen, unsigned char wildcard, uint64_t start, uint64_t end)
 {
-  unsigned char*		buffer;
+  unsigned char*		buffer = NULL;
   std::vector<uint64_t>*	indexes;
   int32_t			bread;
   int32_t			idx;
@@ -542,7 +559,8 @@ std::vector<uint64_t>*	VFile::indexes(unsigned char* needle, uint32_t nlen, unsi
     e->value = Variant_p(new Variant(totalread));
     this->notify(e);
   }
-  free(buffer);
+  if (buffer)
+    free(buffer);
   delete e;
   return (indexes);
 }
@@ -894,4 +912,6 @@ std::vector<uint64_t>*	VFile::indexes(Search* sctx, uint64_t start, uint64_t end
   free(buffer);
   delete e;
   return (indexes);
+}
+
 }

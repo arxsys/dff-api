@@ -29,4 +29,3 @@ add_subdirectory (view)
 if (FFMPEG_FOUND)
   add_subdirectory (video)
 endif (FFMPEG_FOUND)
-

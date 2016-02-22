@@ -17,6 +17,9 @@
 
 #include "argument.hpp"
 
+namespace DFF
+{
+
 Argument::Argument(std::string name, uint16_t flags, std::string description)
 {
   this->__name = name;
@@ -137,4 +140,6 @@ int32_t			Argument::minimumParameters()
 int32_t			Argument::maximumParameters()
 {
   return this->__maxparams;
+}
+
 }

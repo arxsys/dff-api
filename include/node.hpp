@@ -33,21 +33,23 @@
 #include <sys/types.h>
 #include "export.hpp"
 #include "rc.hpp"
-
 #include "dvalue.hpp"
 #include "protocol/dcppobject.hpp"
 
+namespace DFF
+{
 class Constant;
 class FileMapping;
 class Variant;
 class Tag;
+class VFile;
+class fso;
 
-#define Variant_p	RCPtr< Variant >
-#define Tag_p		RCPtr< Tag >
+#define Variant_p	DFF::RCPtr< DFF::Variant > //typedef
+#define Tag_p		DFF::RCPtr< DFF::Tag >
 
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
 
-using namespace Destruct;
 
 class AttributesHandler
 {
@@ -87,7 +89,7 @@ enum	attributeNameType
   RELATIVE_ATTR_NAME = 1
 };
 
-class Node : public DCppObject<Node >
+class Node : public Destruct::DCppObject<DFF::Node>
 {
 protected:
   class Node*				__parent;
@@ -96,7 +98,7 @@ protected:
   uint32_t				__childcount;
   std::string				__name;
   uint64_t				__size;
-  class fso*				__fsobj;
+  fso*				        __fsobj;
   uint64_t				__common_attributes;
   uint64_t				__uid;
   uint64_t				__tags;
@@ -138,15 +140,13 @@ public:
   EXPORT std::string				absolute(void) const;
   EXPORT std::string				extension(void) const;
 
-
   EXPORT virtual bool				isFile(void) const;
   EXPORT virtual bool				isDir(void) const;
   EXPORT virtual bool				isLink(void) const;
   EXPORT virtual bool				isVDir(void) const;
   EXPORT virtual bool				isDeleted(void) const;
 
-  EXPORT virtual class fso*			fsobj(void) const;
-
+  EXPORT virtual fso*			        fsobj(void) const;
   EXPORT Node*					parent(void);
 
   EXPORT std::vector<class Node*>		children(void) const;
@@ -156,14 +156,14 @@ public:
   EXPORT uint32_t				childCount(void) const;
   EXPORT uint64_t				totalChildrenCount(uint32_t depth=(uint32_t)-1) const;
 
-  EXPORT virtual class VFile*			open(void);
+  EXPORT virtual VFile* 			open(void);
   EXPORT uint32_t				at(void) const;
   EXPORT uint64_t				uid(void) const;
 
   EXPORT virtual AttributesHandlers&            attributesHandlers(void);
   EXPORT virtual bool				registerAttributes(AttributesHandler*);
 
-  EXPORT virtual Attributes			dataType(void); 
+  EXPORT virtual const std::string		dataType(void);
   EXPORT virtual Attributes			attributes(void);
   EXPORT virtual Attributes			attributesByType(uint8_t type);
   EXPORT virtual std::list< Variant_p >		attributesByName(std::string name, attributeNameType tname=RELATIVE_ATTR_NAME);
@@ -197,78 +197,78 @@ public:
     return (new Node());
   }
 
-  RealValue<DFunctionObject* >        _name, _absolute;
+  Destruct::RealValue<Destruct::DFunctionObject* >        _name, _absolute;
 
   static size_t ownAttributeCount()
   {
     return (2);
   }
 
-  static DAttribute* ownAttributeBegin()
+  static Destruct::DAttribute* ownAttributeBegin()
   {
-    static DAttribute  attributes[] = 
+    static Destruct::DAttribute  attributes[] = 
     {
-      DAttribute(DType::DUnicodeStringType, "name", DType::DNoneType),
-      DAttribute(DType::DUnicodeStringType, "absolute", DType::DNoneType),
+      Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name", Destruct::DType::DNoneType),
+      Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "absolute", Destruct::DType::DNoneType),
       //DAttribute(DType::DObjectType, "children"),
     };
     return (attributes);
   }
 
-  static DPointer<Node>* memberBegin()
+  static Destruct::DPointer<Node>* memberBegin()
   {
-    static DPointer<Node> memberPointer[] = 
+    static Destruct::DPointer<Node> memberPointer[] = 
     {
-      DPointer<Node>(&Node::_name, &Node::name),
-      DPointer<Node>(&Node::_absolute, &Node::absolute),
+      Destruct::DPointer<Node>(&Node::_name, &Node::name),
+      Destruct::DPointer<Node>(&Node::_absolute, &Node::absolute),
       //DPointer<VoidNode>(&VoidNode::children),
     };
     return (memberPointer);
   }
 
-  static DAttribute* ownAttributeEnd()
+  static Destruct::DAttribute* ownAttributeEnd()
   {
     return (ownAttributeBegin() + ownAttributeCount());
   }
 
-  static DPointer<Node>*  memberEnd()
+  static Destruct::DPointer<Node>*  memberEnd()
   {
     return (memberBegin() + ownAttributeCount());
   }
 };
 
-class VoidNode : public DCppObject<VoidNode>
+class VoidNode : public Destruct::DCppObject<VoidNode>
 {
 public:
-  VoidNode(DStruct* dstruct, DValue const& args) : DCppObject<VoidNode>(dstruct, args)
+  VoidNode(Destruct::DStruct* dstruct, Destruct::DValue const& args) : Destruct::DCppObject<VoidNode>(dstruct, args)
   {
     //this->children = Destruct::DStructs::instance().generate("DVectorObject");  
     this->init();
   }
   ~VoidNode() {};
 
-  RealValue<DObject*>       children;
-  RealValue<DUnicodeString> name;
+  Destruct::RealValue<Destruct::DObject*>       children;
+  Destruct::RealValue<Destruct::DUnicodeString> name;
 
-  static DValue      save(const Node* node)
+  static Destruct::DValue      save(const Node* node)
   {
     DObject* voidNode = Destruct::DStructs::instance().generate("VoidNode");
-    voidNode->setValue("name", RealValue<DUnicodeString>(node->name()));
-    return (RealValue<DObject*>(voidNode));
+    voidNode->setValue("name", Destruct::RealValue<Destruct::DUnicodeString>(node->name()));
+    return (Destruct::RealValue<DObject*>(voidNode));
   };     
 
-  static Node*      load(DValue const& args)
+  static Node*      load(Destruct::DValue const& args)
   {
-    DObject* dnode = args.get<DObject*>();
-    DUnicodeString name = dnode->getValue("name").get<DUnicodeString>();
+    Destruct::DObject* dnode = args.get<Destruct::DObject*>();
+    Destruct::DUnicodeString name = dnode->getValue("name").get<Destruct::DUnicodeString>();
     dnode->destroy();
     return (new Node(name.string()));
   }
 
-  static Node*      load(fso* fsobj, DValue const& args)
+  static Node*      load(fso* fsobj, Destruct::DValue const& args)
   {
-    DObject* dnode = args.get<DObject*>();
-    DUnicodeString name = dnode->getValue("name").get<DUnicodeString>();
+    Destruct::DObject* dnode = args.get<Destruct::DObject*>();
+    Destruct::DUnicodeString name = dnode->getValue("name").get<Destruct::DUnicodeString>();
     dnode->destroy();
  
     return (new Node(name.string(), 0, NULL, fsobj));  
@@ -279,36 +279,36 @@ public:
     return (2);
   }
 
-  static DAttribute* ownAttributeBegin()
+  static Destruct::DAttribute* ownAttributeBegin()
   {
-    static DAttribute  attributes[] = 
+    static Destruct::DAttribute  attributes[] = 
     {
-      DAttribute(DType::DUnicodeStringType, "name"),
-      DAttribute(DType::DObjectType, "children"),
+      Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"),
+      Destruct::DAttribute(Destruct::DType::DObjectType, "children"),
     };
     return (attributes);
   }
 
-  static DPointer<VoidNode>* memberBegin()
+  static Destruct::DPointer<VoidNode>* memberBegin()
   {
-    static DPointer<VoidNode> memberPointer[] = 
+    static Destruct::DPointer<VoidNode> memberPointer[] = 
     {
-      DPointer<VoidNode>(&VoidNode::name),
-      DPointer<VoidNode>(&VoidNode::children),
+      Destruct::DPointer<VoidNode>(&VoidNode::name),
+      Destruct::DPointer<VoidNode>(&VoidNode::children),
     };
     return (memberPointer);
   }
 
-  static DAttribute* ownAttributeEnd()
+  static Destruct::DAttribute* ownAttributeEnd()
   {
     return (ownAttributeBegin() + ownAttributeCount());
   }
 
-  static DPointer<VoidNode>*  memberEnd()
+  static Destruct::DPointer<VoidNode>*  memberEnd()
   {
     return (memberBegin() + ownAttributeCount());
   }
 };
 
-
+}
 #endif

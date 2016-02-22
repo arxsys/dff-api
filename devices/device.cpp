@@ -16,6 +16,9 @@
 
 #include "device.hpp"
 
+namespace DFF
+{
+
 Device::Device()
 {
 }
@@ -47,4 +50,6 @@ uint64_t	Device::size(void)
 
 DeviceList::DeviceList()
 {
+}
+
 }

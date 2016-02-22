@@ -17,6 +17,13 @@
 #ifndef __DICTIONNARY_HPP__
 #define __DICTIONNARY_HPP__
 
+#ifndef WIN32
+  #include <stdint.h>
+#elif _MSC_VER >= 1600
+  #include <stdint.h>
+#else
+  #include "wstdint.h"
+#endif
 // forward declaration
 #include <ios>
 #include <iostream>
@@ -25,28 +32,35 @@
 #include <vector>
 #include <stdlib.h>
 
-#include "search.hpp"
 #include "export.hpp"
 #include "threading.hpp"
 
+namespace DFF
+{
+  class Node;
+  class Search;
+};
+
+using namespace DFF;
+
 class Dictionnary;
-class Node;
+//class Node;
 
 class IndexedPatterns
 {
 private:
-  EXPORT	IndexedPatterns() :  __nodePatterns(dff::map<Node*, dff::vector< uint32_t > >()),
-				     __patternNodes(dff::map<uint32_t, dff::vector< Node* > >()),
-				     __uniq(dff::map<std::string, uint32_t>()),
-				     __idString(dff::map<uint32_t, std::string>()),
+  EXPORT	IndexedPatterns() :  __nodePatterns(DFF::map<Node*, DFF::vector< uint32_t > >()),
+				     __patternNodes(DFF::map<uint32_t, DFF::vector< Node* > >()),
+				     __uniq(DFF::map<std::string, uint32_t>()),
+				     __idString(DFF::map<uint32_t, std::string>()),
 				     __counter(0) {}
   EXPORT	IndexedPatterns(IndexedPatterns&) {}
   EXPORT	~IndexedPatterns() {}
   EXPORT	IndexedPatterns&	operator=(IndexedPatterns&);
-  dff::map<Node*, dff::vector< uint32_t > >	__nodePatterns;
-  dff::map<uint32_t, dff::vector< Node* > >	__patternNodes;
-  dff::map<std::string, uint32_t>		__uniq;
-  dff::map<uint32_t, std::string>		__idString;
+  DFF::map<Node*, DFF::vector< uint32_t > >	__nodePatterns;
+  DFF::map<uint32_t, DFF::vector< Node* > >	__patternNodes;
+  DFF::map<std::string, uint32_t>		__uniq;
+  DFF::map<uint32_t, std::string>		__idString;
   uint32_t					__counter;
   
 public:
@@ -94,7 +108,7 @@ public:
 class Dictionnary //: public DEventHandler ??? to notify watchers for compile error and instance reporting and be able to stop compile
 {
 private:
-  std::vector<Search* >			__cpatterns;
+  std::vector<DFF::Search* >			__cpatterns;
   std::vector<BadPattern* >		__bad_patterns;
   size_t				__cp_pos;
 protected:
@@ -105,7 +119,7 @@ public:
   EXPORT Dictionnary();
   EXPORT virtual				~Dictionnary();
   EXPORT std::vector<BadPattern* >		badPatterns();
-  EXPORT Search*				nextSearchPattern();
+  EXPORT DFF::Search*				nextSearchPattern();
   EXPORT void					reset();
   EXPORT virtual void				save(std::string path) throw (std::string) = 0;
   EXPORT virtual std::string			fileName() = 0;

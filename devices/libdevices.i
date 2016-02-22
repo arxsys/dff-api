@@ -18,8 +18,8 @@
 
 %module(package="dff.api.devices") libdevices
 
-%feature("director") Device;
-%feature("director") DeviceList;
+%feature("director") DFF::Device;
+%feature("director") DFF::DeviceList;
 
 
 %include "std_string.i"
@@ -59,8 +59,11 @@
 
 namespace std
 {
-  %template(devList) vector<Device *>;
+  %template(devList) vector<DFF::Device *>;
 }
+
+namespace DFF
+{
 
 #ifdef WIN32
 %extend WMIDevices
@@ -128,3 +131,5 @@ def __getitem__(self, c):
 %}
 
 };
+
+}

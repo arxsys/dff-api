@@ -20,7 +20,7 @@ IF (WIN32)
 ENDIF(WIN32)
 
 dff_cpp_api(types
-  CPP_FILES constant.cpp argument.cpp config.cpp path.cpp vtime.cpp variant.cpp confmanager.cpp threading.cpp ../vfs/rc.cpp 
+  CPP_FILES constant.cpp argument.cpp config.cpp path.cpp datetime.cpp variant.cpp confmanager.cpp threading.cpp ../vfs/rc.cpp
   SWIG_FILE libtypes.i
   DEFINITIONS -D__STDC_LIMIT_MACROS
   SWIG_FLAGS ${swig_flags}

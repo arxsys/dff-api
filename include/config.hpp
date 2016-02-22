@@ -27,6 +27,9 @@
 #include "argument.hpp"
 #include "constant.hpp"
 
+namespace DFF
+{
+
 class Config
 {
 private:
@@ -58,4 +61,5 @@ public:
   EXPORT std::list<Constant*>	constantByType(uint8_t type);
 };
 
+}
 #endif

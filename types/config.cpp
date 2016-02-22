@@ -17,6 +17,9 @@
 
 #include "config.hpp"
 
+namespace DFF
+{
+
 Config::Config(std::string origin, std::string description)
 {
   this->__origin = origin;
@@ -223,4 +226,6 @@ std::list<Constant*>		Config::constantByType(uint8_t type)
     if (it->second->type() == type)
       lconsts.push_back(it->second);
   return lconsts;
+}
+
 }

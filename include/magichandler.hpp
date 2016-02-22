@@ -21,6 +21,9 @@
 #include "vfile.hpp"
 #include <magic.h>
 
+namespace DFF
+{
+
 class MagicType : public DataTypeHandler
 {
 protected:
@@ -60,4 +63,5 @@ public:
   EXPORT virtual std::string	type(Node* node);
 };
 
+}
 #endif

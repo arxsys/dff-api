@@ -29,10 +29,12 @@
 #include <vector>
 #include "export.hpp"
 #include "rc.hpp"
-
 #include "drealvalue.hpp"
 
-#define Tag_p   RCPtr< Tag >
+#define Tag_p   DFF::RCPtr< DFF::Tag >
+
+namespace DFF
+{
 
 class Node;
 
@@ -94,4 +96,5 @@ public:
   EXPORT void                           load(Destruct::DValue); 
 };
 
+}
 #endif

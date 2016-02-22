@@ -31,6 +31,8 @@
 //#include "session.hpp"
 #include "log.hpp"
 
+namespace DFF
+{
 /**
  *  Return singleton instance of VFS
  */
@@ -50,7 +52,7 @@ void    VFS::__declare(void)
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name")); 
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "tags")); 
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "children")); 
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "dataTypes"));
+  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "type"));
   destruct.registerDStruct(dnodeStruct);
 
   destruct.registerDStruct(Destruct::makeNewDCpp<NodeContainer>("NodeContainer"));
@@ -438,7 +440,7 @@ void    NodeManager::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject,
 
 
   //push dataType of node in node dataTypes
-  this->__dataTypeManager->loadNodeDataTypes(node, dnode->getValue("dataTypes"));
+  this->__dataTypeManager->loadNodesType(node, dnode->getValue("type"));
 
 
   //set Node tags
@@ -529,4 +531,6 @@ Node*   NodeContainer::node(void)
     this->__node = vfs.GetNode(this->absolute); //XXX ou tghis-absloute9)
   }
   return (this->__node);
+}
+
 }

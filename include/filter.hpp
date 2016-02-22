@@ -17,14 +17,15 @@
 #ifndef __FILTER_HPP__
 #define __FILTER_HPP__
 
-#include <string>
-
+#include <stdio.h>
 #include "eventhandler.hpp"
-#include "node.hpp"
-#include "fso.hpp"
-#include "vfs.hpp"
 #include "../filters/astnodes.hpp"
 #include "../filters/scanner.hpp"
+
+namespace DFF
+{
+class fso;
+class Node;
 
 class Filter : public EventHandler
 {
@@ -71,4 +72,5 @@ private:
   bool			__stop;
 };
 
+}
 #endif

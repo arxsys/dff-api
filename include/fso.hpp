@@ -33,13 +33,15 @@
 #include <vector>
 
 #include "variant.hpp"
-#include "vfs.hpp"
-#include "node.hpp"
 
 namespace Destruct
 {
   class DValue;
 };
+
+
+namespace DFF
+{
 
 class Node;
 
@@ -85,4 +87,5 @@ public:
   EXPORT virtual Destruct::DValue       save(void) const;
 };
 
+}
 #endif

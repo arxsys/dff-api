@@ -16,7 +16,12 @@
 
 #include "path.hpp"
 
+namespace DFF
+{
+
 Path::Path(std::string p)
 {
   this->path = p;
+}
+
 }

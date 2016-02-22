@@ -18,7 +18,10 @@
 
 #include <iostream>
 #include <string.h>
+#include <sstream>
 
+namespace DFF
+{
 //#define DEBUGSEARCH 1
 
 Search::Search()
@@ -298,9 +301,6 @@ int32_t			Search::__ffind(char* haystack, uint32_t hslen)
     return fastsearch((unsigned char*)haystack, hslen, (unsigned char*)this->__pattern.c_str(), this->__nlen, 1, FAST_SEARCH);
 }
 
-
-#include <iostream>
-#include <sstream>
 
 int32_t			Search::__wfind(char* haystack, uint32_t hslen)
 {
@@ -702,4 +702,6 @@ int32_t       FastSearch::count(unsigned char* haystack, uint32_t hslen, unsigne
       else
 	return wfastsearch(haystack, hslen, needle, ndlen, wildcard, maxcount, FAST_COUNT);
     }
+}
+
 }

@@ -24,6 +24,9 @@
 #include <iostream>
 #include <map>
 
+namespace DFF
+{
+
 class Path
 {
 public:
@@ -31,5 +34,6 @@ public:
   EXPORT 	Path(std::string p);
 };
 
+}
 #endif
 

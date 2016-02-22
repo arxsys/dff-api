@@ -111,11 +111,11 @@
     {
       $action;
     }
-  catch (vfsError &e)
+  catch (DFF::vfsError &e)
     {
       SWIG_exception(SWIG_IOError, e.error.c_str());
     }
-  catch (envError &e)
+  catch (DFF::envError &e)
     {
       SWIG_PYTHON_THREAD_BEGIN_BLOCK;
       PyErr_SetString(PyExc_KeyError, e.error.c_str());
@@ -140,7 +140,7 @@
 {
     if ($error != NULL)
     {
-      throw vfsError("Exception caught");
+      throw DFF::vfsError("Exception caught");
     }
 }
 

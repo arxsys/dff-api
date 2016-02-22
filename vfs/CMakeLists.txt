@@ -29,6 +29,7 @@ set(vfs_src
    iostat.cpp 
    rootnode.cpp
    datatype.cpp
+   simplefso.cpp
    log.cpp)
 
 if (BFIO_FOUND)

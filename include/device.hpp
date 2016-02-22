@@ -27,6 +27,9 @@
 #include <vector>
 #include "export.hpp"
 
+namespace DFF
+{
+
 class Device
 {
 public:
@@ -44,4 +47,5 @@ public:
   EXPORT			DeviceList();
 };
 
+}
 #endif

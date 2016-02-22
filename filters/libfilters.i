@@ -31,20 +31,16 @@
 
 %import "../exceptions/libexceptions.i"
 
-
 %{
-#include "exceptions.hpp"
-#include "variant.hpp"
-#include "vtime.hpp"
-#include "node.hpp"
-#include "vlink.hpp"
-#include "vfile.hpp"
 #include "mfso.hpp"
-#include "factory.hpp"
+#include "vfs.hpp"
+#include "vlink.hpp"
+#include "node.hpp"
+#include "exceptions.hpp"
+#include "datetime.hpp"
 #include "rootnode.hpp"
-/* #include "../include/export.hpp" */
-/* #include "../include/eventhandler.hpp" */
-#include "../include/filter.hpp"
+#include "filter.hpp"
+#include "timeline.hpp"
 #include "dictionnary.hpp"
 %}
 
@@ -55,6 +51,7 @@ namespace std
   %template(BadPatterns)            std::vector<BadPattern*>;
   %template(VectString)             std::vector<std::string>;
   %template(Dictionnaries)          std::map<std::string, Dictionnary* >;
+  %template(VectTimeLineNode)       std::vector<TimeLineNode*>;
 };
 
 %traits_swigtype(Dictionnary);
@@ -62,6 +59,6 @@ namespace std
 
 
 %include "../include/filter.hpp"
+%include "../include/timeline.hpp"
 %include "factory.hpp"
 %include "dictionnary.hpp"
-
