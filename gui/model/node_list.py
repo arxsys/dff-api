@@ -270,7 +270,10 @@ class NodeListModel(QAbstractItemModel):
           if val[0].type() == typeId.DateTime:
             dateTime = val[0].value()
             if dateTime:
-              return QVariant(str(dateTime))
+              try:
+                return QVariant(str(dateTime))
+              except:
+                return QVariant()
           elif val[0].type() == typeId.String:
             return QVariant(QString.fromUtf8(val[0].value()))
           else:
@@ -713,7 +716,10 @@ class TimeLineNodeListModel(NodeListModel):
           return QVariant(QString.fromUtf8(node.name()))
 
       elif attrpath == "time":
-          return QVariant(QString.fromUtf8(str(timeLineNode.attribute())))
+         try:
+           return QVariant(QString.fromUtf8(str(timeLineNode.attribute())))
+         except:
+           return QVariant()
       elif attrpath == "time attribute":
           return QVariant(QString.fromUtf8(timeLineNode.attributeName()))
 
