@@ -25,6 +25,9 @@ ConfigManager::ConfigManager()
 
 ConfigManager::~ConfigManager()
 {
+  std::map<std::string, Config*>::iterator config = this->__configs.begin();
+  for (; config != this->__configs.end(); ++config)
+     delete (*config).second;
 }
 
 ConfigManager*	ConfigManager::Get()
