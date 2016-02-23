@@ -174,7 +174,7 @@ bool		TagsManager::remove(uint32_t id)
       {
         this->__tagsList[id - 1] = NULL;
         //delete t; 
-        //t = NULL;// hum ca delete vraiment ou vue que c a null ca delte pas et du coup ca reste en rammmmm et ca segfault pas ds le removescript XXX
+        //t = NULL;//is it really deleted ? 
         return (true);
       }
       else
