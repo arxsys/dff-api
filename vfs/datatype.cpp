@@ -49,9 +49,9 @@ DataTypeHandler::~DataTypeHandler()
 
 }
 /**
- *  Type
+ *  DataType
  */ 
-Type::Type(const std::string name) : __name(name)
+DataType::DataType(const std::string name) : __name(name)
 {
   std::list<std::string>        	result;
   ConfigManager*			cm;
@@ -69,25 +69,25 @@ Type::Type(const std::string name) : __name(name)
     }
 }
 
-Type::Type(const std::string name, const std::list<std::string>& compatibleModule) : __name(name), __compatibleModules(compatibleModule)
+DataType::DataType(const std::string name, const std::list<std::string>& compatibleModule) : __name(name), __compatibleModules(compatibleModule)
 {
 }
 
-Type::~Type()
+DataType::~DataType()
 {
 }
 
-const std::string       Type::name() const
+const std::string       DataType::name() const
 {
   return (this->__name);
 }
 
-const std::list<std::string>    Type::compatibleModules(void) const
+const std::list<std::string>    DataType::compatibleModules(void) const
 {
   return (this->__compatibleModules);
 }
 
-void		Type::__compatibleModulesByType(const std::map<std::string, Constant*>& cmime, const std::string dtypes, std::list<std::string>& result)
+void		DataType::__compatibleModulesByType(const std::map<std::string, Constant*>& cmime, const std::string dtypes, std::list<std::string>& result)
 {
   std::map<std::string, Constant*>::const_iterator	cit;
   std::list<Variant_p >					lvalues;
@@ -115,7 +115,7 @@ void		Type::__compatibleModulesByType(const std::map<std::string, Constant*>& cm
     }
 }
 
-Type*                                       Type::load(DValue const&  dobject)
+DataType*                                       DataType::load(DValue const&  dobject)
 {
   DObject* typeObject = dobject.get<DObject*>();
 
@@ -134,13 +134,13 @@ Type*                                       Type::load(DValue const&  dobject)
   compatibleModulesObject->destroy();
   typeObject->destroy();
 
-  Type* type = new Type(name, compatibleModule);
+  DataType* type = new DataType(name, compatibleModule);
   return (type);
 }                       
 
-DValue                Type::save(void) const
+DValue                DataType::save(void) const
 {
-  DObject* dataType = DStructs::instance().generate("Type");
+  DObject* dataType = DStructs::instance().generate("DataType");
 
   dataType->setValue("name", RealValue<DUnicodeString>(this->__name));
 
@@ -175,6 +175,12 @@ DataTypeManager* 	DataTypeManager::Get()
 
 DataTypeManager::~DataTypeManager()
 {
+  std::map<const std::string, const DataType*>::iterator type = this->__types.begin();
+
+  for (; type != this->__types.end(); ++type)
+    delete (*type).second;
+  this->__types.clear();
+  this->__nodesType.clear();
   mutex_destroy(&this->__mutex);
 }
 
@@ -195,13 +201,13 @@ bool		DataTypeManager::registerHandler(DataTypeHandler* handler)
 const std::string	DataTypeManager::type(Node* node)
 {
   const	std::string	dtype;
-  const Type*		type;
+  const DataType*	type;
   
   if (node != NULL)
     {  
       // At first, check if node's type has already been processed
       mutex_lock(&this->__mutex);
-      std::map<Node*, const Type* >::const_iterator nodeType = this->__nodesType.find(node);
+      std::map<Node*, const DataType* >::const_iterator nodeType = this->__nodesType.find(node);
       mutex_unlock(&this->__mutex);
       if (nodeType != this->__nodesType.end())
 	{
@@ -221,10 +227,10 @@ const std::string	DataTypeManager::type(Node* node)
 	      result = std::string("error");
 	    }
 	  mutex_lock(&this->__mutex);
-	  std::map<const std::string, const Type* >::const_iterator types = this->__types.find(result);
+	  std::map<const std::string, const DataType* >::const_iterator types = this->__types.find(result);
 	  if (types == this->__types.end())
 	    {
-	      type = new Type(result);
+	      type = new DataType(result);
 	      this->__types[result] = type;
 	    }
 	  else
@@ -244,10 +250,10 @@ std::list<std::string>		DataTypeManager::compatibleModules(Node* node)
 {
   std::list<std::string>	modules;
   const std::string dtype = node->dataType(); //node dataType could be overloaded so must call it
-  const Type* type = NULL;
+  const DataType* type = NULL;
 
   mutex_lock(&this->__mutex);
-  std::map<const std::string, const Type* >::const_iterator types = this->__types.find(dtype);
+  std::map<const std::string, const DataType* >::const_iterator types = this->__types.find(dtype);
   mutex_unlock(&this->__mutex);
   if (types != this->__types.end())
     type = types->second;
@@ -265,10 +271,8 @@ std::list<std::string>		DataTypeManager::compatibleModules(Node* node)
 
 void                    DataTypeManager::declare(void)
 {
-  Destruct::DType::init(); //XXX for test only must be done elswhere
-
   Destruct::DStructs&    destruct = Destruct::DStructs::instance();
-  Destruct::DStruct* dtype = new Destruct::DStruct(NULL, "Type", Destruct::DSimpleObject::newObject); 
+  Destruct::DStruct* dtype = new Destruct::DStruct(NULL, "DataType", Destruct::DSimpleObject::newObject); 
   dtype->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
   dtype->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "compatibleModules"));
   destruct.registerDStruct(dtype);
@@ -288,7 +292,7 @@ bool                    DataTypeManager::load(Destruct::DValue value)
   for (DUInt64 index = 0; index < typesCount; index++)
   {
      Destruct::DValue typeObject = types->call("get", Destruct::RealValue<DUInt64>(index));
-     Type* type = Type::load(typeObject);
+     DataType* type = DataType::load(typeObject);
      this->__types[type->name()] = type;
   }
   types->destroy();
@@ -300,7 +304,7 @@ Destruct::DValue        DataTypeManager::save(void) const
 {
   Destruct::DObject* types  = Destruct::DStructs::instance().find("DVectorObject")->newObject();
 
-  std::map<const std::string, const Type*>::const_iterator typeIt = this->__types.begin();
+  std::map<const std::string, const DataType*>::const_iterator typeIt = this->__types.begin();
   for (; typeIt != this->__types.end(); ++typeIt)
     types->call("push", (*typeIt).second->save());
 

@@ -52,7 +52,7 @@ void    VFS::__declare(void)
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name")); 
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "tags")); 
   dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "children")); 
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "type"));
+  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "dataType"));
   destruct.registerDStruct(dnodeStruct);
 
   destruct.registerDStruct(Destruct::makeNewDCpp<NodeContainer>("NodeContainer"));

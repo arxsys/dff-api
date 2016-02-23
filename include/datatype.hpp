@@ -54,16 +54,16 @@ public:
   EXPORT  virtual std::string	                        type(Node* ) = 0;
 }; 
 
-class Type //dccpobject ? 
+class DataType //dccpobject ? 
 {
 public:
-  EXPORT Type(const std::string name);
-  EXPORT Type(const std::string name, const std::list<std::string>& compatibleModule); 
-  EXPORT ~Type();
+  EXPORT DataType(const std::string name);
+  EXPORT DataType(const std::string name, const std::list<std::string>& compatibleModule); 
+  EXPORT ~DataType();
 
   EXPORT const std::string		                name(void) const;
   EXPORT const std::list<std::string>	                compatibleModules(void) const; 
-  EXPORT static Type*                                   load(DValue const& value);
+  EXPORT static DataType*                               load(DValue const& value);
   EXPORT DValue                                         save(void) const; 
 private:
   const std::string			                __name;
@@ -94,8 +94,8 @@ private:
   DataTypeManager&				operator=(DataTypeManager& copy);
                                                 mutex_def(__mutex);
   DataTypeHandler*				__handler;
-  std::map<const std::string, const Type* >	__types;
-  std::map<Node*, const Type* >			__nodesType;
+  std::map<const std::string, const DataType* >	__types;
+  std::map<Node*, const DataType* >		__nodesType;
   //type std::list<Node*> ?
   void		                                __compatibleModulesByExtension(const std::map<std::string, Constant*>& cextensions, std::string& ext, std::list<std::string>& result);
 };
