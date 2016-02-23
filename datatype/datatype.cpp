@@ -111,6 +111,12 @@ DataTypeManager* 	DataTypeManager::Get()
 
 DataTypeManager::~DataTypeManager()
 {
+  std::map<const std::string, const Type*>::iterator type = this->__types.begin();
+
+  for (; type != this->__types.end(); ++type)
+    delete (*type).second;
+  this->__types.clear();
+  this->__nodesType.clear();
   mutex_destroy(&this->__mutex);
 }
 
