@@ -67,7 +67,7 @@ class Scaler(QObject):
   def convert(self, event):
     node = event.config.node
     buff = ""
-    if (str(node.dataType()).find('video') != -1):
+    if (node.dataType().find('video') != -1):
       if VIDEO_API_EXISTS:
         try:
           md = video.VideoDecoder(node)
@@ -97,7 +97,7 @@ class Scaler(QObject):
     img = QImage()
     load = None
     buff = ""
-    if str(node.dataType()).find('jpeg') != -1 and node.size() < self.imageMaximumSize:
+    if node.dataType().find('jpeg') != -1 and node.size() < self.imageMaximumSize:
       try:
         buff = self.jpegInternalThumbnail(node)
 	if (buff):
@@ -251,7 +251,7 @@ class Thumbnailer(QObject):
 
   @staticmethod
   def isThumbnailable(node):
-     if Thumbnailer.compatibleType.search(str(node.dataType())) != None:
+     if Thumbnailer.compatibleType.search(node.dataType()) != None:
        return True
      return False
 
