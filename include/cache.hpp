@@ -104,8 +104,13 @@ public:
     this->__allocCache(cacheSize); 
   };
 
-  EXPORT                        ~Cache()
+  EXPORT virtual                ~Cache()
   {
+    for (uint32_t i = 0; i < this->__cacheSize; i++)
+    {
+      delete ((T*)this->__cacheSlot[i]->content);
+      free (this->__cacheSlot[i]);
+    }
     free(this->__cacheSlot);
     mutex_destroy(&this->__mutex);
   };

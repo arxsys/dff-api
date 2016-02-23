@@ -838,6 +838,7 @@ Open the node and return a pointer to a VFile instance
 #include "../destruct/python/py_dobject.hpp"
 #include "../destruct/python/py_module.hpp"
 #include "fdmanager.hpp"
+//#include "datatype.hpp"
 %}
 
 %ignore NodesTypes;
@@ -862,10 +863,17 @@ Open the node and return a pointer to a VFile instance
 %include "../include/node.hpp"
 %include "../include/rootnode.hpp"
 %include "../include/vlink.hpp"
+<<<<<<< HEAD
 %include "../include/iostat.hpp"
 %include "../include/rootnode.hpp"
 %include "../include/datatype.hpp"
 %include "../include/fdmanager.hpp"
+=======
+//%include "../include/iostat.hpp" // need to be export to python ?
+//%include "../include/fdmanager.hpp"
+//
+
+>>>>>>> origin/develop
 
 %extend_smart_pointer(Tag_p);
 %template(RCPtrTag) Tag_p;
@@ -883,8 +891,14 @@ namespace std
   %template(MapNameTypes)	std::map<std::string, uint8_t>;
   %template(FsoVect)		std::vector<DFF::fso*>;
   %template(RCPtrTagVect)       std::vector<Tag_p >;
+<<<<<<< HEAD
   %template(ListDataType)       list<DFF::DataTypeHandler*>;
 // #%template(MapDataType)      map<std::string, uint32_t>;
+=======
+
+//  %template(ListDataType)       list<DFF::DataTypeHandler*>; need to be exported to python ?
+//  %template(MapDataType)        map<std::string, uint32_t>; 
+>>>>>>> origin/develop
 }
 
 /* %traits_swigtype(Variant); */

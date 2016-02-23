@@ -99,13 +99,19 @@ const std::vector<TimeLineNode*>&   TimeLine::sort(std::vector<Node*> nodes)
       this->__stop = 0;
       throw std::string("TimeLine::sort() stopped");
     }
-    Attributes attributes = (*node)->attributesByType(typeId::DateTime); 
-    Attributes::iterator attribute = attributes.begin();
-    for (; attribute != attributes.end(); ++attribute)
+    try 
     {
-      DateTime* time = attribute->second->value<DateTime*>();
-      if (time)
-        this->__sorted.push_back(new TimeLineNode((*node), attribute->first, *time));
+      Attributes attributes = (*node)->attributesByType(typeId::DateTime); 
+      Attributes::iterator attribute = attributes.begin();
+      for (; attribute != attributes.end(); ++attribute)
+      {
+        DateTime* time = attribute->second->value<DateTime*>();
+        if (time)
+          this->__sorted.push_back(new TimeLineNode((*node), attribute->first, *time));
+      }
+    }
+    catch (...)
+    {
     }
     this->__processed += 1;
   }
