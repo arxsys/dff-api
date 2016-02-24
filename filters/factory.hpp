@@ -45,19 +45,15 @@ public:
     };
   typedef Expression* (*factoryMethod)();
   typedef Expression* (*CreateInstance)(std::string);
-  EXPORT static AttributeFactory*	instance()
-  {
-    static AttributeFactory fact;
-    return &fact;
-  }
+  EXPORT static AttributeFactory*	instance();
   EXPORT int			addKeyword(std::string keyword, std::string fqn, CName type, QueryFlags::Level qflag) throw (std::string);
   EXPORT int			registerCreator(CName type, CreateInstance creator) throw (std::string);
   EXPORT Expression*		create(std::string keyword) throw (std::string);
   EXPORT QueryFlags::Level	getQueryFlags(std::string fqn) throw (std::string);
 private:
-  EXPORT			AttributeFactory() {}
-  EXPORT			AttributeFactory(AttributeFactory &) {}
-  EXPORT			~AttributeFactory() {}
+  EXPORT			AttributeFactory();
+  EXPORT			AttributeFactory(AttributeFactory &);
+  EXPORT			~AttributeFactory();
   AttributeFactory&		operator=(AttributeFactory &);
   typedef struct
   {
