@@ -45,17 +45,17 @@ Tag::~Tag()
 {
 }
 
-std::string Tag::name(void)
+const std::string Tag::name(void) const
 {
   return (this->__name);
 }
 
-Color    Tag::color(void)
+const Color    Tag::color(void) const
 {
   return (this->__color);
 }
 
-uint32_t Tag::id(void)
+uint32_t Tag::id(void) const
 {
   return (this->__id);
 }
@@ -72,7 +72,7 @@ void    Tag::setColor(uint8_t r, uint8_t g, uint8_t b)
   this->__color.b = b;
 }
 
-void	Tag::setName(std::string name)
+void	Tag::setName(const std::string name)
 {
   this->__name = name;
 }
@@ -88,22 +88,29 @@ TagsManager::TagsManager()
   this->__defaults = this->__tagsList.size();
 }
 
-TagsManager&	TagsManager::get()
+TagsManager::~TagsManager()
 {
-   static TagsManager single;
-   return (single);
+  std::vector<Tag*>::iterator tag = this->__tagsList.begin();
+  for (; tag != this->__tagsList.end(); ++tag)
+     delete (*tag);
 }
 
-uint32_t        TagsManager::add(std::string name, Color color)
+TagsManager&	TagsManager::get()
+{
+  static TagsManager single;
+  return (single);
+}
+
+uint32_t        TagsManager::add(const std::string name, Color color)
 {
   return (this->add(name, color.r, color.g, color.b));
 }
 
-uint32_t 	TagsManager::add(std::string name, uint8_t r, uint8_t g, uint8_t b)
+uint32_t 	TagsManager::add(const std::string name, uint8_t r, uint8_t g, uint8_t b)
 {
   try 
   {
-    Tag_p t  =  this->tag(name);
+    Tag* t  =  this->tag(name);
     return (t->id());
   }
   catch (envError) 
@@ -114,7 +121,7 @@ uint32_t 	TagsManager::add(std::string name, uint8_t r, uint8_t g, uint8_t b)
   {
     uint32_t id = this->__tagsList.size() + 1;
  
-    Tag_p tag(new Tag(id, name, r, g, b)); 
+    Tag* tag = new Tag(id, name, r, g, b); 
     this->__tagsList.push_back(tag);
     return (id);
   }
@@ -126,7 +133,7 @@ uint32_t 	TagsManager::add(std::string name, uint8_t r, uint8_t g, uint8_t b)
     {
       if (this->__tagsList[id] == NULL)
       {
-        this->__tagsList[id] = Tag_p(new Tag(id + 1, name, r, g, b));
+        this->__tagsList[id] = new Tag(id + 1, name, r, g, b);
 	return (id + 1);
       }
     }
@@ -135,9 +142,9 @@ uint32_t 	TagsManager::add(std::string name, uint8_t r, uint8_t g, uint8_t b)
   return (0);
 }
 
-uint32_t 	TagsManager::add(std::string name)
+uint32_t 	TagsManager::add(const std::string name)
 {
-//getcolorauto XXX //random ??
+  //getcolorauto XXX //random ??
   return (this->add(name, 100, 170, 80));
 }
 
@@ -166,15 +173,14 @@ bool		TagsManager::remove(uint32_t id)
 {
   try
   {
-    Tag_p t = this->__tagsList.at(id - 1);
+    Tag* t = this->__tagsList.at(id - 1);
     if (t != NULL)
     {
       this->__removeNodesTag(id);
       if (id > this->__defaults)
       {
+        delete this->__tagsList[id - 1];
         this->__tagsList[id - 1] = NULL;
-        //delete t; 
-        //t = NULL;// hum ca delete vraiment ou vue que c a null ca delte pas et du coup ca reste en rammmmm et ca segfault pas ds le removescript XXX
         return (true);
       }
       else
@@ -189,9 +195,9 @@ bool		TagsManager::remove(uint32_t id)
 }
 
 
-bool		TagsManager::remove(std::string name)
+bool		TagsManager::remove(const std::string name)
 {
-  std::vector<Tag_p >::iterator it = this->__tagsList.begin();
+  std::vector<Tag* >::iterator it = this->__tagsList.begin();
   
   for (; it != this->__tagsList.end(); it++)
   {
@@ -201,25 +207,16 @@ bool		TagsManager::remove(std::string name)
   return (false);
 }
 
-std::vector<Tag_p >*	TagsManager::tags(void)
+const std::vector<Tag* >	TagsManager::tags(void) const
 {
-  std::vector<Tag_p >* tagsList         = new std::vector<Tag_p >;
-  std::vector<Tag_p >::iterator it      =  this->__tagsList.begin();
-
-  for (; it != this->__tagsList.end(); it++)
-  {
-    if ((*it) != NULL)
-      tagsList->push_back(Tag_p(*it));
-  }
-
-  return (tagsList);
+  return (this->__tagsList);
 }
 
-Tag_p			TagsManager::tag(uint32_t id)
+Tag*			TagsManager::tag(uint32_t id) const
 {
   try 
   {
-    Tag_p t = this->__tagsList.at(id - 1);
+    Tag* t = this->__tagsList.at(id - 1);
     if (t != NULL)
       return (t);
   }
@@ -229,9 +226,9 @@ Tag_p			TagsManager::tag(uint32_t id)
   throw envError("Tag not found"); 
 }
 
-Tag_p			TagsManager::tag(std::string name)
+Tag*			TagsManager::tag(const std::string name) const
 {
-  std::vector<Tag_p >::iterator	it = this->__tagsList.begin();
+  std::vector<Tag* >::const_iterator	it = this->__tagsList.begin();
 
   for (; it != this->__tagsList.end(); it++)
     if (((*it) != NULL) && (*it)->name() == name)

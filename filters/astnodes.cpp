@@ -152,7 +152,7 @@ void		InterpreterContext::setCurrentNode(DFF::Node* node)
 	}
       if ((this->__qflags & QueryFlags::Tags) == QueryFlags::Tags)
 	{
-	  std::vector< Tag_p >	tags;
+	  std::vector< Tag* >	tags;
 	  VLIST			vtags;
 	  size_t		i;
 	  tags = node->tags();

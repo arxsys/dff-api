@@ -709,8 +709,6 @@ Open the node and return a pointer to a VFile instance
 %newobject DFF::Node::open;
 %newobject DFF::VLink::open;
 
-%newobject DFF::TagsManager::tags;
-
 /* %feature("director:except") fso */
 /* { */
 /*     if ($error != NULL) */
@@ -854,11 +852,6 @@ Open the node and return a pointer to a VFile instance
 //%include "../include/iostat.hpp" // need to be export to python ?
 //%include "../include/fdmanager.hpp"
 //
-
-
-%extend_smart_pointer(Tag_p);
-%template(RCPtrTag) Tag_p;
-
 namespace std
 {
   %template(VecNode)		std::vector<DFF::Node*>;
@@ -871,10 +864,9 @@ namespace std
   %template(MapTime)		std::map<std::string, DFF::DateTime*>;
   %template(MapNameTypes)	std::map<std::string, uint8_t>;
   %template(FsoVect)		std::vector<DFF::fso*>;
-  %template(RCPtrTagVect)       std::vector<Tag_p >;
-
-//  %template(ListDataType)       list<DFF::DataTypeHandler*>; need to be exported to python ?
-//  %template(MapDataType)        map<std::string, uint32_t>; 
+  %template(TagVect)            std::vector<DFF::Tag* >;
+//%template(ListDataType)       list<DFF::DataTypeHandler*>; need to be exported to python ?
+//%template(MapDataType)        map<std::string, uint32_t>; 
 }
 
 /* %traits_swigtype(Variant); */

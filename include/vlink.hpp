@@ -80,7 +80,7 @@ public :
   EXPORT bool				removeTag(uint32_t id);
   EXPORT bool				isTagged(std::string name);
   EXPORT bool				isTagged(uint32_t id);	
-  EXPORT std::vector<Tag_p >		tags();
+  EXPORT std::vector<Tag* >		tags();
   EXPORT std::vector<uint32_t>		tagsId();
 };
 

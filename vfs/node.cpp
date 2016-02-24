@@ -766,7 +766,7 @@ std::list<std::string>		Node::compatibleModules(void)
 
 bool    	Node::setTag(std::string name)
 {
-  Tag_p t =  TagsManager::get().tag(name);
+  Tag* t =  TagsManager::get().tag(name);
 
   if (t != NULL) 	
   {
@@ -788,7 +788,7 @@ bool 	        Node::setTag(uint32_t id)
 
 bool	         Node::removeTag(std::string name)
 {
-  Tag_p  t =  TagsManager::get().tag(name);
+  Tag*  t =  TagsManager::get().tag(name);
 
   if (t != NULL) 	
     return (this->removeTag(t->id()));
@@ -814,25 +814,25 @@ bool            Node::isTagged(uint32_t id)
 
 bool            Node::isTagged(std::string name)
 {
-  Tag_p  t = TagsManager::get().tag(name);
+  Tag*  t = TagsManager::get().tag(name);
 
   if (t->id() != 0)
     return (this->isTagged(t->id()));
   return (false);
 }
 
-std::vector<Tag_p > 	Node::tags()
+std::vector<Tag* > 	Node::tags()
 {
   uint8_t 		i    = 1;
   TagsManager&		tm   = TagsManager::get();
-  std::vector<Tag_p > 	tags;
+  std::vector<Tag* > 	tags;
 
   for (; i < 64; i++)
     if (this->isTagged(i))
     {
       try 
       {
-        Tag_p t = tm.tag(i);
+        Tag* t = tm.tag(i);
         if (t != NULL)
           tags.push_back(t);
       }
