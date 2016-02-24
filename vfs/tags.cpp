@@ -85,6 +85,7 @@ TagsManager::TagsManager()
   DEFAULT_TAG("known bad",    0,   0, 255)
   DEFAULT_TAG("malware",    255,   0,   0)
   DEFAULT_TAG("viewed",     255, 255,   0)
+  DEFAULT_TAG("suspicious", 255, 85,    0)
   this->__defaults = this->__tagsList.size();
 }
 

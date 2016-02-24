@@ -849,9 +849,9 @@ Open the node and return a pointer to a VFile instance
 %include "../include/node.hpp"
 %include "../include/rootnode.hpp"
 %include "../include/vlink.hpp"
+%include "../include/fdmanager.hpp"
 //%include "../include/iostat.hpp" // need to be export to python ?
-//%include "../include/fdmanager.hpp"
-//
+
 namespace std
 {
   %template(VecNode)		std::vector<DFF::Node*>;
