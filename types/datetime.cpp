@@ -150,9 +150,8 @@ int32_t DateTime::year(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_year + 1900;
-  }
+    return date.tm_year + 1900;
+  return (1970);
 }
 
 int32_t  DateTime::month(void) const
@@ -161,9 +160,8 @@ int32_t  DateTime::month(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_mon + 1;
-  }	
+    return date.tm_mon + 1;
+  return (1);	
 }
 
 int32_t DateTime::day(void) const
@@ -172,9 +170,8 @@ int32_t DateTime::day(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_mday; 
-  }
+    return date.tm_mday; 
+  return (0);
 }
 
 int32_t DateTime::hour(void) const
@@ -183,9 +180,8 @@ int32_t DateTime::hour(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_hour;
-  }
+    return date.tm_hour;
+  return (0);
 }
 
 	
@@ -195,9 +191,8 @@ int32_t DateTime::minute(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_min;
-  }
+    return date.tm_min;
+  return (0);
 }
 
 int32_t DateTime::second(void) const
@@ -206,9 +201,8 @@ int32_t DateTime::second(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_sec;
-  }
+    return date.tm_sec;
+  return (0);
 }
 
 int32_t DateTime::dayOfWeek(void) const
@@ -217,9 +211,8 @@ int32_t DateTime::dayOfWeek(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_wday;
-  }
+    return date.tm_wday;
+  return (0);
 }
 
 int32_t DateTime::dayOfYear(void) const
@@ -228,9 +221,8 @@ int32_t DateTime::dayOfYear(void) const
   time_t time = this->epochTime();
 
   if (gmtimex(&time, &date) != 0)
-  {
-	return date.tm_yday;
-  }
+    return date.tm_yday;
+  return (0);
 }
 
 const std::string       DateTime::toISOString(void) const
