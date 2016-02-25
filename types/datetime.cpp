@@ -149,7 +149,10 @@ int32_t DateTime::year(void) const
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_year + 1900); 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_year + 1900;
+  }
 }
 
 int32_t  DateTime::month(void) const
@@ -157,7 +160,10 @@ int32_t  DateTime::month(void) const
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_mon + 1); 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_mon + 1;
+  }	
 }
 
 int32_t DateTime::day(void) const
@@ -165,7 +171,10 @@ int32_t DateTime::day(void) const
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_mday); 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_mday; 
+  }
 }
 
 int32_t DateTime::hour(void) const
@@ -173,15 +182,22 @@ int32_t DateTime::hour(void) const
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_hour); 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_hour;
+  }
 }
 
+	
 int32_t DateTime::minute(void) const
 {
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_min); 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_min;
+  }
 }
 
 int32_t DateTime::second(void) const
@@ -189,7 +205,10 @@ int32_t DateTime::second(void) const
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_sec); 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_sec;
+  }
 }
 
 int32_t DateTime::dayOfWeek(void) const
@@ -197,7 +216,10 @@ int32_t DateTime::dayOfWeek(void) const
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_wday); 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_wday;
+  }
 }
 
 int32_t DateTime::dayOfYear(void) const
@@ -205,7 +227,10 @@ int32_t DateTime::dayOfYear(void) const
   struct tm     date;
   time_t time = this->epochTime();
 
-  return (gmtimex(&time, &date)->tm_yday); //CHECK NULL ! 
+  if (gmtimex(&time, &date) != 0)
+  {
+	return date.tm_yday;
+  }
 }
 
 const std::string       DateTime::toISOString(void) const
@@ -215,7 +240,7 @@ const std::string       DateTime::toISOString(void) const
   time_t        time = this->epochTime();
 
   memset(&date, 0, sizeof(struct tm));
-  if (gmtimex(&time, &date) != NULL)
+  if (gmtimex(&time, &date) != 0)
     if (strftime(timeBuff, 20, "%Y-%m-%dT%H:%M:%S", &date) == 19) //use TZ !!
       return std::string(timeBuff);
 
@@ -229,7 +254,7 @@ const std::string       DateTime::toString(void) const
   time_t        time = this->epochTime();
 
   memset(&date, 0, sizeof(struct tm));
-  if (gmtimex(&time, &date) != NULL)
+  if (gmtimex(&time, &date) != 0)
     if (strftime(timeBuff, 20, "%Y-%m-%d %H:%M:%S", &date) == 19) //use TZ !!
       return std::string(timeBuff);
 
@@ -243,9 +268,9 @@ time_t const  DosDateTime::daysInYear[] = { 0, 0, 31, 59, 90, 120, 151, 181, 212
  
 DosDateTime::DosDateTime(uint16_t time, uint16_t date) : DateTime((int64_t)0) //, timeZoneset timezone conversion to convert to GMT
 {
-  int64_t day = std::max(1, date & 0x1f) - 1;
+  int64_t day = (std::max)(1, date & 0x1f) - 1;
   int64_t year  = date >> 9;
-  int64_t month = std::max(1, (date >> 5) & 0xf);
+  int64_t month = (std::max)(1, (date >> 5) & 0xf);
   int64_t leap_day = (year + 3) / 4;
 
   if (year > YEAR_2100)
