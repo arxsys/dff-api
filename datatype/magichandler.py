@@ -53,6 +53,8 @@ class Magic(DataTypeHandler):
         #cannot read less than 0x2000 because of vshadow signature starting @0x1e00
         buff = f.read(0x2000)
         filemime = mime.buffer(buff)
+      except Exception as e:
+        print "Magic error can't read buffer:\n", e 
       finally:
         f.close()
         mime.close()	

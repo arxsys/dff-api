@@ -50,11 +50,14 @@ VFilePool::~VFilePool()
 
   for (i = 0; i < this->__poolSize; i++)
   {
-    if (this->__poolSlot[i]->content)
-    {
-      VFile* vfile = (VFile*)this->__poolSlot[i]->content;
-      delete vfile;
-    }
+    //Can't delete vfile after exit, because Py_Exit was called, interpreter finshed
+    //and swig will try to lock the GIL if a mfso/fso create the vfile from python 
+    //-> mfso.close is called via swig -> lock the gil already delete -> segfault
+    //if (this->__poolSlot[i]->content)
+    //{
+      //VFile* vfile = (VFile*)this->__poolSlot[i]->content;
+      //delete vfile;
+    //}
     free(this->__poolSlot[i]);
   }
   free(this->__poolSlot);

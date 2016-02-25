@@ -758,9 +758,12 @@ Open the node and return a pointer to a VFile instance
   }
 }
 
-%typemap(directorargout) (int32_t fd, void* rbuff, uint32_t size)
+%typemap(directorargout)  (int32_t fd, void *rbuff, uint32_t size)
 {
-  memcpy((char *)rbuff, PyString_AsString($input) , PyString_Size($input));
+  if (output)
+    memcpy((char *)rbuff, PyString_AsString($result) , c_result);
+  else
+    PyErr_Clear();
 }
 
 %typemap(out) DFF::pdata*
