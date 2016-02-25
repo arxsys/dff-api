@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-class LogicalDrive : public Device
+class LogicalDrive : public DFF::Device
 {
 private:
   wchar_t*		__drive;
@@ -42,12 +42,12 @@ public:
 };
 
 
-class LogicalDrives : public DeviceList
+class LogicalDrives : public DFF::DeviceList
 {
 private:
   wchar_t*		__driveLetter(wchar_t* single);
 public:
-  std::vector<Device *> deviceList;
+  std::vector<DFF::Device *> deviceList;
   EXPORT		LogicalDrives();
   EXPORT		~LogicalDrives();
 };

@@ -18,6 +18,7 @@
 #define __TIMELINE_HPP__
 
 #include <vector>
+#include "export.hpp"
 
 namespace DFF
 {
@@ -26,15 +27,15 @@ class Node;
 class TimeLineNode
 {
 public:
-  TimeLineNode(Node* node, const std::string& attributeName, const DateTime& time);
-  TimeLineNode(const TimeLineNode& copy);
-  ~TimeLineNode();
+  EXPORT TimeLineNode(Node* node, const std::string& attributeName, const DateTime& time);
+  EXPORT TimeLineNode(const TimeLineNode& copy);
+  EXPORT ~TimeLineNode();
  
-  static bool           compare(TimeLineNode* a, TimeLineNode* b);
+  EXPORT static bool           compare(TimeLineNode* a, TimeLineNode* b);
 
-  Node*                 node(void) const;
-  DateTime              attribute(void) const;
-  const std::string     attributeName(void) const;
+  EXPORT Node*                 node(void) const;
+  EXPORT DateTime              attribute(void) const;
+  EXPORT const std::string     attributeName(void) const;
 private:
   Node*                 __node;
   std::string           __attributeName;
@@ -44,14 +45,14 @@ private:
 class TimeLine
 {
 public:
-  TimeLine();
-  ~TimeLine(); 
+  EXPORT TimeLine();
+  EXPORT ~TimeLine(); 
 
-  void                                stop(void); 
-  const std::vector<TimeLineNode*>&   sort(std::vector<Node*> nodes);
-  const std::vector<TimeLineNode*>&   sorted(void) const;
-  uint64_t                            processed(void) const;
-  uint64_t                            toProcess(void) const;
+  EXPORT void                                stop(void); 
+  EXPORT const std::vector<TimeLineNode*>&   sort(std::vector<Node*> nodes);
+  EXPORT const std::vector<TimeLineNode*>&   sorted(void) const;
+  EXPORT uint64_t                            processed(void) const;
+  EXPORT uint64_t                            toProcess(void) const;
 private:
   void                                __clear(void);
   bool                                __stop;

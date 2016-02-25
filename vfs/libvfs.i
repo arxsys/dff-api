@@ -762,9 +762,17 @@ Open the node and return a pointer to a VFile instance
   }
 }
 
-%typemap(directorargout) (int32_t fd, void* rbuff, uint32_t size)
+%typemap(directorargout)  (int32_t fd, void *rbuff, uint32_t size)
 {
-  memcpy((char *)rbuff, PyString_AsString($input) , PyString_Size($input));
+  if (output)
+  {
+    if (c_result > 0 && c_result <= (int32_t)size)
+      memcpy((char *)rbuff, PyString_AsString($result) , c_result);
+    else
+     c_result = 0;
+  }
+  else
+    PyErr_Clear();
 }
 
 %typemap(out) DFF::pdata*
@@ -865,6 +873,7 @@ Open the node and return a pointer to a VFile instance
 %include "../include/rootnode.hpp"
 %include "../include/datatype.hpp"
 %include "../include/fdmanager.hpp"
+//%include "../include/iostat.hpp" // need to be export to python ?
 
 namespace std
 {

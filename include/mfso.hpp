@@ -55,7 +55,7 @@ public:
   EXPORT virtual ~mfso();
   EXPORT virtual void			start(std::map<std::string, RCPtr< Variant > > args) = 0;
   EXPORT virtual int32_t 		vopen(class Node *n);
-  EXPORT virtual int32_t 		vread(int32_t fd, void *buff, uint32_t size);
+  EXPORT virtual int32_t 		vread(int32_t fd, void *rbuff, uint32_t size);
   EXPORT virtual int32_t 		vwrite(int32_t fd, void *buff, uint32_t size);
   EXPORT virtual int32_t 		vclose(int32_t fd);
   EXPORT virtual uint64_t		vseek(int32_t fd, uint64_t offset, int32_t whence);

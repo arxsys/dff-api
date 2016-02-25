@@ -38,7 +38,7 @@ namespace DFF
  */
 #ifdef WIN32
 #define gmtimex(timet, structtm)\
-   _gmtime_64(timet)
+   !_gmtime64_s(structtm, timet)
 #else
 #define gmtimex(timet, structtm)\
   gmtime_r(timet, structtm)
