@@ -40,8 +40,7 @@ Argument::~Argument()
 
   this->__parameters.clear();
   for (ait = this->__subarguments.begin(); ait != this->__subarguments.end(); ait++)
-    if (*ait != NULL)
-      delete *ait;
+      delete (*ait);
   this->__subarguments.clear();
 }
 

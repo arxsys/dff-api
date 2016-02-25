@@ -46,7 +46,6 @@ class VFile;
 class fso;
 
 #define Variant_p	DFF::RCPtr< DFF::Variant > //typedef
-#define Tag_p		DFF::RCPtr< DFF::Tag >
 
 typedef std::map<std::string, RCPtr< class Variant > > Attributes;
 
@@ -182,7 +181,7 @@ public:
   EXPORT virtual bool				removeTag(uint32_t id);
   EXPORT virtual bool				isTagged(std::string name);
   EXPORT virtual bool				isTagged(uint32_t id);	
-  EXPORT virtual std::vector<Tag_p >		tags(void);
+  EXPORT virtual std::vector<Tag* >		tags(void);
   EXPORT virtual std::vector<uint32_t>		tagsId(void);
   EXPORT virtual uint64_t                       tagId(void) const;
 

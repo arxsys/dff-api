@@ -31,8 +31,6 @@
 #include "rc.hpp"
 #include "drealvalue.hpp"
 
-#define Tag_p   DFF::RCPtr< DFF::Tag >
-
 namespace DFF
 {
 
@@ -48,23 +46,23 @@ public:
   uint8_t       b;
 };
 
-class Tag : public RCObj
+class Tag
 {
 private:
   uint32_t				__id;
-  std::string				__name;
+  std::string	                        __name;
   Color 				__color;
 public:
   EXPORT				~Tag();
   EXPORT                                Tag();
-  EXPORT				Tag(uint32_t id, std::string, Color color);
-  EXPORT				Tag(uint32_t id, std::string, uint8_t r, uint8_t g, uint8_t b);
+  EXPORT				Tag(uint32_t id, const std::string, Color color);
+  EXPORT				Tag(uint32_t id, const std::string, uint8_t r, uint8_t g, uint8_t b);
   EXPORT uint32_t			id(void) const;
-  EXPORT std::string			name(void) const ;
-  EXPORT Color  			color(void) const;
+  EXPORT const std::string	        name(void) const;
+  EXPORT const Color  			color(void) const;
   EXPORT void				setColor(Color color);
   EXPORT void				setColor(uint8_t r, uint8_t g, uint8_t b);
-  EXPORT void				setName(std::string name);
+  EXPORT void				setName(const std::string name);
 };
 
 class TagsManager 
@@ -72,23 +70,23 @@ class TagsManager
 private:
 					TagsManager(const TagsManager&);
   EXPORT				TagsManager();
+  EXPORT                                ~TagsManager();
   TagsManager*				operator=(TagsManager&);
   void                                  __removeNodesTag(uint32_t id);
   void                                  __removeNodesTag(uint32_t id, class Node* node);
-  std::vector<Tag_p >			__tagsList;
+  std::vector<Tag*>			__tagsList;
   uint32_t                              __defaults;
-
   void                                  __declare(void);
 public:
   EXPORT static	TagsManager&		get(void);
-  EXPORT Tag_p				tag(uint32_t id);
-  EXPORT Tag_p				tag(std::string name);
-  EXPORT std::vector<Tag_p >*	 	tags(void);	
-  EXPORT uint32_t			add(std::string name);
-  EXPORT uint32_t			add(std::string name, Color color);
-  EXPORT uint32_t			add(std::string name, uint8_t r, uint8_t g, uint8_t b);
+  EXPORT Tag*				tag(uint32_t id) const;
+  EXPORT Tag*				tag(const std::string name) const;
+  EXPORT const std::vector<Tag* >	tags(void) const;	
+  EXPORT uint32_t			add(const std::string name);
+  EXPORT uint32_t			add(const std::string name, Color color);
+  EXPORT uint32_t			add(const std::string name, uint8_t r, uint8_t g, uint8_t b);
   EXPORT bool				remove(uint32_t id);
-  EXPORT bool				remove(std::string name);
+  EXPORT bool				remove(const std::string name);
   /* 
    *  Save & load tags
    */

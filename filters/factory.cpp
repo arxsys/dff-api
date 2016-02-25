@@ -16,6 +16,29 @@
 
 #include "factory.hpp"
 
+AttributeFactory::AttributeFactory()
+{
+}
+
+AttributeFactory::AttributeFactory(AttributeFactory &)
+{
+}
+
+AttributeFactory::~AttributeFactory()
+{
+  std::map<std::string, finfo*>::iterator object = this->__objects.begin();
+  for (; object != this->__objects.end(); ++object)
+     delete (*object).second;
+  this->__kw_map.clear();
+  this->__creator.clear();
+}
+
+AttributeFactory*       AttributeFactory::instance(void)
+{
+  static AttributeFactory fact;
+  return &fact;
+}
+
 int			AttributeFactory::registerCreator(CName type, CreateInstance creator) throw (std::string)
 {
   this->__creator[type] = creator;

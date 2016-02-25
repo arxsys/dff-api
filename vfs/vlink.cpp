@@ -228,7 +228,7 @@ bool VLink::isTagged(std::string name)
   return this->__linkedNode->isTagged(name);
 }
 
-std::vector<Tag_p > VLink::tags()
+std::vector<Tag* > VLink::tags()
 {
   return this->__linkedNode->tags();
 }

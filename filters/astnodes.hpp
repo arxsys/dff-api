@@ -52,8 +52,6 @@ typedef struct
   Search::CaseSensitivity cs;
 }		sfunc_params;
 
-
-
 // class PatternIndexer
 // {
 // private:
