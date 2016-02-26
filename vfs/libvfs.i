@@ -887,6 +887,7 @@ namespace std
   %template(MapTime)		std::map<std::string, DFF::DateTime*>;
   %template(MapNameTypes)	std::map<std::string, uint8_t>;
   %template(FsoVect)		std::vector<DFF::fso*>;
+  %template(TagVect)        std::vector<DFF::Tag* >;
 //%template(ListDataType)       list<DFF::DataTypeHandler*>;
 //%template(MapDataType)        map<std::string, uint32_t>; 
 }
