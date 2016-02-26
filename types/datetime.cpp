@@ -311,8 +311,10 @@ MS128DateTime::MS128DateTime(char *_time) : DateTime((int64_t)0)
   struct tm     dateTime;
   uint16_t* t = (uint16_t*)_time;
 
-  dateTime.tm_year = *t++; //-1900 ?
-  dateTime.tm_mon = *t++;  // - 1?
+  dateTime.tm_year = *t++; 
+  dateTime.tm_year -= 1900;
+  dateTime.tm_mon = *t++; 
+  dateTime.tm_mon -= 1;
   dateTime.tm_wday = *t++;
   dateTime.tm_mday = *t++;
   dateTime.tm_hour = *t++;
