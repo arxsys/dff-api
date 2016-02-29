@@ -347,14 +347,20 @@ file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__u
       m = 1;
       file_printf(ms, "data/short-file");
     }
-  else if ((looks_text = file_encoding(ms, ubuf, nb, &u8buf, &ulen,
-				       &code, &code_mime, &ftype)) != 0)
-    {
-      m = 1;
-      file_printf(ms, "text/%s", code_mime);
-    }
   else if (!(m = file_softmagic(ms, ubuf, nb, 0, NULL, BINTEST, looks_text)))
-    file_printf(ms, "unknown");
+    {
+      if ((looks_text = file_encoding(ms, ubuf, nb, &u8buf, &ulen,
+				      &code, &code_mime, &ftype)) != 0)
+	{
+	  m = 1;
+	  file_printf(ms, "text/%s", code_mime);
+	}
+      else
+	{
+	  m = 1;
+	  file_printf(ms, "unknown");
+	}
+    }
   free(u8buf);
   if (rv)
     return rv;
