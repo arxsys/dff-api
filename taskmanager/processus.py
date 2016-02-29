@@ -208,10 +208,19 @@ class ProcessusManager(object):
        return proc
 
 class Processus(Script):
+  Python = 1
+  CPP = 2
   def __init__(self, mod, pid, args, exec_flags):
     self.vfs = vfs.vfs()
     self.mod = mod
     self.inst = mod.create()
+    try:
+      if str(self.inst.this)[-3:] == "fso":
+        self.lang = Processus.Python 
+      else:
+        self.lang = Processus.CPP
+    except :
+      self.lang = Processus.Python
     self.exec_flags = exec_flags
     self.state = "wait"
     self.pid =  pid 

@@ -1688,8 +1688,8 @@ mget(struct magic_set *ms, const unsigned char *s, struct magic *m,
 		rv = file_softmagic(ms, s + offset, nbytes - offset,
 		    indir_level + 1, name_count, BINTEST, text);
 
-		if ((ms->flags & MAGIC_DEBUG) != 0)
-			fprintf(stderr, "indirect @offs=%u[%d]\n", offset, rv);
+		/* if ((ms->flags & MAGIC_DEBUG) != 0) */
+		/* 	fprintf(stderr, "indirect @offs=%u[%d]\n", offset, rv); */
 
 		rbuf = file_pop_buffer(ms, pb);
 		if (rbuf == NULL && ms->event_flags & EVENT_HAD_ERR)
