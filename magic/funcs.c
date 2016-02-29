@@ -27,7 +27,7 @@
 #include "file.h"
 
 #ifndef	lint
-FILE_RCSID("@(#)$File: funcs.c,v 1.84 2015/09/10 13:32:19 christos Exp $")
+FILE_RCSID("@(#)$File: funcs.c,v 1.86 2015/09/17 01:14:09 christos Exp $")
 #endif	/* lint */
 
 #include "magic.h"
@@ -162,40 +162,39 @@ file_badread(struct magic_set *ms)
 
 #ifndef COMPILE_ONLY
 
-static int
-checkdone(struct magic_set *ms, int *rv)
-{
-	if ((ms->flags & MAGIC_CONTINUE) == 0)
-		return 1;
-	if (file_printf(ms, "\n- ") == -1)
-		*rv = -1;
-	return 0;
-}
+/* static int */
+/* checkdone(struct magic_set *ms, int *rv) */
+/* { */
+/* 	if ((ms->flags & MAGIC_CONTINUE) == 0) */
+/* 		return 1; */
+/* 	if (file_printf(ms, "\n- ") == -1) */
+/* 		*rv = -1; */
+/* 	return 0; */
+/* } */
 
-/*ARGSUSED*/
-protected int
-file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__unused__)),
-    const void *buf, size_t nb)
-{
-	int m = 0, rv = 0, looks_text = 0;
-	int mime = ms->flags & MAGIC_MIME;
-	const unsigned char *ubuf = CAST(const unsigned char *, buf);
-	unichar *u8buf = NULL;
-	size_t ulen;
-	const char *code = NULL;
-	const char *code_mime = "binary";
-	const char *type = "application/octet-stream";
-	const char *def = "data";
-	const char *ftype = NULL;
+/* /\*ARGSUSED*\/ */
+/* protected int */
+/* file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__unused__)), */
+/*     const void *buf, size_t nb) */
+/* { */
+/* 	int m = 0, rv = 0, looks_text = 0; */
+/* 	const unsigned char *ubuf = CAST(const unsigned char *, buf); */
+/* 	unichar *u8buf = NULL; */
+/* 	size_t ulen; */
+/* 	const char *code = NULL; */
+/* 	const char *code_mime = "binary"; */
+/* 	const char *type = "application/octet-stream"; */
+/* 	const char *def = "data"; */
+/* 	const char *ftype = NULL; */
 
-	if (nb == 0) {
-		def = "empty";
-		type = "application/x-empty";
-		goto simple;
-	} else if (nb == 1) {
-		def = "very short file (no magic)";
-		goto simple;
-	}
+/* 	if (nb == 0) { */
+/* 		def = "empty"; */
+/* 		type = "application/x-empty"; */
+/* 		goto simple; */
+/* 	} else if (nb == 1) { */
+/* 		def = "very short file (no magic)"; */
+/* 		goto simple; */
+/* 	} */
 
 /* 	if ((ms->flags & MAGIC_NO_CHECK_ENCODING) == 0) { */
 /* 		looks_text = file_encoding(ms, ubuf, nb, &u8buf, &ulen, */
@@ -219,14 +218,14 @@ file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__u
 /* #endif */
 /* #if HAVE_FORK */
 /* 	/\* try compression stuff *\/ */
-/* 	if ((ms->flags & MAGIC_NO_CHECK_COMPRESS) == 0) { */
-/* 		m = file_zmagic(ms, fd, inname, ubuf, nb); */
-/* 		if ((ms->flags & MAGIC_DEBUG) != 0) */
-/* 			(void)fprintf(stderr, "[try zmagic %d]\n", m); */
-/* 		if (m) { */
-/* 			goto done_encoding; */
-/* 		} */
-/* 	} */
+/* 	/\* if ((ms->flags & MAGIC_NO_CHECK_COMPRESS) == 0) { *\/ */
+/* 	/\* 	m = file_zmagic(ms, fd, inname, ubuf, nb); *\/ */
+/* 	/\* 	if ((ms->flags & MAGIC_DEBUG) != 0) *\/ */
+/* 	/\* 		(void)fprintf(stderr, "[try zmagic %d]\n", m); *\/ */
+/* 	/\* 	if (m) { *\/ */
+/* 	/\* 		goto done_encoding; *\/ */
+/* 	/\* 	} *\/ */
+/* 	/\* } *\/ */
 /* #endif */
 /* 	/\* Check if we have a tar file *\/ */
 /* 	if ((ms->flags & MAGIC_NO_CHECK_TAR) == 0) { */
@@ -240,22 +239,22 @@ file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__u
 /* 	} */
 
 /* 	/\* Check if we have a CDF file *\/ */
-/* 	if ((ms->flags & MAGIC_NO_CHECK_CDF) == 0) { */
-/* 		m = file_trycdf(ms, fd, ubuf, nb); */
-/* 		if ((ms->flags & MAGIC_DEBUG) != 0) */
-/* 			(void)fprintf(stderr, "[try cdf %d]\n", m); */
-/* 		if (m) { */
-/* 			if (checkdone(ms, &rv)) */
-/* 				goto done; */
-/* 		} */
-/* 	} */
+/* 	/\* if ((ms->flags & MAGIC_NO_CHECK_CDF) == 0) { *\/ */
+/* 	/\* 	m = file_trycdf(ms, fd, ubuf, nb); *\/ */
+/* 	/\* 	if ((ms->flags & MAGIC_DEBUG) != 0) *\/ */
+/* 	/\* 		(void)fprintf(stderr, "[try cdf %d]\n", m); *\/ */
+/* 	/\* 	if (m) { *\/ */
+/* 	/\* 		if (checkdone(ms, &rv)) *\/ */
+/* 	/\* 			goto done; *\/ */
+/* 	/\* 	} *\/ */
+/* 	/\* } *\/ */
 
 /* 	/\* try soft magic tests *\/ */
 /* 	if ((ms->flags & MAGIC_NO_CHECK_SOFT) == 0) */
-		m = file_softmagic(ms, ubuf, nb, 0, NULL, BINTEST, looks_text);
-		if ((ms->flags & MAGIC_DEBUG) != 0)
-			(void)fprintf(stderr, "[try softmagic %d]\n", m);
-		if (m) {
+/* 		m = file_softmagic(ms, ubuf, nb, 0, NULL, BINTEST, looks_text); */
+/* 		if ((ms->flags & MAGIC_DEBUG) != 0) */
+/* 			(void)fprintf(stderr, "[try softmagic %d]\n", m); */
+/* 		if (m) { */
 /* #ifdef BUILTIN_ELF */
 /* 			if ((ms->flags & MAGIC_NO_CHECK_ELF) == 0 && m == 1 && */
 /* 			    nb > 5 && fd != -1) { */
@@ -274,9 +273,9 @@ file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__u
 /* 					    m); */
 /* 			} */
 /* #endif */
-			if (checkdone(ms, &rv))
-				goto done;
-		}
+/* 			if (checkdone(ms, &rv)) */
+/* 				goto done; */
+/* 		} */
 
 /* 	/\* try text properties *\/ */
 /* 	if ((ms->flags & MAGIC_NO_CHECK_TEXT) == 0) { */
@@ -290,31 +289,78 @@ file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__u
 /* 		} */
 /* 	} */
 
- simple:
-	/* give up */
-	m = 1;
-	if ((!mime || (mime & MAGIC_MIME_TYPE)) &&
-	    file_printf(ms, "%s", mime ? type : def) == -1) {
-	  rv = -1;
-	}
- done:
-	if ((ms->flags & MAGIC_MIME_ENCODING) != 0) {
-		if (ms->flags & MAGIC_MIME_TYPE)
-			if (file_printf(ms, "; charset=") == -1)
-				rv = -1;
-		if (file_printf(ms, "%s", code_mime) == -1)
-			rv = -1;
-	}
-#if HAVE_FORK
- done_encoding:
-#endif
-	free(u8buf);
-	if (rv)
-		return rv;
+/* simple: */
+/* 	/\* give up *\/ */
+/* 	m = 1; */
+/* 	if (ms->flags & MAGIC_MIME) { */
+/* 		if ((ms->flags & MAGIC_MIME_TYPE) && */
+/* 		    file_printf(ms, "%s", type) == -1) */
+/* 			rv = -1; */
+/* 	} else if (ms->flags & MAGIC_APPLE) { */
+/* 		if (file_printf(ms, "UNKNUNKN") == -1) */
+/* 			rv = -1; */
+/* 	} else if (ms->flags & MAGIC_EXTENSION) { */
+/* 		if (file_printf(ms, "???") == -1) */
+/* 			rv = -1; */
+/* 	} else { */
+/* 		if (file_printf(ms, "%s", def) == -1) */
+/* 			rv = -1; */
+/* 	} */
+/*  done: */
+/* 	if ((ms->flags & MAGIC_MIME_ENCODING) != 0) { */
+/* 		if (ms->flags & MAGIC_MIME_TYPE) */
+/* 			if (file_printf(ms, "; charset=") == -1) */
+/* 				rv = -1; */
+/* 		if (file_printf(ms, "%s", code_mime) == -1) */
+/* 			rv = -1; */
+/* 	} */
+/* #if HAVE_FORK */
+/*  done_encoding: */
+/* #endif */
+/* 	free(u8buf); */
+/* 	if (rv) */
+/* 		return rv; */
 
-	return m;
+/* 	return m; */
+/* } */
+
+/*ARGSUSED*/
+protected int
+file_buffer(struct magic_set *ms, int fd, const char *inname __attribute__ ((__unused__)),
+    const void *buf, size_t nb)
+{
+  int m = 0, rv = 0, looks_text = 0;
+  const unsigned char *ubuf = CAST(const unsigned char *, buf);
+  unichar *u8buf = NULL;
+  size_t ulen;
+  const char *code = NULL;
+  const char *code_mime = "binary";
+  const char *ftype = NULL;
+
+  if (nb == 0)
+    {
+      m = 1;
+      file_printf(ms, "empty");
+    }
+  else if (nb == 1)
+    {
+      m = 1;
+      file_printf(ms, "data/short-file");
+    }
+  else if ((looks_text = file_encoding(ms, ubuf, nb, &u8buf, &ulen,
+				       &code, &code_mime, &ftype)) != 0)
+    {
+      m = 1;
+      file_printf(ms, "text/%s", code_mime);
+    }
+  else if (!(m = file_softmagic(ms, ubuf, nb, 0, NULL, BINTEST, looks_text)))
+    file_printf(ms, "unknown");
+  free(u8buf);
+  if (rv)
+    return rv;
+  return m;
 }
-#endif //COMPILE_ONLY
+#endif
 
 protected int
 file_reset(struct magic_set *ms)
@@ -451,9 +497,9 @@ file_printedlen(const struct magic_set *ms)
 	return ms->o.buf == NULL ? 0 : strlen(ms->o.buf);
 }
 
-protected int
-file_replace(struct magic_set *ms, const char *pat, const char *rep)
-{
+/* protected int */
+/* file_replace(struct magic_set *ms, const char *pat, const char *rep) */
+/* { */
 /* 	file_regex_t rx; */
 /* 	int rc, rv = -1; */
 
@@ -475,8 +521,14 @@ file_replace(struct magic_set *ms, const char *pat, const char *rep)
 /* out: */
 /* 	file_regfree(&rx); */
 /* 	return rv; */
+/* } */
+
+protected int
+file_replace(struct magic_set *ms, const char *pat, const char *rep)
+{
   return -1;
 }
+
 
 /* protected int */
 /* file_regcomp(file_regex_t *rx, const char *pat, int flags) */
