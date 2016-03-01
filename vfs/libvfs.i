@@ -907,6 +907,15 @@ namespace DFF
     %}
 };
 
+%extend mfso
+{
+%pythoncode
+%{
+def vread(self, *args):
+  return (_libvfs.mfso_vread(self, *args),)
+%}
+}
+
 %extend Node
 {
 
