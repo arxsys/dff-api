@@ -73,8 +73,8 @@
 >>>>(0x3c.l+24)	leshort		0x010b	binary/windows-native-32
 >>>>(0x3c.l+24)	leshort		0x020b	binary/windows-native-64
 >>>(0x3c.l+92)	leshort		2
->>>>(0x3c.l+24)	leshort		0x010b	gui-32
->>>>(0x3c.l+24)	leshort		0x020b	gui-64
+>>>>(0x3c.l+24)	leshort		0x010b	binary/windows-gui-32
+>>>>(0x3c.l+24)	leshort		0x020b	binary/windows-gui-64
 >>>(0x3c.l+92)	leshort		3
 >>>>(0x3c.l+24)	leshort		0x010b	binary/windows-console-32
 >>>>(0x3c.l+24)	leshort		0x020b	binary/windows-console-64
@@ -600,6 +600,9 @@
 #0	string/b	\002\000\011\000	ms-windows metafont .wmf
 #0	string/b	\001\000\011\000	ms-windows metafont .wmf
 
+0	ulong		0x9ac6cdd7
+>4	ushort		0x0000		windows/wmf
+
 #tz3 files whatever that is (MS Works files)
 #0	string/b	\003\001\001\004\070\001\000\000	tz3 ms-works file
 #0	string/b	\003\002\001\004\070\001\000\000	tz3 ms-works file
@@ -632,12 +635,12 @@
 #>3  byte    !0  \b%d
 #>4  ubyte   !0  \b, %d colors
 
-#0   belong  0x00000100
-#>9  byte    0
+0   belong  0x00000100
+>9  byte    0		windows/icon
 #>>0 byte    x           MS Windows icon resource
 #!:mime	image/x-icon
 #>>4 use     ico-dir
-#>9  ubyte   0xff
+>9  ubyte   0xff	windows/icon
 #>>0 byte    x           MS Windows icon resource
 #!:mime	image/x-icon
 #>>4 use     ico-dir
@@ -654,12 +657,12 @@
 #>6  uleshort    x   \b, hotspot @%dx
 #>8  uleshort    x   \b%d
 
-#0   belong  0x00000200
-#>9  byte    0
+0   belong  0x00000200
+>9  byte    0		windows/cursor
 #>>0 byte    x           MS Windows cursor resource
 #!:mime image/x-cur
 #>>4 use     cur-dir
-#>9  ubyte   0xff
+>9  ubyte   0xff	windows/cursor
 #>>0 byte    x           MS Windows cursor resource
 #!:mime image/x-cur
 #>>4 use     cur-dir
@@ -805,8 +808,8 @@
 # # old binary Microsoft (.HLP) files added by Joerg Jenderek from http://file-extension.net/seeker/file_extension_hlp
 # 0	ulequad	0x3a000000024e4c	MS Advisor help file
 
-# # HtmlHelp files (.chm)
-# 0	string/b	ITSF\003\000\000\000\x60\000\000\000	MS Windows HtmlHelp Data
+# HtmlHelp files (.chm)
+0	string/b	ITSF\003\000\000\000\x60\000\000\000	windows/chm
 
 # # GFA-BASIC (Wolfram Kleff)
 # 2	string/b	GFA-BASIC3	GFA-BASIC 3 data

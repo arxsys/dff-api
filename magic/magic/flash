@@ -11,11 +11,11 @@
 #
 
 0   name        swf-details
->0	string		F		application/shockwave-flash
+>0	string		F		aadobe/shockwave-flash
 #!:mime	application/x-shockwave-flash
->0	string		C		application/shockwave-flash
+>0	string		C		adobe/shockwave-flash
 #!:mime	application/x-shockwave-flash
->0	string		Z		application/shockwave-flash
+>0	string		Z		adobe/shockwave-flash
 #!:mime	application/x-shockwave-flash
 #>3   byte        x      \b, version %d
 
@@ -38,3 +38,6 @@
 #0       string AGD3\xbe\xb8\xbb\xcc\x00 Macromedia Freehand 8 Document
 # From Dave Wilson
 #0	string AGD4\xbe\xb8\xbb\xcb\x00	Macromedia Freehand 9 Document
+
+0	ushort 	0xbf00
+>6	string  TCSO	flash/sol
