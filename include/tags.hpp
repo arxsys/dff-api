@@ -28,7 +28,6 @@
 #include <string>
 #include <vector>
 #include "export.hpp"
-#include "rc.hpp"
 #include "drealvalue.hpp"
 
 namespace DFF
