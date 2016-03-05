@@ -16,14 +16,20 @@ def _init():
     Loads the shared library through ctypes and returns a library
     L{ctypes.CDLL} instance 
     """
-    if os.name == "posix":
-        return ctypes.cdll.LoadLibrary('dff/api/magic/libcmagic.so')
+    if hasattr(sys, 'frozen'):
+        os.environ['PATH'] = os.path.join(os.path.dirname(sys.executable), "resources") + ";" + os.environ['PATH']
+        return ctypes.cdll.LoadLibrary('libcmagic.dll')
     else:
-        if hasattr(sys, 'frozen'):
-            os.environ['PATH'] = os.path.join(os.path.dirname(sys.executable), "resources") + ";" + os.environ['PATH']
-            return ctypes.cdll.LoadLibrary('libcmagic.dll')
+        dffpath = os.getcwd()
+        idx = dffpath.rfind("dff")
+        if idx != -1:
+            libpath = os.path.join(dffpath[:idx], 'dff', 'api', 'magic')
         else:
-            return ctypes.cdll.LoadLibrary('dff/api/magic/cmagic.dll')
+            libpath = os.path.join('dff', 'api', 'magic')
+        if os.name == "posix":
+            return ctypes.cdll.LoadLibrary(os.path.join(libpath, 'libcmagic.so'))
+        else:
+            return ctypes.cdll.LoadLibrary(os.path.join(libpath, 'cmagic.dll'))
 
 _libraries = {}
 _libraries['magic'] = _init()
