@@ -915,6 +915,7 @@ const uint64_t AttributesHandlers::state(void)
 
 bool AttributesHandlers::add(AttributesHandler* ah)
 {
+  this->updateState();
   return (this->__handlers.insert(ah).second);
 }
 
