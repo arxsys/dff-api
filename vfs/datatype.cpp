@@ -13,6 +13,9 @@
  * Author(s):
  *  Solal J. <sja@digital-forensic.org>
  */
+
+#include "vfile.hpp"
+#include "../magic/magic.h"
 #include "exceptions.hpp"
 #include "variant.hpp"
 #include "node.hpp"
@@ -195,6 +198,7 @@ bool		DataTypeManager::registerHandler(DataTypeHandler* handler)
   return true;
 }
 
+
 /**
  *  Search for Node type and return it as string
  */
@@ -204,42 +208,62 @@ const std::string	DataTypeManager::type(Node* node)
   const DataType*	type;
   
   if (node != NULL)
-    {  
-      // At first, check if node's type has already been processed
-      mutex_lock(&this->__mutex);
-      std::map<Node*, const DataType* >::const_iterator nodeType = this->__nodesType.find(node);
-      mutex_unlock(&this->__mutex);
-      if (nodeType != this->__nodesType.end())
-	{
-	  if ((type = nodeType->second) != NULL)
-	    return type->name();
-	}
-      // else, process node's type and return it;
-      else
-	{
-	  std::string result;
-	  try
-	    {
-	      result = this->__handler->type(node);
-	    }
-	  catch (...)
-	    {
-	      result = std::string("error");
-	    }
-	  mutex_lock(&this->__mutex);
-	  std::map<const std::string, const DataType* >::const_iterator types = this->__types.find(result);
-	  if (types == this->__types.end())
-	    {
-	      type = new DataType(result);
-	      this->__types[result] = type;
-	    }
-	  else
-	    type = types->second;
-	  this->__nodesType[node] = type;
-	  mutex_unlock(&this->__mutex);
-	  return result;
-	}
+  {  
+    // At first, check if node's type has already been processed
+    mutex_lock(&this->__mutex);
+    std::map<Node*, const DataType* >::const_iterator nodeType = this->__nodesType.find(node);
+    mutex_unlock(&this->__mutex);
+    if (nodeType != this->__nodesType.end())
+    {
+      if ((type = nodeType->second) != NULL)
+	return type->name();
     }
+    // else, process node's type and return it;
+    else
+    {
+      std::string result;
+      if (node->size() > 0)
+      {
+         magic_t mime = magic_open(MAGIC_NONE);
+         magic_load(mime, "dff/api/magic/magic.mgc");
+         try
+         {
+           VFile* vfile = node->open();
+
+           uint8_t buff[0x2000];
+           uint32_t size = vfile->read(&buff, 0x2000);
+           vfile->close();
+
+           const char* magic_result = magic_buffer(mime, &buff, size);
+           if (magic_result)
+             result = std::string(magic_result);
+           else
+             result = "data";
+           magic_close(mime);
+         }
+         catch (...)
+         {
+           result = "empty";
+         }
+      }
+      else if (node->hasChildren())
+        result = "directory";
+      else
+        result = "empty";   
+      mutex_lock(&this->__mutex);
+      std::map<const std::string, const DataType* >::const_iterator types = this->__types.find(result);
+      if (types == this->__types.end())
+      {
+         type = new DataType(result);
+	 this->__types[result] = type;
+      }
+      else
+	type = types->second;
+      this->__nodesType[node] = type;
+      mutex_unlock(&this->__mutex);
+      return (result);
+    }
+  }
   return std::string("");
 }
 
