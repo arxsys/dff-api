@@ -23,7 +23,6 @@ from dff.api.loader import loader
 from dff.api.taskmanager.taskmanager import TaskManager
 from dff.api.taskmanager.scheduler import sched 
 from dff.api.taskmanager.processus import Processus
-from dff.api.vfs.magichandler import * 
 from dff.api.tree import libtree
 
 class ApiManager():
