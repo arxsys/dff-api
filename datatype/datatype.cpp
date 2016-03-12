@@ -134,7 +134,7 @@ const std::string	DataTypeManager::type(Node* node)
   const	std::string	dtype;
   const Type*		type;
   
-  if (node != NULL)
+  if (node != NULL && this->__handler != NULL)
     {  
       // At first, check if node's type has already been processed
       mutex_lock(&this->__mutex);

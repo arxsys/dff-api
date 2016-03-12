@@ -24,12 +24,6 @@ class WorkQueue():
         def launch(self):
           while True:
             work = self.waitQueue.get()
-            #for (func, arg) in work:
-                 #if func.im_class.__name__ == "Processus":
-                    #print func, arg 
-            #if python:
-              #self.pythonWorkerQueue.put(work)
-            #else:
             self.workerQueue.put(work)
 
         def enqueue(self, proc):
@@ -39,26 +33,6 @@ class WorkQueue():
           if type in self.event_func:
             self.event_func[type].append(func)
 
-        def pythonWorker(self):
-           while True:
-             queuedTask = self.pythonWorkerQueue.get()
-             for (func, arg) in queuedTask:
-               try:
-                 if func.im_class.__name__ == "Processus":
-                   func(arg)
-                 elif arg:
-                   func(*arg)
-                 else:	
-                   func()
-               except :
-                 print "worker error"
-                 err_type, err_value, err_traceback = sys.exc_info()
-                 for n in  traceback.format_exception_only(err_type, err_value):
-                   print n
-                 for n in traceback.format_tb(err_traceback):
-                   print n
-             self.pythonWorkerQueue.task_done()
- 
         def worker(self):
            while True:
              queuedTask = self.workerQueue.get()
@@ -87,9 +61,6 @@ class WorkQueue():
            self.event_func = {}
            for type in event_type:
              self.event_func[type] = []
-           thread = threading.Thread(target = self.pythonWorker, name = "PythonWorker")
-           thread.setDaemon(True)
-           thread.start()
            for i in range(max):
              thread = threading.Thread(target = self.worker, name = "Worker" + str(i))
              thread.setDaemon(True)

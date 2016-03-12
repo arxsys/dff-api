@@ -74,15 +74,6 @@ pdata* VFile::read(void)
       throw vfsError("VFile::read() can't allocate memory\n");
     memset(data->buff, 0, size);
     n = this->__fsobj->vread(this->__fd, (void*)data->buff, size);
-    if (n < 0)
-    {
-      free(data->buff);
-      delete data;
-      throw vfsError(this->__fsobj->name + " read error\n");
-    }
-    stat_read(n);
-    data->len = n;
-    return (data);
   }
   catch (vfsError e)
   {
@@ -90,6 +81,17 @@ pdata* VFile::read(void)
     delete data;
     throw vfsError("VFile::read() throw\n" + e.error);
   }
+  if (n < 0)
+  {
+    free(data->buff);
+    delete data;
+    throw vfsError(this->__fsobj->name + " read error\n");
+  }
+  stat_read(n);
+  data->len = n;
+  return (data);
+  
+
 }
 
 pdata* VFile::read(uint32_t size)
@@ -114,22 +116,23 @@ pdata* VFile::read(uint32_t size)
     data->len = size;
     memset(data->buff, 0, size);
     n = this->__fsobj->vread(this->__fd, data->buff, size);
-    if (n < 0)
-    {
-      free(data->buff);
-      delete data;
-      throw vfsError(this->__fsobj->name + " read error\n");
-    }
-    data->len = n;
-    stat_read(n);
-    return (data);
   }
   catch (vfsError e)
   {
     free(data->buff);
     delete data;
     throw vfsError("VFile::read(size) throw\n" + e.error);
+
   }
+  if (n < 0)
+  {
+    free(data->buff);
+    delete data;
+    throw vfsError(this->__fsobj->name + " read error\n");
+  }
+  data->len = n;
+  stat_read(n);
+  return (data);
 }
 
 int VFile::read(void *buff, uint32_t size)
