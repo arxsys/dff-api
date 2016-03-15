@@ -205,7 +205,6 @@ bool		DataTypeManager::registerHandler(DataTypeHandler* handler)
 const std::string	DataTypeManager::type(Node* node)
 {
   const	std::string	dtype;
-  const DataType*	type;
   
   if (node != NULL)
   {  
@@ -215,8 +214,8 @@ const std::string	DataTypeManager::type(Node* node)
     mutex_unlock(&this->__mutex);
     if (nodeType != this->__nodesType.end())
     {
-      if ((type = nodeType->second) != NULL)
-	return type->name();
+      if (nodeType->second != NULL)
+	return (nodeType->second->name());
     }
     // else, process node's type and return it;
     else
@@ -229,7 +228,6 @@ const std::string	DataTypeManager::type(Node* node)
          try
          {
            VFile* vfile = node->open();
-
            uint8_t buff[0x2000];
            uint32_t size = vfile->read(&buff, 0x2000);
            vfile->close();
@@ -249,17 +247,18 @@ const std::string	DataTypeManager::type(Node* node)
       else if (node->hasChildren())
         result = "directory";
       else
-        result = "empty";   
+        result = "empty";  
+ 
       mutex_lock(&this->__mutex);
       std::map<const std::string, const DataType* >::const_iterator types = this->__types.find(result);
       if (types == this->__types.end())
       {
-         type = new DataType(result);
+         DataType*	type = new DataType(result);
 	 this->__types[result] = type;
+         this->__nodesType[node] = type;
       }
       else
-	type = types->second;
-      this->__nodesType[node] = type;
+        this->__nodesType[node] = types->second;
       mutex_unlock(&this->__mutex);
       return (result);
     }
@@ -310,14 +309,17 @@ bool                    DataTypeManager::loadNodesType(Node* node, Destruct::DVa
 
 bool                    DataTypeManager::load(Destruct::DValue value)
 {
-  Destruct::DObject* types = value.get<DObject*>();
+  Destruct::DObject* types = value;
 
-  DUInt64 typesCount = types->call("size").get<DUInt64>();
+  DUInt64 typesCount = types->call("size");
   for (DUInt64 index = 0; index < typesCount; index++)
   {
      Destruct::DValue typeObject = types->call("get", Destruct::RealValue<DUInt64>(index));
      DataType* type = DataType::load(typeObject);
-     this->__types[type->name()] = type;
+     if (type)
+       this->__types[type->name()] = type;
+     else
+        std::cout << "DataType::load return NULL " << std::endl;
   }
   types->destroy();
 
@@ -330,7 +332,12 @@ Destruct::DValue        DataTypeManager::save(void) const
 
   std::map<const std::string, const DataType*>::const_iterator typeIt = this->__types.begin();
   for (; typeIt != this->__types.end(); ++typeIt)
-    types->call("push", (*typeIt).second->save());
+  {
+    if ((*typeIt).second != NULL)
+      types->call("push", (*typeIt).second->save());
+    else
+      std::cout << "Null type in DataTypeManager::__types " << std::endl;
+  }
 
   return (RealValue<DObject*>(types));
 }

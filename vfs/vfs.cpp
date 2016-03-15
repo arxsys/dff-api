@@ -31,6 +31,8 @@
 //#include "session.hpp"
 #include "log.hpp"
 
+using namespace Destruct;
+
 namespace DFF
 {
 /**
@@ -44,39 +46,39 @@ VFS&	VFS::Get()
 
 void    VFS::__declare(void)
 {
-  Destruct::DStructs& destruct = Destruct::DStructs::instance();
+  DStructs& destruct = DStructs::instance();
 
-  Destruct::DStruct*  dnodeStruct = new Destruct::DStruct(0, "DNode", Destruct::DSimpleObject::newObject); // rename NodeAttribute (on l'apply apres mais ca cree pas vraiment une node 
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt64Type, "uid"));
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "absolute")); //? 
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name")); 
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "tags")); 
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "children")); 
-  dnodeStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "dataType"));
+  DStruct*  dnodeStruct = new DStruct(0, "DNode", DSimpleObject::newObject); // rename NodeAttribute (on l'apply apres mais ca cree pas vraiment une node 
+  dnodeStruct->addAttribute(DAttribute(DType::DUInt64Type, "uid"));
+  dnodeStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "absolute")); //? 
+  dnodeStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "name")); 
+  dnodeStruct->addAttribute(DAttribute(DType::DObjectType, "tags")); 
+  dnodeStruct->addAttribute(DAttribute(DType::DObjectType, "children")); 
+  dnodeStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "dataType"));
   destruct.registerDStruct(dnodeStruct);
 
-  destruct.registerDStruct(Destruct::makeNewDCpp<NodeContainer>("NodeContainer"));
+  destruct.registerDStruct(makeNewDCpp<NodeContainer>("NodeContainer"));
 
 //XXX doublon avec ce ux method load pour ntfs 
-  Destruct::DStruct*  vlinkStruct = new Destruct::DStruct(0, "VLink", Destruct::DSimpleObject::newObject);
-  vlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "linkedNode"));
-  vlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
+  DStruct*  vlinkStruct = new DStruct(0, "VLink", DSimpleObject::newObject);
+  vlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "linkedNode"));
+  vlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "name"));
   destruct.registerDStruct(vlinkStruct);
 
-  Destruct::DStruct*  dpathStruct = new Destruct::DStruct(0, "DPath", Destruct::DSimpleObject::newObject);
-  dpathStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "path")); 
+  DStruct*  dpathStruct = new DStruct(0, "DPath", DSimpleObject::newObject);
+  dpathStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "path")); 
   destruct.registerDStruct(dpathStruct);
 
-  destruct.registerDStruct(Destruct::makeNewDCpp<VoidNode>("VoidNode"));
+  destruct.registerDStruct(makeNewDCpp<VoidNode>("VoidNode"));
 
-  Destruct::DStruct* dvlinkStruct = new Destruct::DStruct(0, "DVLink", Destruct::DSimpleObject::newObject);
-  dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
-  dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "node"));
-  dvlinkStruct->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "linkNode"));
+  DStruct* dvlinkStruct = new DStruct(0, "DVLink", DSimpleObject::newObject);
+  dvlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "name"));
+  dvlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "node"));
+  dvlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "linkNode"));
   destruct.registerDStruct(dvlinkStruct);
 
-  destruct.registerDStruct(Destruct::makeNewDCppSingleton<Time>("Time"));
-  destruct.registerDStruct(Destruct::makeNewDCppSingleton<Log>("Log"));
+  destruct.registerDStruct(makeNewDCppSingleton<Time>("Time"));
+  destruct.registerDStruct(makeNewDCppSingleton<Log>("Log"));
 
   //XXX c lui qui devrait load c celui qu igere les ession enfin bon ..
 
@@ -85,7 +87,7 @@ void    VFS::__declare(void)
 }
 
 
-static Destruct::DStruct vfsStruct = Destruct::DStruct(NULL, "VFS", VFS::newObject, VFS::ownAttributeBegin(), VFS::ownAttributeEnd()); 
+static DStruct vfsStruct = DStruct(NULL, "VFS", VFS::newObject, VFS::ownAttributeBegin(), VFS::ownAttributeEnd()); 
 
 /**
  *  Construct VFS and register root node '/'
@@ -278,7 +280,7 @@ Node* VFS::GetNode(std::string path)
   return (tmp);
 }
 
-Destruct::DValue VFS::getNode(Destruct::DValue args) //swig didn't support const&
+DValue VFS::getNode(DValue args) //swig didn't support const&
 {
   return (RealValue<DObject* >(this->GetNode(args.get<DUnicodeString>()))); 
 }
@@ -399,9 +401,9 @@ bool  NodeManager::remove(Node* node)
   return (this->remove(node->uid())); 
 }
 
-bool  NodeManager::load(Destruct::DValue const& data)
+bool  NodeManager::load(DValue const& data)
 {
-  //Destruct::DObject* dnode = data.get<Destruct::DObject*>();
+  //DObject* dnode = data.get<DObject*>();
 
   std::cout << "creating children tree" << std::endl;
   //NodeId* rootId = new NodeId(dnode);
@@ -409,7 +411,7 @@ bool  NodeManager::load(Destruct::DValue const& data)
  
   /*
 
-  Destruct::DObject* children = dnode->getValue("children").get<Destruct::DObject*>();
+  DObject* children = dnode->getValue("children").get<DObject*>();
 
   std::map<const std::string, Node*> nodeMap;
   std::vector<Node* > nodes = this->__vfs.GetNode("/")->children();
@@ -420,8 +422,8 @@ bool  NodeManager::load(Destruct::DValue const& data)
   DUInt64 count = children->call("size").get<DUInt64>();
   for (DUInt64 index = 0; index < count; index++)
   {
-    Destruct::DObject* value = children->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DObject*>();
-    std::string nodeName = value->getValue("name").get<Destruct::DUnicodeString>(); 
+    DObject* value = children->call("get", RealValue<DUInt64>(index)).get<DObject*>();
+    std::string nodeName = value->getValue("name").get<DUnicodeString>(); 
     if (nodeName != "Bookmarks") //now in /case/bookmarks but with bookmarks->fso == bookmarks
       this->__loadNode(value, nodeMap[nodeName]);
     value->destroy();
@@ -434,9 +436,9 @@ bool  NodeManager::load(Destruct::DValue const& data)
   return true;
 }
 
-void    NodeManager::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* node)//Node* node 
+void    NodeManager::__loadNode(RealValue<DObject*> dobject, Node* node)//Node* node 
 {
-  Destruct::DObject* dnode = dobject;
+  DObject* dnode = dobject;
 
 
   //push dataType of node in node dataTypes
@@ -444,11 +446,11 @@ void    NodeManager::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject,
 
 
   //set Node tags
-  Destruct::DObject* tagList = dnode->getValue("tags").get<Destruct::DObject*>();
-  DUInt64 tagCount = tagList->call("size").get<DUInt64>();
+  DObject* tagList = dnode->getValue("tags");
+  DUInt64 tagCount = tagList->call("size");
   for (DUInt64 index = 0; index < tagCount; index++)
   {
-    Destruct::DUnicodeString tagName = tagList->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DUnicodeString>();
+    DUnicodeString tagName = tagList->call("get", RealValue<DUInt64>(index));
     node->setTag(tagName);
   }
   tagList->destroy();
@@ -461,20 +463,20 @@ void    NodeManager::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject,
   for (; cnode != nodes.end(); cnode++)
     nodeMap[(*cnode)->name()] = (*cnode);
 
-  Destruct::DObject* children = dnode->getValue("children").get<Destruct::DObject*>();
-  DUInt64 count = children->call("size").get<DUInt64>();
+  DObject* children = dnode->getValue("children");
+  DUInt64 count = children->call("size");
 
   for (DUInt64 index = 0; index < count; index++)
   {
-    Destruct::DObject* childObject = children->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DObject*>();
-    std::string name = childObject->getValue("name").get<Destruct::DUnicodeString>();
+    DObject* childObject = children->call("get", RealValue<DUInt64>(index));
+    std::string name = childObject->getValue("name");
     Node* childNode = nodeMap[name];
     if (childNode == NULL)
     {
       std::cout << "can't find node " << name << std::endl;
       continue;
     }
-    this->__loadNode(Destruct::RealValue<Destruct::DObject*>(childObject), childNode);
+    this->__loadNode(RealValue<DObject*>(childObject), childNode);
     childObject->destroy();
     childObject->destroy(); 
   }
@@ -482,39 +484,39 @@ void    NodeManager::__loadNode(Destruct::RealValue<Destruct::DObject*> dobject,
 }
 
 
-Destruct::DValue  NodeManager::save(void) const
+DValue  NodeManager::save(void) const
 {
-  return Destruct::RealValue<Destruct::DObject* >(Destruct::DNone);
+  return RealValue<DObject* >(DNone);
 }
 
 
-//void    NodeManager::setId(Destruct::RealValue<Destruct::DObject*> dobject)
+//void    NodeManager::setId(RealValue<DObject*> dobject)
 //{
-  //Destruct::DObject* dnode = dobject;
-  //Destruct::DObject* children = dnode->getValue("children").get<Destruct::DObject*>();
+  //DObject* dnode = dobject;
+  //DObject* children = dnode->getValue("children").get<DObject*>();
   //DUInt64 count = children->call("size").get<DUInt64>(); 
   //for (DUInt64 index = 0; index < count; index++)
-    //this->setId(children->call("get", Destruct::RealValue<DUInt64>(index))); 
+    //this->setId(children->call("get", RealValue<DUInt64>(index))); 
 //}
 
 ///**
  //*  Load previous id database
  //*/
-//void    NodeManager::load(Destruct::DValue const& base)
+//void    NodeManager::load(DValue const& base)
 //{
-  //Destruct::DObject* root = base.get<Destruct::DObject*>();
+  //DObject* root = base.get<DObject*>();
   //this->setId(root);
 //}
 
 /** 
  * NodeContainer XXX temp
  */
-NodeContainer::NodeContainer(Destruct::DStruct* dstruct, Destruct::DValue const& args) : DCppObject(dstruct, args), __node(NULL)
+NodeContainer::NodeContainer(DStruct* dstruct, DValue const& args) : DCppObject(dstruct, args), __node(NULL)
 {
   this->init();
 }
 
-NodeContainer::NodeContainer(Destruct::DStruct* dstruct, Node* node) : DCppObject(dstruct), absolute(node->absolute()), __node(node)
+NodeContainer::NodeContainer(DStruct* dstruct, Node* node) : DCppObject(dstruct), absolute(node->absolute()), __node(node)
 {
   this->init();
 }

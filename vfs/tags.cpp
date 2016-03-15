@@ -293,14 +293,14 @@ Destruct::DValue        TagsManager::save(void) const
 
 void                    TagsManager::load(Destruct::DValue value)
 {
-  Destruct::DObject* vector = value.get<Destruct::DObject*>(); 
-  DUInt64 count = vector->call("size").get<DUInt64>();
+  Destruct::DObject* vector = value; 
+  DUInt64 count = vector->call("size");
   
   for (DUInt64 index = 0; index < count; index++)
   {
-    Destruct::DObject* tag = vector->call("get", Destruct::RealValue<DUInt64>(index)).get<Destruct::DObject*>();
-    Destruct::DUnicodeString name = tag->getValue("name").get<Destruct::DUnicodeString>(); 
-    Destruct::DObject* color = tag->getValue("color").get<Destruct::DObject*>();
+    Destruct::DObject* tag = vector->call("get", Destruct::RealValue<DUInt64>(index));
+    Destruct::DUnicodeString name = tag->getValue("name"); 
+    Destruct::DObject* color = tag->getValue("color");
     tag->destroy();
     uint8_t r = color->getValue("r").get<DUInt8>(); 
     uint8_t g = color->getValue("g").get<DUInt8>(); 

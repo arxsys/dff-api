@@ -111,7 +111,6 @@ Node*		fso::getNodeById(uint64_t id)
   std::map<uint64_t, Node* >::const_iterator node = this->__nodes.find(id);
   if (node != this->__nodes.end())
     return (node->second);
-  std::cout << "fso::getNodeById return NULL for " << id << std::endl;
   return (NULL);
 }
 
