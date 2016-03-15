@@ -18,7 +18,7 @@ def _init():
     """
     if hasattr(sys, 'frozen'):
         os.environ['PATH'] = os.path.join(os.path.dirname(sys.executable), "resources") + ";" + os.environ['PATH']
-        return ctypes.cdll.LoadLibrary('libcmagic.dll')
+        return ctypes.cdll.LoadLibrary('cmagic.dll')
     else:
         dffpath = os.getcwd()
         idx = dffpath.rfind("dff")
