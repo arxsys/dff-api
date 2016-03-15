@@ -30,7 +30,8 @@ set(vfs_src
    rootnode.cpp
    datatype.cpp
    simplefso.cpp
-   log.cpp)
+   log.cpp
+   declare.cpp)
 
 if (BFIO_FOUND)
  set(vfs_src ${vfs_src} libbfio_wrapper.cpp)

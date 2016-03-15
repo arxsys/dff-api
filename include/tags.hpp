@@ -75,7 +75,6 @@ private:
   void                                  __removeNodesTag(uint32_t id, class Node* node);
   std::vector<Tag*>			__tagsList;
   uint32_t                              __defaults;
-  void                                  __declare(void);
 public:
   EXPORT static	TagsManager&		get(void);
   EXPORT Tag*				tag(uint32_t id) const;

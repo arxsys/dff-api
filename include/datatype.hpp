@@ -83,7 +83,6 @@ public:
   EXPORT std::list<std::string>                 compatibleModules(Node* node);
 
   //EXPORT DataTypeHandler*                       handler(const std::string& name) const;
-  EXPORT void                                   declare(void);
   EXPORT bool                                   loadNodesType(Node* node, DValue const& value);
   EXPORT bool                                   load(DValue value); //Destruct::DStream ?
   EXPORT DValue                                 save(void) const;

@@ -20,21 +20,25 @@
 #include "rootnode.hpp"
 #include "vlink.hpp"
 
-//#include "dobject.hpp"
-//#include "dvalue.hpp"
-//#include "drealvalue.hpp"
-//#include "dnullobject.hpp"
 #include "dstructs.hpp"
-#include "dsimpleobject.hpp"
 #include "datatype.hpp"
 
-//#include "session.hpp"
-#include "log.hpp"
-
+/* Handle external loading (but still loaded by swig)
+extern "C"
+{
+  EXPORT void DestructExport(void)
+  {
+    DFF::VFS::declare();
+  }
+}
+*/
 using namespace Destruct;
+
+
 
 namespace DFF
 {
+
 /**
  *  Return singleton instance of VFS
  */
@@ -44,57 +48,14 @@ VFS&	VFS::Get()
   return single;
 }
 
-void    VFS::__declare(void)
-{
-  DStructs& destruct = DStructs::instance();
-
-  DStruct*  dnodeStruct = new DStruct(0, "DNode", DSimpleObject::newObject); // rename NodeAttribute (on l'apply apres mais ca cree pas vraiment une node 
-  dnodeStruct->addAttribute(DAttribute(DType::DUInt64Type, "uid"));
-  dnodeStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "absolute")); //? 
-  dnodeStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "name")); 
-  dnodeStruct->addAttribute(DAttribute(DType::DObjectType, "tags")); 
-  dnodeStruct->addAttribute(DAttribute(DType::DObjectType, "children")); 
-  dnodeStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "dataType"));
-  destruct.registerDStruct(dnodeStruct);
-
-  destruct.registerDStruct(makeNewDCpp<NodeContainer>("NodeContainer"));
-
-//XXX doublon avec ce ux method load pour ntfs 
-  DStruct*  vlinkStruct = new DStruct(0, "VLink", DSimpleObject::newObject);
-  vlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "linkedNode"));
-  vlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "name"));
-  destruct.registerDStruct(vlinkStruct);
-
-  DStruct*  dpathStruct = new DStruct(0, "DPath", DSimpleObject::newObject);
-  dpathStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "path")); 
-  destruct.registerDStruct(dpathStruct);
-
-  destruct.registerDStruct(makeNewDCpp<VoidNode>("VoidNode"));
-
-  DStruct* dvlinkStruct = new DStruct(0, "DVLink", DSimpleObject::newObject);
-  dvlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "name"));
-  dvlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "node"));
-  dvlinkStruct->addAttribute(DAttribute(DType::DUnicodeStringType, "linkNode"));
-  destruct.registerDStruct(dvlinkStruct);
-
-  destruct.registerDStruct(makeNewDCppSingleton<Time>("Time"));
-  destruct.registerDStruct(makeNewDCppSingleton<Log>("Log"));
-
-  //XXX c lui qui devrait load c celui qu igere les ession enfin bon ..
-
-
-  //SessionLoader::declare(); XXX load by destruct
-}
-
-
-static DStruct vfsStruct = DStruct(NULL, "VFS", VFS::newObject, VFS::ownAttributeBegin(), VFS::ownAttributeEnd()); 
-
 /**
  *  Construct VFS and register root node '/'
  */
-VFS::VFS() : DCppObject<VFS>(&vfsStruct), __nodeManager(*this) //XXX
+VFS::VFS() : DCppObject<VFS>(new DStruct(NULL, "VFS", VFS::newObject, VFS::ownAttributeBegin(), VFS::ownAttributeEnd())), __nodeManager(*this)
 {
-  this->__declare();
+  this->declare();
+  //this->tagMnager  //only 1 singleton 
+  //this->dataType manager  //only 1 singleton
   this->root = new VFSRootNode("/");
   this->registerNode(this->root);
   cwd = root;
@@ -103,12 +64,6 @@ VFS::VFS() : DCppObject<VFS>(&vfsStruct), __nodeManager(*this) //XXX
 
 VFS::~VFS()
 {
-}
-
-DObject* VFS::clone() const //special for singleton
-{
-        ////return (new CppClass(*static_cast<const CppClass *>(this)));
-  return (const_cast<VFS *>(this));
 }
 
 /**

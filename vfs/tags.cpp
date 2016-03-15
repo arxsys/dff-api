@@ -94,23 +94,6 @@ TagsManager::TagsManager()
   DEFAULT_TAG("viewed",     255, 255,   0)
   DEFAULT_TAG("suspicious", 255, 85,    0)
   this->__defaults = this->__tagsList.size();
-  this->__declare();
-}
-
-void    TagsManager::__declare(void)
-{
-  Destruct::DStructs& destruct = Destruct::DStructs::instance();
-
-  Destruct::DStruct*  color = new Destruct::DStruct(0, "Color", Destruct::DSimpleObject::newObject);
-  color->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt8Type, "r"));
-  color->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt8Type, "g"));
-  color->addAttribute(Destruct::DAttribute(Destruct::DType::DUInt8Type, "b"));
-  destruct.registerDStruct(color);
-
-  Destruct::DStruct*  tag = new Destruct::DStruct(0, "Tag", Destruct::DSimpleObject::newObject);
-  tag->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
-  tag->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "color"));
-  destruct.registerDStruct(tag);
 }
 
 TagsManager::~TagsManager()

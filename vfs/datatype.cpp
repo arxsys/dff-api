@@ -164,7 +164,6 @@ DValue                DataType::save(void) const
 DataTypeManager::DataTypeManager()
 {
   mutex_init(&this->__mutex);
-  this->declare();
 }
 
 /**
@@ -290,15 +289,6 @@ std::list<std::string>		DataTypeManager::compatibleModules(Node* node)
       modules.unique();
     }
   return (modules);
-}
-
-void                    DataTypeManager::declare(void)
-{
-  Destruct::DStructs&    destruct = Destruct::DStructs::instance();
-  Destruct::DStruct* dtype = new Destruct::DStruct(NULL, "DataType", Destruct::DSimpleObject::newObject); 
-  dtype->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
-  dtype->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "compatibleModules"));
-  destruct.registerDStruct(dtype);
 }
 
 bool                    DataTypeManager::loadNodesType(Node* node, Destruct::DValue const& value)

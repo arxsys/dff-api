@@ -74,8 +74,6 @@ public:
   //void                          load(Destruct::DValue const& base);
   //void                          setId(Destruct::RealValue<Destruct::DObject*> dnode);
 private:
-  //std::map<uint64_t, RealValue<Destruct::DObject*> > __saveBase;
-
   std::map<uint64_t, Node* >   __orphans;
   uint64_t                     __nextId;
   VFS&                         __vfs;
@@ -96,22 +94,14 @@ private:
   std::vector<fso*>	        __fsobjs;
   NodeManager                   __nodeManager;
 
-  void                          __declare(void);
   //std::map<uint64_t, Destruct::DObject* > __tmpTree; //SessioNTree ? 
  
   std::map<uint64_t, uint64_t> __dnodeId; //xxx temp test 
 public:
-  virtual DObject*                      clone(void) const;     
-
-
-  static Destruct::DObject* newObject(Destruct::DStruct * dstruct, Destruct::DValue const& args)
-  {
-    return (&VFS::Get());
-  }
-
-  EXPORT void  addDNodeID(uint64_t duid, uint64_t uid); //xxx temp
+  static void                          declare(void);
+  EXPORT void                   addDNodeID(uint64_t duid, uint64_t uid); //xxx temp
   
-  EXPORT Node* getNodeByDUid(uint64_t oldid);
+  EXPORT Node*                  getNodeByDUid(uint64_t oldid);
 
   class Node*                   cwd;
   Node*		                root;
@@ -129,11 +119,6 @@ public:
   EXPORT Node*		        getNodeById(uint64_t id);
 
   EXPORT NodeManager&           nodeManager(void);
-  //EXPORT void                   setId(Destruct::RealValue<Destruct::DObject*> dnode);
-  //EXPORT Destruct::DObject*     toDNode(Node* node) const;
-  //EXPORT void                   load(Destruct::DValue dobject); //const ref ..
-  //EXPORT Destruct::DValue       save(void) const;
-
   EXPORT Destruct::DValue                        getNode(Destruct::DValue args); //for swig
 /**
  *  Destruct declaration
@@ -173,6 +158,16 @@ public:
   static Destruct::DPointer<VFS>*  memberEnd()
   {
     return (memberBegin() + ownAttributeCount());
+  }
+        
+  static Destruct::DObject* newObject(Destruct::DStruct * dstruct, Destruct::DValue const& args)
+  {
+    return (&VFS::Get());
+  }
+
+  virtual DObject* clone() const
+  {
+    return (static_cast<DObject*>(const_cast<VFS*>(this)));
   }
 };
 
