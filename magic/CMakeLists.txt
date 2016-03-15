@@ -115,9 +115,6 @@ endif (WIN32)
 
 add_custom_command(TARGET magict POST_BUILD COMMAND magict WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-#file(RELATIVE_PATH rpath ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-#file(APPEND "${CMAKE_BINARY_DIR}/installed_files.log" "${rpath}/magic.mgc\n")
-
 install_file(
   __init__.py
   magic.py
