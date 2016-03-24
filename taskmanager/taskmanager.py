@@ -355,13 +355,13 @@ class ScanQueue(Queue):
              if len(nodeArguments) == 1:
                node = arguments[nodeArguments[0].name()].value() 
                filter = Filter('')
-               filter.compile(filterText)
+               filter.compile(str(filterText))
                filter.process(node)
                matches = filter.matchedNodes()
                if not len(matches):
                  self.task_done()
                  continue
-         except AttributeError:
+         except : #filter can throw 
            pass
 
          try :
