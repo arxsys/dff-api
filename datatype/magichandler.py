@@ -39,30 +39,26 @@ class Magic(DataTypeHandler):
 
   def type(self, node):
     if node.size() > 0:
-      mime = magic.open(magic.MAGIC_NONE)
-      if self.mgc_path:
-        mime.load(self.mgc_path)
-      else:
-        mime.load()
-      filemime = None 
-      try:
-        f = node.open()
-      except :
-	return self.empty(node)
-      try:
-        #cannot read less than 0x2000 because of vshadow signature starting @0x1e00
-        buff = f.read(0x2000)
-        filemime = mime.buffer(buff)
-      except Exception as e:
-        print "Magic error can't read buffer on node : ",  node.absolute(), "\n", e 
-      finally:
-        f.close()
-        mime.close()	
-      if filemime: 
-        return filemime
-      else:
-	return "data"
-    elif node.hasChildren():
+       mime = None
+       filemime = "unknown"
+       f = None
+       try:
+          mime = magic.open(magic.MAGIC_NONE)
+          mime.load(self.mgc_path)
+          f = node.open()
+          #cannot read less than 0x2000 because of vshadow signature starting @0x1e00
+          buff = f.read(0x2000)
+          filemime = mime.buffer(buff)
+       except Exception as e:
+          #print "Magic error can't read buffer on node : ",  node.absolute(), "\n", e
+          filemime = "error"
+       finally:
+          if f is not None:
+            f.close()
+          if mime is not None:
+             mime.close()	
+       return filemime
+    elif node.hasChildren() or node.isDir():
        return "directory"
     else:
        return "empty"
