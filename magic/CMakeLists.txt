@@ -67,8 +67,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DI
 
 file(COPY magic DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_custom_target(CopyMagicFiles COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/ ${CMAKE_CURRENT_BINARY_DIR})
-
 set(magic_sources
   apprentice.c
   softmagic.c
@@ -115,16 +113,11 @@ else (WIN32)
   set(magic_library libcmagic.so)
 endif (WIN32)
 
-#add_custom_command(TARGET magict POST_BUILD COMMAND magict WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/magic)
-
-#add_custom_target(CopyMagicFiles ALL COMMAND )
-#add_custom_target(CompileMagic ALL COMMAND magict DEPENDS CopyMagicFiles)
-
-file(RELATIVE_PATH rpath ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-file(APPEND "${CMAKE_BINARY_DIR}/installed_files.log" "${rpath}/magic.mgc\n")
+add_custom_command(TARGET magict POST_BUILD COMMAND magict WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 install_file(
   __init__.py
   magic.py
   ${magic_library}
+  magic.mgc
   )

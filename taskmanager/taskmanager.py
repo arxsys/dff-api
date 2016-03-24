@@ -370,13 +370,13 @@ class ScanQueue(Queue):
              filterText = module.scanFilter
              if filterText != '':
                filter = Filter('')
-               filter.compile(filterText)
+               filter.compile(str(filterText))
                filter.process(node)
                matches = filter.matchedNodes()
                if not len(matches):
                  self.task_done()
                  continue
-         except AttributeError:
+         except : #filter can throw 
            pass
 
          try :
