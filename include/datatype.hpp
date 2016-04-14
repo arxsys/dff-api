@@ -32,6 +32,7 @@
 #include "rc.hpp"
 #include "variant.hpp"
 #include "threading.hpp"
+#include "eventhandler.hpp"
 
 namespace DFF
 {
@@ -54,7 +55,7 @@ public:
   EXPORT				Type(const std::string name);
   EXPORT				~Type();
   EXPORT const std::string		name(void) const;
-  EXPORT const std::list<std::string>	compatibleModules(void) const; 
+  EXPORT const std::list<std::string>	compatibleModules(void) const;
 private:
   const std::string			__name;
   std::list<std::string>		__compatibleModules;
@@ -82,7 +83,7 @@ private:
 //   std::map<Node*, std::vector<const Type* > >   __nodesTypes; //XXX dff:map //pour locker !
 // };
 
-class DataTypeManager 
+class DataTypeManager  : public EventHandler
 {
 private:
   EXPORT					DataTypeManager();
@@ -93,13 +94,18 @@ private:
   //EXPORT const Type*				__type(Node* node);
   DataTypeHandler*				__handler;
   std::map<const std::string, const Type* >	__types;
-  std::map<Node*, const Type* >			__nodesType; 
+  std::map<Node*, const Type* >			__nodesType;
+  std::map<const std::string, std::vector<Node* > > __typeNodes;
   void		                                __compatibleModulesByExtension(const std::map<std::string, Constant*>& cextensions, std::string& ext, std::list<std::string>& result);
 public:
-  EXPORT static DataTypeManager* 		Get();
+  EXPORT static DataTypeManager*		Get();
+  EXPORT virtual void				Event(event* e);
   EXPORT bool					registerHandler(DataTypeHandler* dataTypeHandler);
   EXPORT const std::string			type(Node* node);
-  EXPORT std::list<std::string>                 compatibleModules(Node* node);
+  EXPORT const std::list<std::string>		existingTypes();
+  EXPORT const std::vector<Node* >		nodes(std::string type);
+  EXPORT uint64_t				nodesCount(std::string type);
+  EXPORT std::list<std::string>			compatibleModules(Node* node);
 };
 
 }
