@@ -120,13 +120,13 @@ void		DataType::__compatibleModulesByType(const std::map<std::string, Constant*>
 
 DataType*                                       DataType::load(DValue const&  dobject)
 {
-  DObject* typeObject = dobject.get<DObject*>();
+  DObject* typeObject = dobject;
 
   std::list<std::string> compatibleModule;
   std::string name = typeObject->getValue("name").get<DUnicodeString>();
  
-  DObject* compatibleModulesObject = typeObject->getValue("compatibleModules").get<DObject*>();
-  DUInt64  compatibleModulesCount = compatibleModulesObject->call("size").get<DUInt64>();
+  DObject* compatibleModulesObject = typeObject->getValue("compatibleModules");
+  DUInt64  compatibleModulesCount = compatibleModulesObject->call("size");
 
   for (DUInt64 index = 0; index < compatibleModulesCount; index++)
   {
@@ -134,14 +134,11 @@ DataType*                                       DataType::load(DValue const&  do
      compatibleModule.push_back(module);
   }
 
-  compatibleModulesObject->destroy();
-  typeObject->destroy();
-
   DataType* type = new DataType(name, compatibleModule);
   return (type);
 }                       
 
-DValue                DataType::save(void) const
+DObject*        DataType::save(void) const
 {
   DObject* dataType = DStructs::instance().generate("DataType");
 
@@ -155,7 +152,7 @@ DValue                DataType::save(void) const
   dataType->setValue("compatibleModules", RealValue<DObject*>(dvectorString));
   dvectorString->destroy();
 
-  return (RealValue<DObject*>(dataType));
+  return (dataType);
 }
 
 /**
@@ -164,6 +161,7 @@ DValue                DataType::save(void) const
 DataTypeManager::DataTypeManager()
 {
   mutex_init(&this->__mutex);
+  //this->declare();
 }
 
 /**
@@ -291,6 +289,15 @@ std::list<std::string>		DataTypeManager::compatibleModules(Node* node)
   return (modules);
 }
 
+//void                    DataTypeManager::declare(void)
+//{
+  //Destruct::DStructs&    destruct = Destruct::DStructs::instance();
+  //Destruct::DStruct* dtype = new Destruct::DStruct(NULL, "DataType", Destruct::DSimpleObject::newObject); 
+  //dtype->addAttribute(Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "name"));
+  //dtype->addAttribute(Destruct::DAttribute(Destruct::DType::DObjectType, "compatibleModules"));
+  //destruct.registerDStruct(dtype);
+//}
+
 bool                    DataTypeManager::loadNodesType(Node* node, Destruct::DValue const& value)
 {
   this->__nodesType[node] = this->__types[value.get<DUnicodeString>()];
@@ -311,12 +318,12 @@ bool                    DataTypeManager::load(Destruct::DValue value)
      else
         std::cout << "DataType::load return NULL " << std::endl;
   }
-  types->destroy();
+  //types->destroy();
 
   return (true);
 }
 
-Destruct::DValue        DataTypeManager::save(void) const
+Destruct::DObject*      DataTypeManager::save(void) const
 {
   Destruct::DObject* types  = Destruct::DStructs::instance().find("DVectorObject")->newObject();
 
@@ -324,12 +331,16 @@ Destruct::DValue        DataTypeManager::save(void) const
   for (; typeIt != this->__types.end(); ++typeIt)
   {
     if ((*typeIt).second != NULL)
-      types->call("push", (*typeIt).second->save());
+    {
+      DObject* type = (*typeIt).second->save();
+      types->call("push", RealValue<DObject*>(type));
+      type->destroy();
+    }
     else
       std::cout << "Null type in DataTypeManager::__types " << std::endl;
   }
 
-  return (RealValue<DObject*>(types));
+  return (types);
 }
 
 }

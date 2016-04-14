@@ -63,22 +63,11 @@ public:
   EXPORT bool                   remove(Node* node);
   EXPORT Node*                  node(uint64_t uid) const;
   EXPORT uint64_t               orphansCount(void) const;
- 
-  EXPORT bool                   load(Destruct::DValue const& base); //load base before loading module to return them the id
-                                                                   //ntfs node name is set after uid  
-//  void                          clean(void);  call at end of loading to destroy NodeId ?
-
-  EXPORT Destruct::DValue       save(void) const; //return a base of uid and node 
-   
- 
-  //void                          load(Destruct::DValue const& base);
-  //void                          setId(Destruct::RealValue<Destruct::DObject*> dnode);
 private:
   std::map<uint64_t, Node* >   __orphans;
   uint64_t                     __nextId;
   VFS&                         __vfs;
   DataTypeManager*             __dataTypeManager;
-  void                         __loadNode(Destruct::RealValue<Destruct::DObject*> dobject, Node* node);//Node* node 
 };
 
 class VFS : public EventHandler, public Destruct::DCppObject<DFF::VFS>
@@ -93,14 +82,10 @@ private:
   void                          __deleteNode(Node* node);
   std::vector<fso*>	        __fsobjs;
   NodeManager                   __nodeManager;
-
-  //std::map<uint64_t, Destruct::DObject* > __tmpTree; //SessioNTree ? 
- 
-  std::map<uint64_t, uint64_t> __dnodeId; //xxx temp test 
+  std::map<uint64_t, uint64_t>  __dnodeId; //map old id to new id to be able to load by id in modules like hash
 public:
-  static void                          declare(void);
-  EXPORT void                   addDNodeID(uint64_t duid, uint64_t uid); //xxx temp
-  
+  static void                   declare(void);
+  EXPORT void                   addDNodeID(uint64_t duid, uint64_t uid); //used to save and load in module (ex hash)
   EXPORT Node*                  getNodeByDUid(uint64_t oldid);
 
   class Node*                   cwd;

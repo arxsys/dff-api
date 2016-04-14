@@ -283,17 +283,13 @@ bool		Node::isDeleted() const
 VFile*		Node::open()
 {
   int32_t	fd;
-  VFile		*temp;
 
   if (this->__fsobj == NULL)
     throw vfsError("Can't Open file");
   try
   {
     if ((fd = this->__fsobj->vopen(this)) >= 0)
-    {
-      temp = new VFile(fd, this->__fsobj, this);
-      return (temp);
-    }
+      return (new VFile(fd, this->__fsobj, this));
     throw vfsError("Can't Open file");
   }
   catch (vfsError e)
@@ -944,7 +940,6 @@ bool AttributesHandlers::remove(std::string handlerName)
 
 Destruct::DValue  Node::save(void) const
 {
-// XXX temp 
   return (VoidNode::save(this));
 }
 

@@ -241,7 +241,6 @@ class VoidNode : public Destruct::DCppObject<VoidNode>
 public:
   VoidNode(Destruct::DStruct* dstruct, Destruct::DValue const& args) : Destruct::DCppObject<VoidNode>(dstruct, args)
   {
-    //this->children = Destruct::DStructs::instance().generate("DVectorObject");  
     this->init();
   }
   ~VoidNode() {};
@@ -260,7 +259,6 @@ public:
   {
     Destruct::DObject* dnode = args.get<Destruct::DObject*>();
     Destruct::DUnicodeString name = dnode->getValue("name").get<Destruct::DUnicodeString>();
-    dnode->destroy();
     return (new Node(name.string()));
   }
 
@@ -268,7 +266,6 @@ public:
   {
     Destruct::DObject* dnode = args.get<Destruct::DObject*>();
     Destruct::DUnicodeString name = dnode->getValue("name").get<Destruct::DUnicodeString>();
-    dnode->destroy();
  
     return (new Node(name.string(), 0, NULL, fsobj));  
   }

@@ -267,9 +267,9 @@ Destruct::DValue        TagsManager::save(void) const
     dcolor->setValue("g", Destruct::RealValue<DUInt8>(color.g));
     dcolor->setValue("b", Destruct::RealValue<DUInt8>(color.b));
     dtag->setValue("color", Destruct::RealValue<Destruct::DObject*>(dcolor));
-    dcolor->destroy();
+    //dcolor->destroy();
     vector->call("push", Destruct::RealValue<Destruct::DObject*>(dtag));
-    dtag->destroy();
+    //dtag->destroy();
   }
   return (Destruct::RealValue<Destruct::DObject*>(vector));
 }
@@ -284,14 +284,13 @@ void                    TagsManager::load(Destruct::DValue value)
     Destruct::DObject* tag = vector->call("get", Destruct::RealValue<DUInt64>(index));
     Destruct::DUnicodeString name = tag->getValue("name"); 
     Destruct::DObject* color = tag->getValue("color");
-    tag->destroy();
+    //tag->destroy();
     uint8_t r = color->getValue("r").get<DUInt8>(); 
     uint8_t g = color->getValue("g").get<DUInt8>(); 
     uint8_t b = color->getValue("b").get<DUInt8>(); 
     this->add(name.string(), r, g, b); 
-    color->destroy();
   }
-  vector->destroy();
+  //vector->destroy();
 }
 
 }

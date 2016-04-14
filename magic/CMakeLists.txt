@@ -113,7 +113,7 @@ else (WIN32)
   set(magic_library libcmagic.so)
 endif (WIN32)
 
-add_custom_command(TARGET magict POST_BUILD COMMAND magict WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+#add_custom_command(TARGET magict POST_BUILD COMMAND magict WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 install_file(
   __init__.py

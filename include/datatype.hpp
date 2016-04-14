@@ -64,7 +64,7 @@ public:
   EXPORT const std::string		                name(void) const;
   EXPORT const std::list<std::string>	                compatibleModules(void) const; 
   EXPORT static DataType*                               load(DValue const& value);
-  EXPORT DValue                                         save(void) const; 
+  EXPORT DObject*                                       save(void) const; 
 private:
   const std::string			                __name;
   std::list<std::string>		                __compatibleModules;
@@ -83,9 +83,10 @@ public:
   EXPORT std::list<std::string>                 compatibleModules(Node* node);
 
   //EXPORT DataTypeHandler*                       handler(const std::string& name) const;
+  //EXPORT void                                   declare(void);
   EXPORT bool                                   loadNodesType(Node* node, DValue const& value);
   EXPORT bool                                   load(DValue value); //Destruct::DStream ?
-  EXPORT DValue                                 save(void) const;
+  EXPORT DObject*                               save(void) const;
 private:
   EXPORT					DataTypeManager();
   						DataTypeManager(const DataTypeManager&);

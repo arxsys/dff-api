@@ -278,7 +278,7 @@ Node* VFS::getNodeByDUid(uint64_t oldid)
 /**
  *  Node Manager
  *  This class manager node by giving them an unique id 
- *  that permet to track node and get them back from that uid
+ *  that permit to track node and get them back from that uid
  */
 NodeManager::NodeManager(VFS& vfs) : __nextId(0), __vfs(vfs), __dataTypeManager(DataTypeManager::Get())
 {
@@ -356,112 +356,6 @@ bool  NodeManager::remove(Node* node)
   return (this->remove(node->uid())); 
 }
 
-bool  NodeManager::load(DValue const& data)
-{
-  //DObject* dnode = data.get<DObject*>();
-
-  std::cout << "creating children tree" << std::endl;
-  //NodeId* rootId = new NodeId(dnode);
-  //std::cout << "child tree is created " << std::endl;
- 
-  /*
-
-  DObject* children = dnode->getValue("children").get<DObject*>();
-
-  std::map<const std::string, Node*> nodeMap;
-  std::vector<Node* > nodes = this->__vfs.GetNode("/")->children();
-  std::vector<Node* >::const_iterator cnode = nodes.begin(); 
-  for (; cnode != nodes.end(); cnode++)
-    nodeMap[(*cnode)->name()] = (*cnode);
-
-  DUInt64 count = children->call("size").get<DUInt64>();
-  for (DUInt64 index = 0; index < count; index++)
-  {
-    DObject* value = children->call("get", RealValue<DUInt64>(index)).get<DObject*>();
-    std::string nodeName = value->getValue("name").get<DUnicodeString>(); 
-    if (nodeName != "Bookmarks") //now in /case/bookmarks but with bookmarks->fso == bookmarks
-      this->__loadNode(value, nodeMap[nodeName]);
-    value->destroy();
-    value->destroy();
-  }
-  children->destroy();
-
-  std::cout << dnode->refCount() << std::endl;
-  dnode->destroy(); */
-  return true;
-}
-
-void    NodeManager::__loadNode(RealValue<DObject*> dobject, Node* node)//Node* node 
-{
-  DObject* dnode = dobject;
-
-
-  //push dataType of node in node dataTypes
-  this->__dataTypeManager->loadNodesType(node, dnode->getValue("type"));
-
-
-  //set Node tags
-  DObject* tagList = dnode->getValue("tags");
-  DUInt64 tagCount = tagList->call("size");
-  for (DUInt64 index = 0; index < tagCount; index++)
-  {
-    DUnicodeString tagName = tagList->call("get", RealValue<DUInt64>(index));
-    node->setTag(tagName);
-  }
-  tagList->destroy();
-
-
-  //iterate
-  std::map<const std::string, Node*> nodeMap;
-  std::vector<Node* > nodes = node->children();
-  std::vector<Node* >::const_iterator cnode = nodes.begin(); 
-  for (; cnode != nodes.end(); cnode++)
-    nodeMap[(*cnode)->name()] = (*cnode);
-
-  DObject* children = dnode->getValue("children");
-  DUInt64 count = children->call("size");
-
-  for (DUInt64 index = 0; index < count; index++)
-  {
-    DObject* childObject = children->call("get", RealValue<DUInt64>(index));
-    std::string name = childObject->getValue("name");
-    Node* childNode = nodeMap[name];
-    if (childNode == NULL)
-    {
-      std::cout << "can't find node " << name << std::endl;
-      continue;
-    }
-    this->__loadNode(RealValue<DObject*>(childObject), childNode);
-    childObject->destroy();
-    childObject->destroy(); 
-  }
-  children->destroy();
-}
-
-
-DValue  NodeManager::save(void) const
-{
-  return RealValue<DObject* >(DNone);
-}
-
-
-//void    NodeManager::setId(RealValue<DObject*> dobject)
-//{
-  //DObject* dnode = dobject;
-  //DObject* children = dnode->getValue("children").get<DObject*>();
-  //DUInt64 count = children->call("size").get<DUInt64>(); 
-  //for (DUInt64 index = 0; index < count; index++)
-    //this->setId(children->call("get", RealValue<DUInt64>(index))); 
-//}
-
-///**
- //*  Load previous id database
- //*/
-//void    NodeManager::load(DValue const& base)
-//{
-  //DObject* root = base.get<DObject*>();
-  //this->setId(root);
-//}
 
 /** 
  * NodeContainer XXX temp
@@ -485,7 +379,7 @@ Node*   NodeContainer::node(void)
   if (this->__node == NULL)
   {
     VFS& vfs = VFS::Get();
-    this->__node = vfs.GetNode(this->absolute); //XXX ou tghis-absloute9)
+    this->__node = vfs.GetNode(this->absolute);
   }
   return (this->__node);
 }
