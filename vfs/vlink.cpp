@@ -256,11 +256,11 @@ Destruct::DValue        VLink::save(void) const
 VLink*                  VLink::load(Destruct::DValue const& arg)
 {
   VFS& vfs =  VFS::Get();
-  DObject* vlink = arg.get<DObject*>();
+  DObject* vlink = arg;
 
-  std::string name = vlink->getValue("name").get<DUnicodeString>(); 
-  std::string nodePath = vlink->getValue("node").get<DUnicodeString>();
-  std::string linkedNodePath = vlink->getValue("linkNode").get<DUnicodeString>();
+  DUnicodeString name = vlink->getValue("name"); 
+  DUnicodeString nodePath = vlink->getValue("node");
+  DUnicodeString linkedNodePath = vlink->getValue("linkNode");
   Node* node = vfs.GetNode(nodePath);
   Node* linkedNode = vfs.GetNode(linkedNodePath);
 

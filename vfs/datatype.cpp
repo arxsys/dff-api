@@ -123,14 +123,14 @@ DataType*                                       DataType::load(DValue const&  do
   DObject* typeObject = dobject;
 
   std::list<std::string> compatibleModule;
-  std::string name = typeObject->getValue("name").get<DUnicodeString>();
+  DUnicodeString name = typeObject->getValue("name");
  
   DObject* compatibleModulesObject = typeObject->getValue("compatibleModules");
   DUInt64  compatibleModulesCount = compatibleModulesObject->call("size");
 
   for (DUInt64 index = 0; index < compatibleModulesCount; index++)
   {
-     std::string module = compatibleModulesObject->call("get", RealValue<DUInt64>(index)).get<DUnicodeString>();
+     DUnicodeString module = compatibleModulesObject->call("get", RealValue<DUInt64>(index));
      compatibleModule.push_back(module);
   }
 

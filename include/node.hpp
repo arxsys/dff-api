@@ -257,15 +257,15 @@ public:
 
   static Node*      load(Destruct::DValue const& args)
   {
-    Destruct::DObject* dnode = args.get<Destruct::DObject*>();
-    Destruct::DUnicodeString name = dnode->getValue("name").get<Destruct::DUnicodeString>();
+    Destruct::DObject* dnode = args;
+    Destruct::DUnicodeString name = dnode->getValue("name");
     return (new Node(name.string()));
   }
 
   static Node*      load(fso* fsobj, Destruct::DValue const& args)
   {
-    Destruct::DObject* dnode = args.get<Destruct::DObject*>();
-    Destruct::DUnicodeString name = dnode->getValue("name").get<Destruct::DUnicodeString>();
+    Destruct::DObject* dnode = args;
+    Destruct::DUnicodeString name = dnode->getValue("name");
  
     return (new Node(name.string(), 0, NULL, fsobj));  
   }
