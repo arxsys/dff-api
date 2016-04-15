@@ -267,9 +267,9 @@ Destruct::DValue        TagsManager::save(void) const
     dcolor->setValue("g", Destruct::RealValue<DUInt8>(color.g));
     dcolor->setValue("b", Destruct::RealValue<DUInt8>(color.b));
     dtag->setValue("color", Destruct::RealValue<Destruct::DObject*>(dcolor));
-    //dcolor->destroy();
+    dcolor->destroy();
     vector->call("push", Destruct::RealValue<Destruct::DObject*>(dtag));
-    //dtag->destroy();
+    dtag->destroy();
   }
   return (Destruct::RealValue<Destruct::DObject*>(vector));
 }
