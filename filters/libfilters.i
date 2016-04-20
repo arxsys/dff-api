@@ -33,6 +33,7 @@
 
 %{
 #include "mfso.hpp"
+#include "tags.hpp"
 #include "vfs.hpp"
 #include "vlink.hpp"
 #include "node.hpp"

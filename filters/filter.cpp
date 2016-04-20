@@ -343,6 +343,47 @@ void			Filter::__notifyEndOfProcessing(uint64_t processed)
 }
 
 
+bool			Filter::match(Node* nodeptr)
+{
+  bool			_match;
+  
+  if (nodeptr == NULL)
+    return false;
+  if (this->__ctx->root == NULL)
+    return false;
+  try 
+    {
+      _match = this->__eval(nodeptr);
+    }
+  catch (...)
+    {
+      _match = false;
+    }
+  return _match;
+}
+
+
+bool			Filter::match(uint64_t nodeId)
+{
+  bool			_match;
+  Node*			node;
+
+  if ((node = VFS::Get().getNodeById(nodeId)) == NULL)
+    return false;
+  if (this->__ctx->root == NULL)
+    return false;
+  try 
+    {
+      _match = this->__eval(node);
+    }
+  catch (...)
+    {
+      _match = false;
+    }
+  return _match;
+}
+ 
+  
 void			Filter::__process(Node* nodeptr, uint64_t* processed)
 {
   std::vector<Node*>	children;
