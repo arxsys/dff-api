@@ -768,9 +768,10 @@ bool    	Node::setTag(std::string name)
 {
   Tag* t =  TagsManager::get().tag(name);
 
-  if (t != NULL) 	
+  if (t != NULL && !this->isTagged(t->id()))
   {
     this->__tags |= ((uint64_t) 1) << t->id();
+    TagsManager::get().addNode(t->id(), this->__uid);
     return (true);
   }
   return (false);
@@ -778,9 +779,10 @@ bool    	Node::setTag(std::string name)
 
 bool 	        Node::setTag(uint32_t id)
 {
-  if (id != 0 && (TagsManager::get().tag(id) != NULL))
+  if (id != 0 && (TagsManager::get().tag(id) != NULL) && !this->isTagged(id))
   {
     this->__tags |= ((uint64_t) 1) << id;
+    TagsManager::get().addNode(id, this->__uid);
     return (true);
   }
   return (false);
@@ -790,7 +792,7 @@ bool	         Node::removeTag(std::string name)
 {
   Tag*  t =  TagsManager::get().tag(name);
 
-  if (t != NULL) 	
+  if (t != NULL)
     return (this->removeTag(t->id()));
   return (false);
 }
@@ -799,6 +801,7 @@ bool	        Node::removeTag(uint32_t id)
 {
   if ((this->__tags & (((uint64_t) 1) << id))  == (((uint64_t) 1) << id))
   {
+    TagsManager::get().removeNode(id, this->__uid);
     this->__tags ^= ((uint64_t) 1) << id;
     return (true);
   }
