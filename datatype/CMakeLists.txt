@@ -15,9 +15,9 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 if (WIN32)
-  set(link_libraries types)
+  set(link_libraries types events)
 else ()
-  set(link_libraries pthread types)
+  set(link_libraries pthread types events)
 endif ()
 
 dff_cpp_api(datatype 
