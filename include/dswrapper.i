@@ -79,6 +79,7 @@
 
   PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObject::pyType());
   dobjectObject->pimpl = $1;
+  dobjectObject->pimpl->addRef();
   $result = (PyObject*)dobjectObject;
 }
 
@@ -88,6 +89,7 @@
 
   PyDObject::DPyObject* dobjectObject = (PyDObject::DPyObject*)_PyObject_New(PyDObject::pyType());
   dobjectObject->pimpl = $1;
+  dobjectObject->pimpl->addref();
   $result = (PyObject*)dobjectObject;
 }
 
@@ -100,6 +102,7 @@
 %typemap(out) (Destruct::DValue)
 {
   Py_XDECREF($result);
+
   $result = PythonBaseModule::dvalueAsPyObject($1);
 }
 
