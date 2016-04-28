@@ -174,6 +174,7 @@ class NodeContainer : public Destruct::DCppObject<DFF::NodeContainer>
 public:
   EXPORT                                           NodeContainer(Destruct::DStruct* dstruct, Destruct::DValue const& args);
   EXPORT                                           NodeContainer(Destruct::DStruct* dstruct, Node* node);
+  EXPORT                                           NodeContainer(NodeContainer const& rhs);
   EXPORT                                           ~NodeContainer();
   EXPORT Node*                                     node(void);
   Destruct::RealValue<Destruct::DUnicodeString>    absolute; 
@@ -190,8 +191,7 @@ public:
   {
     static Destruct::DAttribute  attributes[] = 
     {
-      Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "absolute"), //XXX ? 
-      
+      Destruct::DAttribute(Destruct::DType::DUnicodeStringType, "absolute"),
     };
     return (attributes);
   }

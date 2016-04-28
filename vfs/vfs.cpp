@@ -360,14 +360,19 @@ bool  NodeManager::remove(Node* node)
 /** 
  * NodeContainer XXX temp
  */
-NodeContainer::NodeContainer(DStruct* dstruct, DValue const& args) : DCppObject(dstruct, args), __node(NULL)
+NodeContainer::NodeContainer(DStruct* dstruct, DValue const& args) : DCppObject<NodeContainer>(dstruct, args), __node(NULL)
 {
   this->init();
 }
 
-NodeContainer::NodeContainer(DStruct* dstruct, Node* node) : DCppObject(dstruct), absolute(node->absolute()), __node(node)
+NodeContainer::NodeContainer(DStruct* dstruct, Node* node) : DCppObject<NodeContainer>(dstruct), absolute(node->absolute()), __node(node)
 {
   this->init();
+}
+
+NodeContainer::NodeContainer(NodeContainer const& rhs) : DCppObject<NodeContainer>(rhs), __node(rhs.__node)
+{
+  this->copy(this, rhs); 
 }
 
 NodeContainer::~NodeContainer()
