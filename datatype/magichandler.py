@@ -37,6 +37,26 @@ class Magic(DataTypeHandler):
         self.mgc_path = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
 
 
+  def typeFromBuffer(self, buff):
+     if not len(buff):
+        return "empty"
+     mime = None
+     buffmime = "unknown"
+     f = None
+     try:
+        mime = magic.open(magic.MAGIC_NONE)
+        mime.load(self.mgc_path)
+        buffmime = mime.buffer(buff)
+     except Exception as e:
+        print e
+        #print "Magic error can't read buffer on node : ",  node.absolute(), "\n", e
+        buffmime = "error"
+     finally:
+        if mime is not None:
+           mime.close()	
+     return buffmime
+     
+
   def type(self, node):
     if node.size() > 0:
        mime = None
