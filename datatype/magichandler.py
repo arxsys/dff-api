@@ -34,7 +34,11 @@ class Magic(DataTypeHandler):
      if hasattr(sys, "frozen"):
         self.mgc_path = os.path.abspath(os.path.join(os.path.dirname(sys.executable), "resources/magic.mgc"))
      else:
-        self.mgc_path = os.path.join(sys.path[0], "dff/api/magic/magic.mgc")
+        mgcpath = os.path.realpath(__file__)
+        idx = mgcpath.rfind("api")
+        if idx != -1:
+           mgcpath = mgcpath[:idx+3]
+         self.mgc_path = os.path.join(mgcpath, "magic", "magic.mgc")
 
 
   def typeFromBuffer(self, buff):
