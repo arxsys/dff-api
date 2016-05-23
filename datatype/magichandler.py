@@ -38,7 +38,7 @@ class Magic(DataTypeHandler):
         idx = mgcpath.rfind("api")
         if idx != -1:
            mgcpath = mgcpath[:idx+3]
-         self.mgc_path = os.path.join(mgcpath, "magic", "magic.mgc")
+        self.mgc_path = os.path.join(mgcpath, "magic", "magic.mgc")
 
 
   def typeFromBuffer(self, buff):
