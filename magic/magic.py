@@ -22,10 +22,7 @@ def _init():
     else:
         dffpath = os.getcwd()
         idx = dffpath.rfind("dff")
-        if idx != -1:
-            libpath = os.path.join(dffpath[:idx], 'dff', 'api', 'magic')
-        else:
-            libpath = os.path.join('dff', 'api', 'magic')
+        libpath = os.path.join('dff', 'api', 'magic')
         if os.name == "posix":
             return ctypes.cdll.LoadLibrary(os.path.join(libpath, 'libcmagic.so'))
         else:
