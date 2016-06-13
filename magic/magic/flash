@@ -11,7 +11,7 @@
 #
 
 0   name        swf-details
->0	string		F		aadobe/shockwave-flash
+>0	string		F		adobe/shockwave-flash
 #!:mime	application/x-shockwave-flash
 >0	string		C		adobe/shockwave-flash
 #!:mime	application/x-shockwave-flash
