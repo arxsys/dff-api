@@ -121,6 +121,11 @@ DataTypeManager::~DataTypeManager()
 }
 
 
+void		DataTypeManager::Event(event* e)
+{
+}
+
+
 bool		DataTypeManager::registerHandler(DataTypeHandler* handler)
 {
   if (this->__handler != NULL)
@@ -163,15 +168,49 @@ const std::string	DataTypeManager::type(Node* node)
 	    {
 	      type = new Type(result);
 	      this->__types[result] = type;
+	      event* e = new event;
+	      e->type = 0x0de1; 
+	      e->value = Variant_p(new Variant(result));
+	      this->notify(e);
 	    }
 	  else
 	    type = types->second;
 	  this->__nodesType[node] = type;
+	  this->__typeNodes[result].push_back(node);
 	  mutex_unlock(&this->__mutex);
 	  return result;
 	}
     }
   return std::string("");
+}
+
+  
+const std::list<std::string>	DataTypeManager::existingTypes()
+{
+  std::map<const std::string, const Type* >::const_iterator	typesIterator;
+  std::list<std::string>					typesList;
+
+  for (typesIterator = this->__types.begin(); typesIterator != this->__types.end(); ++typesIterator)
+    typesList.push_back(typesIterator->first);
+  return typesList;
+}
+
+
+const std::vector<Node* >	DataTypeManager::nodes(std::string type)
+{
+  std::map<const std::string, std::vector<Node* > >::const_iterator types = this->__typeNodes.find(type);
+  if (types == this->__typeNodes.end())
+    return std::vector<Node* >();
+  return types->second;
+}
+
+
+uint64_t	DataTypeManager::nodesCount(std::string type)
+{
+  std::map<const std::string, std::vector<Node* > >::const_iterator types = this->__typeNodes.find(type);
+  if (types == this->__typeNodes.end())
+    return 0;
+  return types->second.size();
 }
 
 

@@ -42,7 +42,11 @@
 %{
 #include "export.hpp"
 #include "datatype.hpp"
+#include "eventhandler.hpp"
+#include "exceptions.hpp"
 %}
+%import "../events/libevents.i"
+
 %include "../include/export.hpp"
 %include "../include/datatype.hpp"
 
