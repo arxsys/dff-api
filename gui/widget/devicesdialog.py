@@ -95,7 +95,11 @@ class DevicesDialog(QDialog, Ui_DevicesDialog):
         physicalitems = QStandardItem(self.tr("Physical drives"))
         self.__model.appendRow(physicalitems)
         for pidx in range(0, len(self.devices)):
-            physicalitem = QStandardItem(self.devices[pidx].model())
+            model = self.devices[pidx].model()
+            if model != "Unknown":
+              physicalitem = QStandardItem(self.devices[pidx].blockDevice() + " (" + model + ")")
+            else:
+              physicalitem = QStandardItem(self.devices[pidx].blockDevice())
             physicalitems.appendRow(physicalitem)
             self.listdevices[lidx+pidx] = self.devices[pidx]
     self.combodevice.setModel(self.__model)

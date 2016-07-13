@@ -1,5 +1,2 @@
-32769	string    CD001
->38913	string   !NSR0      filesystem/iso9660
->38913	string    NSR0      filesystem/iso9660
+32769	string    CD001     filesystem/iso9660
 37633	string    CD001     filesystem/iso9660 
-34816   string    \000CD001     filesystem/iso9660

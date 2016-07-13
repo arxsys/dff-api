@@ -158,6 +158,23 @@ class TaskManager():
       self.ppModules = ModulesConfig()
       self.ppAnalyses = ModulesConfig()
 
+    def addPostProcessingModule(self, module):
+       self.ppModules.add(module)
+
+    def addPostProcessingModules(self, modules):
+      for module in modules:
+        self.ppModules.add(module)
+
+    def addPostProcessingAnalyse(self, analyse):
+       self.ppAnalyses.add(analyse)
+
+    def addPostProcessingAnalyses(self, analyses): #analySIS XXX
+      for analyse in analyses:
+        self.ppAnalyses.add(analyse) 
+
+    def join(self):
+      ppsched.join()
+
     def addAnalyseDependencies(self):
        requiered = set() 
        for moduleName in self.ppAnalyses:
@@ -488,6 +505,11 @@ class PostProcessScheduler():
           self.processusQueue.registerDisplay(self.display.processusItem, self.display.processusProgress)
           self.analyseQueue.registerDisplay(self.display.analyseItem, self.display.analyseProgress)
 	  self.fullAuto = True
+          self.finishedEvent = threading.Event()
+          self.finishedEvent.clear()
+
+        def join(self):
+          self.finishedEvent.wait()
 
         def fullAutoMode(self, mode):
 	   self.fullAuto = mode
@@ -535,9 +557,6 @@ class PostProcessScheduler():
              self.taskManager.postProcessWalk(root)
              self.processingQueue.scanJoin(root)
 
-             
-
-	
 	     if (not self.fullAuto) and self.display:
 	       h = {}
 	       for n in self.processusQueue.queue:
@@ -558,6 +577,7 @@ class PostProcessScheduler():
 
         def launch(self):
 	  self.firstRoot = None
+          self.finishedEvent.clear()
 	  while True:
 	       root = self.registerQueue.get()
 	       if self.firstRoot == None:
@@ -567,7 +587,8 @@ class PostProcessScheduler():
 		 self.scanAnalyse(root, self.firstRoot)
 		 self.displayState.updateState(False)
 		 self.taskManager.clearPostProcess()
-		 self.firstRoot = None	       
+		 self.firstRoot = None	      
+                 self.finishedEvent.set() 
      __instance = None
 	
      def __init__(self):
