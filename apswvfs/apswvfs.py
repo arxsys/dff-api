@@ -61,11 +61,15 @@ class apswVFile(apsw.VFSFile):
 
   def xRead(self, size, offset):
     if self.vfile:
-      self.vfile.seek(offset)
+      if self.vfile.seek(offset) != offset:
+        raise Exception("apswVFile : Can't seek to offset " + str(offset) + " on : " + str(self.node.absolute()))
       buff = self.vfile.read(size)
+      if not len(buff):
+        
+        raise Exception("apswVFile : Can't read data of size " + str(size) + " at offset " + str(offset) + " on : " + str(self.node.absolute()))
       return buff
     else:
-      return ""
+      raise Exception("apswVFile: no VFile opened")
 
   def xWrite(self, buff, size):
     return 0
