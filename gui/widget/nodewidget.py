@@ -189,10 +189,12 @@ class NodeWidget(QWidget):
     def changeView(self, index):
         self.viewid = index
         if index == TABLEVIEW_ID:
+            self.menumanager.setIconView(False)
             self.viewstack.setCurrentWidget(self.tableview)
             self.model.refresh(self.model.currentRow())
             self.scrollbar.setMaximum(self.scrollbar.value() - 2)
         elif index == LISTVIEW_ID:
+            self.menumanager.setIconView(True)
             self.viewstack.setCurrentWidget(self.listview)
             self.model.refresh(self.model.currentRow())
             self.scrollbar.setMaximum(self.scrollbar.value() + 2)
