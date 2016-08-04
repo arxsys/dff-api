@@ -263,9 +263,8 @@ class layoutManager(QWidget):
             if len(predefs) > 0:
                 if not self.checkUnifiedTypes(predefs):
                     return -1
-                # check this one !
                 for predef in predefs:
-                    nodeList.addSingleItem(str(predef), predef)
+                    nodeList.addSingleItem(str(predef), predef.value().uid())
             if selectednodes and len(selectednodes) > 0:
                 for node in selectednodes:
                     name = QString.fromUtf8(node.absolute())

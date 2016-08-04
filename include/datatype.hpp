@@ -33,6 +33,7 @@
 #include "rc.hpp"
 #include "variant.hpp"
 #include "threading.hpp"
+#include "eventhandler.hpp"
 
 #include "drealvalue.hpp"
 

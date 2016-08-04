@@ -21,11 +21,10 @@ def _init():
         return ctypes.cdll.LoadLibrary('cmagic.dll')
     else:
         dffpath = os.getcwd()
-        idx = dffpath.rfind("dff")
+        libpath = os.path.realpath(__file__)
+        idx = libpath.rfind(os.path.sep)
         if idx != -1:
-            libpath = os.path.join(dffpath[:idx], 'dff', 'api', 'magic')
-        else:
-            libpath = os.path.join('dff', 'api', 'magic')
+            libpath = libpath[:idx]
         if os.name == "posix":
             return ctypes.cdll.LoadLibrary(os.path.join(libpath, 'libcmagic.so'))
         else:

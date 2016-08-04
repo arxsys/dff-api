@@ -29,6 +29,8 @@
 #include <vector>
 #include "export.hpp"
 #include "drealvalue.hpp"
+#include "rc.hpp"
+#include "eventhandler.hpp"
 
 namespace DFF
 {
@@ -64,7 +66,7 @@ public:
   EXPORT void				setName(const std::string name);
 };
 
-class TagsManager 
+class TagsManager : public EventHandler
 {
 private:
 					TagsManager(const TagsManager&);
@@ -74,9 +76,17 @@ private:
   void                                  __removeNodesTag(uint32_t id);
   void                                  __removeNodesTag(uint32_t id, class Node* node);
   std::vector<Tag*>			__tagsList;
+  std::map<uint32_t, std::list<uint64_t> >	__nodes;
   uint32_t                              __defaults;
 public:
   EXPORT static	TagsManager&		get(void);
+  EXPORT virtual void			Event(event* e);
+  EXPORT bool				addNode(uint32_t tagId, uint64_t nodeUid);
+  EXPORT bool				removeNode(uint32_t tagId, uint64_t nodeUid);
+  EXPORT uint64_t			nodesCount(const std::string name);
+  EXPORT uint64_t			nodesCount(uint32_t tagId);
+  EXPORT std::list<uint64_t>		nodes(const std::string name);
+  EXPORT std::list<uint64_t>		nodes(uint32_t tagId);
   EXPORT Tag*				tag(uint32_t id) const;
   EXPORT Tag*				tag(const std::string name) const;
   EXPORT const std::vector<Tag* >	tags(void) const;	

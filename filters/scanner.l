@@ -93,81 +93,88 @@ hexdigit	[a-fA-F0-9]
 "data"				{ return DATA;		}
 "matches"			{ return MATCHES;	}
 
-{digit}+(KB|MB|GB){0,1}	{
-				   uint64_t	mul = 1;
-				   uint64_t     val = 0;
-				   char*	ptr = NULL;
+{digit}+(KiB|MiB|GiB|TiB|PiB|EiB){0,1}	{
+  uint64_t      mul;
+  uint64_t      size;
+  char*         unit;
+  char*         number;
+  int           digit;
 
-				   if ((ptr = strstr(yytext, "KB")) != NULL)
-				      {
-					 mul = 1024;
-				      }
-                                   else if ((ptr = strstr(yytext, "MB")) != NULL)
-				     {
-					mul = 1024*1024;
-				     }
-                                   else if ((ptr = strstr(yytext, "GB")) != NULL)
-				     {
-					mul = 1024*1024*1024;
-				     }
-				   errno = 0;
-                                   val = strtoull(yytext, NULL, 10);
-				   val *= mul;
-                                   if (errno == ERANGE && val == ULLONG_MAX)
-				   {
-				        //OVERFLOW_ERROR;
-					yyerror(yyscanner, "Overflow error\n");
-				   }
-				   if (val > ULLONG_MAX / mul)
-				   {
-					//OVERFLOW_ERROR;
-					yyerror(yyscanner, "overflow error\n");
-				   }
-				   val *= mul;
-				   yylval->number = val;
-				   return NUMBER;
-				}
-
-
-
-0(x|X){hexdigit}+		{
-					uint64_t	val = 0;
-					
-					errno = 0;
-					val = strtoull(yytext, NULL, 16);
-					if (errno == ERANGE && val == ULLONG_MAX)
-					{
-						//OVERFLOW_ERROR;
-						yyerror(yyscanner, "overflow error\n");
-					}
-					yylval->number = val;
-return NUMBER;
-				}
+  mul = 1;
+  size = 0;
+  unit = NULL;
+  number = NULL;
+  digit = strspn(yytext, "0123456789");
+  if (digit == 0)
+    yyerror(yyscanner, "Size contains no digit");
+  if (digit < yyleng)
+    {
+      number = (char*)calloc(digit+1, sizeof(char));
+      strncpy(number, yytext, digit);
+      unit = yytext+digit;
+      if (*unit == 'k' || *unit == 'K')
+        mul = 1024;
+      if (*unit == 'm' || *unit == 'M')
+        mul = 1048576;
+      if (*unit == 'g' || *unit == 'G')
+        mul = 1073741824;
+      if (*unit == 't' || *unit == 'T')
+        mul = 1099511627776;
+      if (*unit == 'p' || *unit == 'P')
+        mul = 1125899906842624;
+      if (*unit == 'e' || *unit == 'E')
+        mul = 1152921504606846976;
+    }
+  else
+    number = yytext;
+  errno = 0;
+  size = strtoull(number, NULL, 10);
+  if (number != yytext)
+    free(number);
+  if (errno == ERANGE && size == ULLONG_MAX)
+    yyerror(yyscanner, "Provided size is too large");
+  if (size > (ULLONG_MAX / mul))
+    yyerror(yyscanner, "Provided size is too large");
+  size *= mul;
+  yylval->number = size;
+  return NUMBER;
+}
 
 
-
-({letter}|_)({letter}|{digit}|_)*    {
-                                         yylval->cstr = new std::string(yytext, yyleng);
-                                         return IDENTIFIER;
-                                     }
-
-
-[0-9]{4}("-"[0-9]{2}){2}"T"[0-9]{2}(":"[0-9]{2}){2}	{
-								yylval->cstr = new std::string(yytext, yyleng);
-								return TIMESTAMP;
-							}
+0(x|X){hexdigit}+ {
+  uint64_t	val = 0;
+  errno = 0;
+  val = strtoull(yytext+2, NULL, 16);
+  if (errno == ERANGE && val == ULLONG_MAX)
+    yyerror(yyscanner, "overflow error\n");
+  yylval->number = val;
+  return NUMBER;
+}
 
 
-[0-9]{4}("-"[0-9]{2}){2}	{
-					yylval->cstr = new std::string(yytext, yyleng);
-					return TIMESTAMP;
-				}
+
+({letter}|_)({letter}|{digit}|_)* {
+  yylval->cstr = new std::string(yytext, yyleng);
+  return IDENTIFIER;
+}
 
 
-[0-9]{2}(":"[0-9]{2}){2}	{
-					yylval->cstr = new std::string(yytext, yyleng);
-					return TIMESTAMP;
-				}
+[0-9]{4}("-"[0-9]{2}){2}"T"[0-9]{2}(":"[0-9]{2}){2} {
+  yylval->cstr = new std::string(yytext, yyleng);
+  return TIMESTAMP;
+}
+
+
+[0-9]{4}("-"[0-9]{2}){2} {
+  yylval->cstr = new std::string(yytext, yyleng);
+  return TIMESTAMP;
+}
+
+
+[0-9]{2}(":"[0-9]{2}){2} {
+  yylval->cstr = new std::string(yytext, yyleng);
+  return TIMESTAMP;
+}
 
 
 

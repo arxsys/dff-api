@@ -43,6 +43,8 @@ public:
   EXPORT void			process(std::vector<Node*> nodes); 
   EXPORT void			process(uint64_t nodeid, bool recursive=true);
   EXPORT void			process(fso* fsobj);
+  EXPORT bool			match(Node* node);
+  EXPORT bool			match(uint64_t nodeId);
   EXPORT std::vector<Node*>	matchedNodes();
   enum EventTypes
     {

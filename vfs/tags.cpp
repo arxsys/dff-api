@@ -103,11 +103,18 @@ TagsManager::~TagsManager()
      delete (*tag);
 }
 
+  
 TagsManager&	TagsManager::get()
 {
   static TagsManager single;
   return (single);
 }
+
+
+void		TagsManager::Event(event* event)
+{
+}
+
 
 uint32_t        TagsManager::add(const std::string name, Color color)
 {
@@ -131,6 +138,10 @@ uint32_t 	TagsManager::add(const std::string name, uint8_t r, uint8_t g, uint8_t
  
     Tag* tag = new Tag(id, name, r, g, b); 
     this->__tagsList.push_back(tag);
+    event* e = new event;
+    e->type = 0x0003;
+    e->value = Variant_p(new Variant(name));
+    this->notify(e);
     return (id);
   }
   else
@@ -142,6 +153,10 @@ uint32_t 	TagsManager::add(const std::string name, uint8_t r, uint8_t g, uint8_t
       if (this->__tagsList[id] == NULL)
       {
         this->__tagsList[id] = new Tag(id + 1, name, r, g, b);
+	event* e = new event;
+	e->type = 0x0003;
+	e->value = Variant_p(new Variant(name));
+	this->notify(e);
 	return (id + 1);
       }
     }
@@ -157,6 +172,80 @@ uint32_t 	TagsManager::add(const std::string name)
 }
 
 
+bool		TagsManager::addNode(uint32_t tagId, uint64_t nodeUid)
+{
+  this->__nodes[tagId].push_back(nodeUid);
+  event* e = new event;
+  e->type = 0x0000;
+  e->value = Variant_p(new Variant(nodeUid));
+  this->notify(e);
+  return true;
+}
+
+
+bool		TagsManager::removeNode(uint32_t tagId, uint64_t nodeUid)
+{
+  this->__nodes[tagId].remove(nodeUid);
+  event* e = new event;
+  e->type = 0x0001;
+  e->value = Variant_p(new Variant(nodeUid));
+  this->notify(e);
+  return true;
+}
+
+
+uint64_t	TagsManager::nodesCount(const std::string name)
+{
+  Tag*		tag;
+  
+  try
+    {
+      tag = this->tag(name);
+      return this->nodesCount(tag->id());
+    }
+  catch (envError e)
+    {
+      return 0;
+    }  
+}
+
+
+uint64_t	TagsManager::nodesCount(uint32_t tagId)
+{
+  std::map<uint32_t, std::list<uint64_t> >::const_iterator	it;
+
+  if ((it = this->__nodes.find(tagId)) != this->__nodes.end())
+    return it->second.size();
+  return 0;
+}
+
+
+std::list<uint64_t>	TagsManager::nodes(const std::string name)
+{
+  Tag*			tag;
+  
+  try
+    {
+      tag = this->tag(name);
+      return this->nodes(tag->id());
+    }
+  catch (envError e)
+    {
+      return std::list<uint64_t>();
+    }
+}
+
+
+std::list<uint64_t>	TagsManager::nodes(uint32_t tagId)
+{
+  std::map<uint32_t, std::list<uint64_t> >::const_iterator	it;
+
+  if ((it = this->__nodes.find(tagId)) != this->__nodes.end())
+    return it->second;
+  return std::list<uint64_t>();
+}
+
+  
 void            TagsManager::__removeNodesTag(uint32_t id, Node* node)
 {
   node->removeTag(id);
@@ -189,6 +278,10 @@ bool		TagsManager::remove(uint32_t id)
       {
         delete this->__tagsList[id - 1];
         this->__tagsList[id - 1] = NULL;
+	event* e = new event;
+	e->type = 0x0004;
+	e->value = Variant_p(new Variant(t->name()));
+	this->notify(e);
         return (true);
       }
       else

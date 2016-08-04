@@ -159,6 +159,23 @@ class TaskManager():
       self.ppModules = ModulesConfig()
       self.ppAnalyses = ModulesConfig()
 
+    def addPostProcessingModule(self, module):
+       self.ppModules.add(module)
+
+    def addPostProcessingModules(self, modules):
+      for module in modules:
+        self.ppModules.add(module)
+
+    def addPostProcessingAnalyse(self, analyse):
+       self.ppAnalyses.add(analyse)
+
+    def addPostProcessingAnalyses(self, analyses): #analySIS XXX
+      for analyse in analyses:
+        self.ppAnalyses.add(analyse) 
+
+    def join(self):
+      ppsched.join()
+
     def addAnalyseDependencies(self):
        requiered = set() 
        for moduleName in self.ppAnalyses:
@@ -522,15 +539,11 @@ class PostProcessScheduler():
           self.processusQueue.registerDisplay(self.display.processusItem, self.display.processusProgress)
           self.analyseQueue.registerDisplay(self.display.analyseItem, self.display.analyseProgress)
 	  self.fullAuto = True
-          self.pause = threading.Event() 
-          self.pause.set() #will not wait at start
-          #self.logger = DStructs().find('Log').newObject()
+          self.finishedEvent = threading.Event()
+          self.finishedEvent.clear()
 
-        def setPause(self, state = True): 
-           if state == True:
-             self.pause.clear()
-           else:
-             self.pause.set()
+        def join(self):
+          self.finishedEvent.wait()
 
         def fullAutoMode(self, mode):
 	   self.fullAuto = mode
@@ -600,6 +613,7 @@ class PostProcessScheduler():
 
         def launch(self):
 	  self.firstRoot = None
+          self.finishedEvent.clear()
 	  while True:
 	       root = self.registerQueue.get()
                self.pause.wait() #Use it a different place to pause and stop/clear queue
@@ -609,9 +623,9 @@ class PostProcessScheduler():
 	       if self.registerQueue.empty():
 		 self.scanAnalyse(root, self.firstRoot)
 		 self.displayState.updateState(False)
-		 self.taskManager.clearPostProcess() #clear here ? 
-		 self.firstRoot = None	    
-                 #log time to process ?   
+		 self.taskManager.clearPostProcess()
+		 self.firstRoot = None	      
+                 self.finishedEvent.set() 
      __instance = None
 	
      def __init__(self):

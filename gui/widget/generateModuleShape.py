@@ -75,7 +75,9 @@ class moduleShapeGenerator(QWidget, Ui_moduleGeneratorWidget):
         for arg in args:
             self.createArgument(arg)
 
-        self.listargs.item(0).setSelected(True)
+        firstItem = self.listargs.item(0)
+        if firstItem:
+          firstItem.setSelected(True)
         self.argsLayout.setStretchFactor(0, 1)
         self.argsLayout.setStretchFactor(1, 3)
 
@@ -127,7 +129,7 @@ class moduleShapeGenerator(QWidget, Ui_moduleGeneratorWidget):
                 warguments.addSingleArgument(arg.name(), predefs, arg.type(), editable)
         elif inputype == Argument.List:
             if arg.type() == typeId.Node:
-                warguments.addPathList(arg.name(), predefs, self.nodeSelected)
+                warguments.addPathList(arg.name(), predefs) #, self.nodeSelected)
             elif arg.type() == typeId.Path:
                 warguments.addPathList(arg.name(), predefs)
             else:
