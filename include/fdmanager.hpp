@@ -35,8 +35,9 @@
 namespace DFF
 {
 
-struct fdinfo
+class fdinfo
 {
+public:
   class Node*		node;
   class Variant*	id;
   uint64_t		offset;

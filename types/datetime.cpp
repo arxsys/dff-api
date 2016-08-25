@@ -16,6 +16,10 @@
 
 #include "datetime.hpp"
 
+#if _MSC_VER >= 1800
+#include <algorithm>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 
