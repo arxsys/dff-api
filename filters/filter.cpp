@@ -144,7 +144,7 @@ void			Filter::processFolder(Node* nodeptr)
 {
   uint64_t		nodescount;
   std::vector<Node*>	children;
-  size_t		i;
+  size_t		i = 0;
 
   this->__reset();
   if (this->__ctx->root != NULL)
