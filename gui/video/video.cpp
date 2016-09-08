@@ -23,6 +23,10 @@
 #include "video.hpp"
 #include <libavcodec/avcodec.h>
 
+#if _MSC_VER >= 1800
+#include <algorithm>
+#endif
+
 namespace DFF
 {
 
@@ -140,7 +144,7 @@ VideoDecoder::VideoDecoder(Node* node)
   }
 
   this->_initializeVideo();
-  this->_frame = avcodec_alloc_frame();
+  this->_frame = av_frame_alloc();
 }
 
 VideoDecoder::~VideoDecoder()
@@ -191,7 +195,7 @@ void	VideoDecoder::_clear(void)
   delete this->_file;
 }
 
-void VideoDecoder::_convertAndScaleFrame(PixelFormat format, int scaledSize, bool maintainAspectRatio, int& scaledWidth, int& scaledHeight)
+void VideoDecoder::_convertAndScaleFrame(AVPixelFormat format, int scaledSize, bool maintainAspectRatio, int& scaledWidth, int& scaledHeight)
 {
     this->_calculateDimensions(scaledSize, maintainAspectRatio, scaledWidth, scaledHeight);
 
@@ -288,9 +292,9 @@ void VideoDecoder::_calculateDimensions(int squareSize, bool maintainAspectRatio
     }
 }
 
-void VideoDecoder::_createAVFrame(AVFrame** pAvFrame, uint8_t** pFrameBuffer, int width, int height, PixelFormat format)
+void VideoDecoder::_createAVFrame(AVFrame** pAvFrame, uint8_t** pFrameBuffer, int width, int height, AVPixelFormat format)
 {
-    *pAvFrame = avcodec_alloc_frame();
+    *pAvFrame = av_frame_alloc();
 
     int numBytes = avpicture_get_size(format, width, height);
     *pFrameBuffer = reinterpret_cast<uint8_t*>(av_malloc(numBytes));
@@ -352,7 +356,7 @@ bool	VideoDecoder::_decodeVideoPacket()
    if (this->_packet->stream_index != this->_videoStream)
      return false;
 
-   avcodec_get_frame_defaults(this->_frame);
+   av_frame_unref(this->_frame);
 
    int frameFinished;
    int bytesDecoded = avcodec_decode_video2(this->_codecContext, this->_frame, &frameFinished, this->_packet);
@@ -440,11 +444,11 @@ Image_p		VideoDecoder::_thumbnail(int32_t scaledSize)
   int scaledHeight, scaledWidth;
   bool maintainAspectRatio = 0;
 
-  if (this->_frame->interlaced_frame)
-    avpicture_deinterlace((AVPicture*) this->_frame, (AVPicture*) this->_frame, this->_codecContext->pix_fmt, 
-			  this->_codecContext->width, this->_codecContext->height);
+  //if (this->_frame->interlaced_frame)
+  //  avpicture_deinterlace((AVPicture*) this->_frame, (AVPicture*) this->_frame, this->_codecContext->pix_fmt, 
+  //			  this->_codecContext->width, this->_codecContext->height);
 
-  this->_convertAndScaleFrame(PIX_FMT_RGB32, scaledSize, maintainAspectRatio, scaledWidth, scaledHeight);
+  this->_convertAndScaleFrame(AV_PIX_FMT_RGB32, scaledSize, maintainAspectRatio, scaledWidth, scaledHeight);
   Image_p	image(new Image(this->_frame->data[0], this->_frame->linesize[0] * scaledHeight, scaledWidth, scaledHeight));
 
   return (image);

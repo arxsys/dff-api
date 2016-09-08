@@ -13,3 +13,8 @@
 #  Solal Jacob <sja@digital-forensic.org>
 
 __all__ = ['video']
+
+import os
+
+if os.name == "nt":
+    os.environ['PATH'] = os.path.dirname(__file__) + ";" + os.environ['PATH']

@@ -91,9 +91,9 @@ private:
   bool			_decodeVideoPacket(void);
   bool			_getVideoPacket(void);
   void			_seek(int64_t seconds);
-  void			_convertAndScaleFrame(PixelFormat format, int scaledSize, bool maintainAspectRatio, int &scaledWidth, int &scaledHeight);
+  void			_convertAndScaleFrame(AVPixelFormat format, int scaledSize, bool maintainAspectRatio, int &scaledWidth, int &scaledHeight);
   void 			_calculateDimensions(int squareSize, bool maintainAspectRatio, int& destWidth, int& destHeight);
-  void 			_createAVFrame(AVFrame** pAvFrame, uint8_t** pFrameBuffer, int width, int height, PixelFormat format);
+  void 			_createAVFrame(AVFrame** pAvFrame, uint8_t** pFrameBuffer, int width, int height, AVPixelFormat format);
   Image_p		_thumbnail(int32_t scale = 64);
 public:
   EXPORT 			VideoDecoder(Node* node);

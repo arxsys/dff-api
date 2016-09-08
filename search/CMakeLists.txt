@@ -12,19 +12,15 @@
 # Author(s):
 #  Frederic Baguelin <fba@digital-forensic.org>
 
-set(search_files __init__.py)
-
-if (TRE_FOUND)
+if (LIBTRE_FOUND)
   if(WIN32)
-    file(COPY ${TRE_DYN_LIBRARIES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    set(search_files ${search_files} tre.dll)
+    file(COPY ${LIBTRE_RUNTIME_LIBRARY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
   endif(WIN32)
-  set(link_libraries ${TRE_LIBRARY})
-endif (TRE_FOUND)
+endif (LIBTRE_FOUND)
 
 dff_cpp_api(search
   CPP_FILES search.cpp boyer_moore.cpp
   SWIG_FILE libsearch.i
-  LINK_LIBRARIES ${link_libraries}
-  EXTRA_FILES ${search_files}
+  LINK_LIBRARIES ${LIBTRE_LIBRARY}
+  EXTRA_FILES ${LIBTRE_RUNTIME_LIBRARY} __init__.py
   )
