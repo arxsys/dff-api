@@ -15,6 +15,7 @@
 
 from dff.api.vfs.vfs import vfs
 import apsw
+import os
 
 class apswVFS(apsw.VFS):
   def __init__(self, vfsname="dff-vfs", basevfs=""):
@@ -24,8 +25,7 @@ class apswVFS(apsw.VFS):
     apsw.VFS.__init__(self, self.vfsname, self.basevfs)
 
   def xAccess(self, pathname, flags):
-    if pathname[0:2] == "C:":
-       pathname = pathname[2:]
+    drive, pathname = os.path.splitdrive(pathname)
     pathname = pathname.replace('\\', '/')
     if pathname.rfind('-wal') != -1:
        pathname = pathname[0:pathname.rfind('-wal')]
@@ -38,9 +38,8 @@ class apswVFS(apsw.VFS):
     try:
       if isinstance(name, apsw.URIFilename):
          name = str(name.filename())
-         if name[0:2] == "C:":
-           name = name[2:]
-         name = name.replace('\\', '/')
+         drive, path = os.path.splitdrive(name)
+         name = path.replace('\\', '/')
     except AttributeError:
 	pass
     if name.rfind('-wal') != -1:
@@ -61,11 +60,15 @@ class apswVFile(apsw.VFSFile):
 
   def xRead(self, size, offset):
     if self.vfile:
-      self.vfile.seek(offset)
+      if self.vfile.seek(offset) != offset:
+        raise Exception("apswVFile : Can't seek to offset " + str(offset) + " on : " + str(self.node.absolute()))
       buff = self.vfile.read(size)
+      if not len(buff):
+        
+        raise Exception("apswVFile : Can't read data of size " + str(size) + " at offset " + str(offset) + " on : " + str(self.node.absolute()))
       return buff
     else:
-      return ""
+      raise Exception("apswVFile: no VFile opened")
 
   def xWrite(self, buff, size):
     return 0
