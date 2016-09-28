@@ -35,7 +35,7 @@
 
 #include "fastsearch.hpp"
 #ifdef HAVE_TRE
-  #include <tre/tre.h>
+  #include "tre.h"
   #ifdef WIN32
      #undef HAVE_ALLOCA
      #undef HAVE_ALLOCA_H
