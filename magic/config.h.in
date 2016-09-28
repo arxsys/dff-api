@@ -2,6 +2,8 @@
 
 #cmakedefine HAVE_ASPRINTF 1
 
+#cmakedefine HAVE_SNPRINTF 1
+
 #cmakedefine HAVE_CTIME_R 1
 
 #cmakedefine HAVE_FMTCHECK 1

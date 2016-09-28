@@ -46,6 +46,8 @@ check_function_exists(strndup HAVE_STRNDUP)
 check_function_exists(strtof HAVE_STRTOF)
 check_function_exists(strtoul HAVE_STRTOUL)
 
+check_function_exists(snprintf HAVE_SNPRINTF)
+
 check_include_files(sys/mman.h HAVE_SYS_MMAN_H)
 check_include_files(unistd.h HAVE_UNISTD_H)
 
