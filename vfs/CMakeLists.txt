@@ -42,5 +42,5 @@ dff_cpp_api(vfs
   LINK_LIBRARIES datatype search exceptions types events ${LIBBFIO_LIBRARY}
   DEFINITIONS ${definitions}
   INCLUDE_DIRS ${LIBBFIO_INCLUDE_DIR}
-  EXTRA_FILES vfs.py __init__.py iodevice.py extract.py ${LIBBFIO_RUNTIME_LIBRARY}
+  EXTRA_FILES vfs.py __init__.py iodevice.py extract.py
   )

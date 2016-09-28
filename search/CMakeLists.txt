@@ -12,15 +12,9 @@
 # Author(s):
 #  Frederic Baguelin <fba@digital-forensic.org>
 
-if (LIBTRE_FOUND)
-  if(WIN32)
-    file(COPY ${LIBTRE_RUNTIME_LIBRARY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-  endif(WIN32)
-endif (LIBTRE_FOUND)
-
 dff_cpp_api(search
   CPP_FILES search.cpp boyer_moore.cpp
   SWIG_FILE libsearch.i
   LINK_LIBRARIES ${LIBTRE_LIBRARY}
-  EXTRA_FILES ${LIBTRE_RUNTIME_LIBRARY} __init__.py
+  EXTRA_FILES __init__.py
   )

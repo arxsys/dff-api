@@ -17,6 +17,6 @@ dff_cpp_api(video
   SWIG_FILE video.i
   INCLUDE_DIRS ${FFMPEG_INCLUDE_DIRS}
   LINK_LIBRARIES exceptions types vfs ${FFMPEG_LIBRARIES}
-  EXTRA_FILES __init__.py ${FFMPEG_RUNTIME_LIBRARIES}
+  EXTRA_FILES __init__.py
   NO_SWIG_LIB_PREFIX 1
   )
