@@ -38,10 +38,10 @@ class apswVFS(apsw.VFS):
     try:
       if isinstance(name, apsw.URIFilename):
          name = str(name.filename())
-         drive, path = os.path.splitdrive(name)
-         name = path.replace('\\', '/')
     except AttributeError:
-	pass
+      pass
+    drive, path = os.path.splitdrive(name)
+    name = path.replace('\\', '/')
     if name.rfind('-wal') != -1:
           name = name[0:name.rfind('-wal')]
     return apswVFile(self.basevfs, name, flags)
@@ -49,6 +49,7 @@ class apswVFS(apsw.VFS):
 
 class apswVFile(apsw.VFSFile):
   def __init__(self, inheritfromvfsname, filename, flags):
+    self.filename = filename
     self.vfile = None
     self.vfs = vfs()
     self.node = self.vfs.getnode(filename)
@@ -68,7 +69,7 @@ class apswVFile(apsw.VFSFile):
         raise Exception("apswVFile : Can't read data of size " + str(size) + " at offset " + str(offset) + " on : " + str(self.node.absolute()))
       return buff
     else:
-      raise Exception("apswVFile: no VFile opened")
+      raise Exception("apswVFile: no VFile opened on {}".format(self.filename))
 
   def xWrite(self, buff, size):
     return 0
