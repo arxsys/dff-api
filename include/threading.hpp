@@ -21,21 +21,67 @@
 #include <stdexcept>
 #include <map>
 #include <vector>
+#include <queue>
 #include "export.hpp"
 
+
 #ifdef WIN32
-  #define mutex_lock		EnterCriticalSection
-  #define mutex_unlock		LeaveCriticalSection
+  typedef HANDLE                ThreadStruct;
+  typedef DWORD                 ThreadResult;
+  typedef LPVOID                ThreadData;
+  #define createThread(function, data, threadStruct)\
+  threadStruct = CreateThread(NULL, 0, function, (ThreadData)data, 0, NULL);\
+  if (threadStruct == NULL)\
+    throw std::string("Error creating thread");
+  #define destroyThread(var)   CloseHandle(var)   
+  #define thread_join(var, res) WaitForSingleObject(var, INFINITE);\
+                               ExitCodeThread(var, &res)
+
+  #define cpu_count(var)       SYSTEM_INFO sysinfo;\
+                               GetSystemInfo(&sysinfo);\
+                               var = sysinfo.dwNumberOfProcessors;\
+                               }
+ 
   #define mutex_def(var)	CRITICAL_SECTION var
   #define mutex_init(var)  	InitializeCriticalSection(var)
-  #define mutex_destroy(var)	DeleteCriticalSection(var)	
+  #define mutex_destroy(var)	DeleteCriticalSection(var)
+  #define mutex_lock		EnterCriticalSection
+  #define mutex_unlock		LeaveCriticalSection
+
+  #define cond_def(var)		CONDITION_VARIABLE var
+  #define cond_init(var)        InitializeConditionVariable(var)
+  #define cond_destroy(var)		
+  #define cond_signal(var)      WakeConditionVariable(var)
+  //#define cond_wait(cond, mut)  pthread_testcancel(); SleepConditionVariableCS(cond, mut, INFINITE)
+  #define cond_wait(cond, mut)  SleepConditionVariableCS(cond, mut, INFINITE)
+  #define cond_broadcast(var)	WakeAllConditionVariable(var)
 #else
   #include <pthread.h>
-  #define mutex_lock 		pthread_mutex_lock
-  #define mutex_unlock 		pthread_mutex_unlock
+  #include <unistd.h>
+  typedef pthread_t             ThreadStruct;
+  typedef void*                 ThreadResult;
+  typedef void*                 ThreadData;
+  #define createThread(function, data, threadStruct)\
+  int result = pthread_create(&threadStruct, NULL, function, (void*)data);\
+  if (result)\
+    throw std::string("Error creating thread");
+  #define destroyThread(var)
+  #define thread_join(var, res) pthread_join(var, &res);
+
+  #define cpu_count(var)        var = sysconf(_SC_NPROCESSORS_ONLN);
+
   #define mutex_def(var)	pthread_mutex_t	var	
   #define mutex_init(var)	pthread_mutex_init(var, NULL)
   #define mutex_destroy(var)	pthread_mutex_destroy(var)
+  #define mutex_lock 		pthread_mutex_lock
+  #define mutex_unlock 		pthread_mutex_unlock
+
+  #define cond_def(var)		pthread_cond_t var
+  #define cond_init(var)        pthread_cond_init(var, NULL)
+  #define cond_destroy(var)	pthread_cond_destroy(var)
+  #define cond_signal(var)	pthread_cond_signal(var)
+  #define cond_wait(cond, mut)  pthread_cond_wait(cond, mut)
+  #define cond_broadcast(var)	pthread_cond_broadcast(var)
 #endif
 
 namespace DFF 
@@ -107,12 +153,12 @@ namespace DFF
       return internals;
     }
 
-	EXPORT void erase(key _k)
-	{
-	  ScopedMutex locker(__mutex);
-	  internals.erase(_k);
-	  return ;
-	}
+    EXPORT void erase(key _k)
+    {
+      ScopedMutex locker(__mutex);
+      internals.erase(_k);
+      return ;
+    }
 
   private:
     std::map< key, value >	internals;
@@ -163,6 +209,48 @@ namespace DFF
     mutable Mutex		__mutex;
     std::vector< value >	internals;
   };
+
+template <typename T> 
+class WorkQueue
+{ 
+public:
+  EXPORT WorkQueue() 
+  {
+     mutex_init(&this->__mutex);
+     cond_init(&this->__condv);
+  }
+
+  EXPORT ~WorkQueue() 
+  {
+    mutex_destroy(&this->__mutex);
+    cond_destroy(&this->__condv);
+  }
+
+  EXPORT void add(T item) 
+  {
+    mutex_lock(&this->__mutex);
+    this->__queue.push(item);
+    cond_signal(&this->__condv);
+    mutex_unlock(&this->__mutex);
+  }
+
+  EXPORT T remove() 
+  {
+    mutex_lock(&this->__mutex);
+    while (this->__queue.empty()) 
+      cond_wait(&this->__condv, &this->__mutex);
+    
+    T item = this->__queue.front();
+    this->__queue.pop();
+    mutex_unlock(&this->__mutex);
+    return item;
+  }
+private:
+  std::queue<T>         __queue;
+  mutex_def(__mutex);
+  cond_def(__condv);
+};
+
 }
 
 #endif
