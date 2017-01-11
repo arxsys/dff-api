@@ -774,7 +774,7 @@ Open the node and return a pointer to a VFile instance
 %typemap(out) DFF::pdata*
 {
   Py_XDECREF($result);
-  $result = PyString_FromStringAndSize((const char *)$1->buff, $1->len);
+  $result = PyUnicode_FromStringAndSize((const char *)$1->buff, $1->len);
   free($1->buff);
   delete $1;
 }
