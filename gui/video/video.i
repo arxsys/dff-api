@@ -68,7 +68,7 @@ If error occurs throw a std::string containing error message.
 
 %typemap(out) DFF::ImageData
 {
-  $result = PyString_FromStringAndSize((const char*)$1.buff, $1.size);
+  $result = PyUnicode_FromStringAndSize((const char*)$1.buff, $1.size);
 }
 
 %newobject      DFF::VideoDecoder::thumbnail;
